@@ -1,0 +1,19 @@
+{
+  "as_of": "2026-10-03",
+  "status": "Landing pages and metadata verified; raw files not included in this repository",
+  "datasets": [
+    {"id": "aso_depth", "provider": "NASA NSIDC", "doi": "10.5067/KIE9QNVG7HP0", "url": "https://nsidc.org/data/aso_3m_sd/versions/1", "role": "airborne snow-depth LiDAR 3 m", "access": "free Earthdata Login; cite the dataset", "event_labels": false},
+    {"id": "aso_bare_terrain", "provider": "NASA NSIDC", "doi": null, "url": "https://nsidc.org/data/aso_3m_pcdtm/versions/1", "role": "snow-free bare-earth baseline 3 m", "access": "free Earthdata Login", "event_labels": false},
+    {"id": "snowex20_gm_lidar", "provider": "NASA NSIDC", "doi": "10.5067/M9TPF6NWL53K", "url": "https://nsidc.org/data/snex20_gm_lidar/versions/1", "role": "Grand Mesa snow-on LiDAR 1 m", "access": "free Earthdata Login", "event_labels": false},
+    {"id": "snowex20_gm_fusion", "provider": "NASA NSIDC", "doi": "10.5067/LANQ53RTJ2DR", "url": "https://nsidc.org/data/snex20_gm_swe_sd/versions/1", "role": "derived snow density and SWE from LiDAR plus GPR", "access": "free Earthdata Login; derived outputs are not independent of input LiDAR", "event_labels": false},
+    {"id": "snowex20_bsu_gpr", "provider": "NASA NSIDC", "doi": null, "url": "https://nsidc.org/data/snex20_bsu_gpr/versions/1", "role": "ground GPR snow depth and SWE tracks", "access": "free Earthdata Login", "event_labels": false},
+    {"id": "snowex20_poles", "provider": "NASA NSIDC", "doi": null, "url": "https://nsidc.org/data/snex20_sd_tli/versions/1", "role": "29 camera snow-pole sites", "access": "free Earthdata Login", "event_labels": false},
+    {"id": "braemabuel_lidar", "provider": "WSL EnviDat", "doi": "10.16904/envidat.581", "url": "https://www.envidat.ch/metadata/snow-depth-mapping-by-lidar-station-braemabuel", "role": "LiDAR and optical release-zone snow monitoring", "access": "ZIP resources on metadata page; verify dataset-specific licence", "event_labels": false},
+    {"id": "dorfberg_glide_events", "provider": "WSL EnviDat", "doi": "10.16904/envidat.389", "url": "https://www.envidat.ch/metadata/glide-snow-avalanche-activity-on-dorfberg-davos", "role": "time-lapse glide-avalanche events and 10 SNOWPACK locations", "access": "resource links on metadata page; verify dataset-specific licence", "event_labels": true},
+    {"id": "avaframe_test_cases", "provider": "OpenNHM AvaFrame", "doi": null, "url": "https://docs.avaframe.org/en/latest/testing.html", "role": "real avalanche DEM/release/benchmark test cases", "access": "inspect per-case provenance and distribution rights", "event_labels": true},
+    {"id": "geodar", "provider": "SLF/Zenodo", "doi": "10.5281/zenodo.1042108", "url": "https://zenodo.org/records/1042108", "role": "moving avalanche radar front trajectories, 77 events", "access": "open record, 19.9 GB; verify rights", "event_labels": true},
+    {"id": "davos_pra", "provider": "WSL EnviDat", "doi": "10.16904/envidat.55", "url": "https://www.envidat.ch/metadata/automated-avalanche-release-area-pra-delineation-davos", "role": "reference release polygons and simulated RAMMS pressures", "access": "resources on metadata page; distinguish modelled from observed", "event_labels": false},
+    {"id": "era5", "provider": "ECMWF Copernicus", "doi": "10.24381/cds.adbb2d47", "url": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels", "role": "historical hourly meteorological forcing", "access": "CDS API account; CC-BY attribution; reanalysis not forecast", "event_labels": false},
+    {"id": "epa_clpa", "provider": "INRAE/ONF", "doi": null, "url": "https://www.avalanches.fr/donnees-publiques-epa/", "role": "French event chronicles; CLPA envelopes on adjacent public page", "access": "public PDF/maps, check reuse rights and event-level geometry", "event_labels": true}
+  ]
+}

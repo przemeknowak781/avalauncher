@@ -1,0 +1,12 @@
+[
+  {
+    "grid": {"site_id": "SYNTHETIC", "grid_id": "demo-3x2", "crs": "EPSG:32632", "cell_size_m": 1.0, "width": 3, "height": 2},
+    "scenario_id": "close-synthetic", "simulated_at": "2026-01-15T10:00:00Z", "model": "synthetic array, no physics",
+    "depth_m": [0.55, 0.72, 0.98, 1.18, 0.5, 0.84]
+  },
+  {
+    "grid": {"site_id": "SYNTHETIC", "grid_id": "demo-3x2", "crs": "EPSG:32632", "cell_size_m": 1.0, "width": 3, "height": 2},
+    "scenario_id": "far-synthetic", "simulated_at": "2026-01-15T10:00:00Z", "model": "synthetic array, no physics",
+    "depth_m": [1.0, 1.1, 1.5, 1.6, 0.5, 1.2]
+  }
+]

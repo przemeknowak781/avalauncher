@@ -1,0 +1,86 @@
+{
+ "crs": "EPSG:2180",
+ "e0": 570500,
+ "n0": 153500,
+ "cell_m": 10,
+ "width": 400,
+ "height": 400,
+ "elevation": "terrain_f32.bin",
+ "hillshade": "hillshade.png",
+ "hillshade_cell_m": 5,
+ "z_min": 1314.02001953125,
+ "z_max": 2299.26025390625,
+ "attribution": "Teren: GUGiK NMT",
+ "places": [
+  {
+   "name": "Kasprowy Wierch",
+   "cell": [
+    94.1,
+    198.3
+   ]
+  },
+  {
+   "name": "Beskid",
+   "cell": [
+    179.0,
+    233.9
+   ]
+  },
+  {
+   "name": "Liliowe",
+   "cell": [
+    221.0,
+    271.1
+   ]
+  },
+  {
+   "name": "Świnica",
+   "cell": [
+    294.6,
+    335.7
+   ]
+  },
+  {
+   "name": "Zawrat",
+   "cell": [
+    348.5,
+    332.8
+   ]
+  },
+  {
+   "name": "Kościelec",
+   "cell": [
+    333.0,
+    268.5
+   ]
+  },
+  {
+   "name": "Mały Kościelec",
+   "cell": [
+    287.4,
+    175.8
+   ]
+  },
+  {
+   "name": "Czarny Staw Gąsienicowy",
+   "cell": [
+    363.7,
+    219.2
+   ]
+  },
+  {
+   "name": "Kopa Magury",
+   "cell": [
+    167.9,
+    57.3
+   ]
+  },
+  {
+   "name": "Sucha Dolina",
+   "cell": [
+    146.3,
+    129.8
+   ]
+  }
+ ]
+}

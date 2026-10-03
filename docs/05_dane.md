@@ -1,0 +1,25 @@
+# Zbiory danych: gotowe źródła i plan połączenia
+
+**Weryfikacja stron dostawców: 3.10.2026.** W [katalogu JSON](../catalog/datasets.json) są identyfikatory, DOI, adresy dostępu, cel i ograniczenia. Sprawdzono strony i opisy zasobów; **nie pobrano plików źródłowych ani nie zbudowano jednego wspólnego zbioru uczącego**. Przed pobraniem zanotować aktualną licencję każdego zasobu, datę i SHA-256. Surowych danych nie dodawać do Git.
+
+| Priorytet | Zbiór | Co zawiera i do czego służy | Dostęp oraz luka |
+| --- | --- | --- | --- |
+| 1 | [NASA ASO, głębokość 3 m](https://nsidc.org/data/aso_3m_sd/versions/1), [DOI 10.5067/KIE9QNVG7HP0](https://doi.org/10.5067/KIE9QNVG7HP0) | Zimowy LiDAR, GeoTIFF, zachodnie USA; test mapy grubości. | Bezpłatne konto Earthdata i cytowanie. Nie zawiera etykiet zejść lawin. |
+| 1 | [NASA ASO, model terenu bez śniegu](https://nsidc.org/data/aso_3m_pcdtm/versions/1) | Bazowa wysokość gruntu 3 m dla produktów ASO. | Earthdata; sprawdzić nakładanie, daty i pionowy układ odniesienia. |
+| 1 | [SnowEx20 Grand Mesa LiDAR](https://nsidc.org/data/snex20_gm_lidar/versions/1), [DOI 10.5067/M9TPF6NWL53K](https://doi.org/10.5067/M9TPF6NWL53K) | Zimowy raster 1 m, 1–2.02.2020. | Earthdata. Test pomiaru, nie kalibracja lawin bez niezależnych etykiet. |
+| 1 | [SnowEx20 LiDAR + GPR](https://nsidc.org/data/snex20_gm_swe_sd/versions/1), [DOI 10.5067/LANQ53RTJ2DR](https://doi.org/10.5067/LANQ53RTJ2DR) | Pochodne rastry gęstości i równoważnika wodnego śniegu (SWE). | Earthdata; wynik wyprowadzono m.in. z LiDAR, więc nie jest od niego niezależną prawdą walidacyjną. |
+| 1 | [SnowEx20 GPR BSU](https://nsidc.org/data/snex20_bsu_gpr/versions/1), [GPR UNM](https://nsidc.org/data/snex20_unm_gpr/versions/1), [kamery tyczek](https://nsidc.org/data/snex20_sd_tli/versions/1) | Profile radaru i niezależne punktowe wysokości z 29 stanowisk kamery. | Earthdata; profile terenowe nie stanowią pełnej mapy z jednego przelotu. |
+| 1 | [Braemabüel LiDAR](https://www.envidat.ch/metadata/snow-depth-mapping-by-lidar-station-braemabuel), [DOI 10.16904/envidat.581](https://doi.org/10.16904/envidat.581) | Seria pomiarów LiDAR i optycznych pola startowego. | Pliki ZIP Braema1/2 na EnviDat; sprawdzić licencję rekordu. |
+| 1 | [Dorfberg, Davos](https://www.envidat.ch/metadata/glide-snow-avalanche-activity-on-dorfberg-davos), [DOI 10.16904/envidat.389](https://doi.org/10.16904/envidat.389) | Tabela lawin ślizgowych 2008/09–2021/22, szczeliny, pliki SNOWPACK `.pro` i `.smet` dla 10 punktów. | Osobny stok i typ zdarzenia niż Grand Mesa; brak automatycznie dopasowanej mapy zasięgu. |
+| 2 | [AvaFrame — przypadki rzeczywiste](https://docs.avaframe.org/en/latest/testing.html) oraz [źródła](https://docs.avaframe.org/en/latest/dataSources.html) | DEM, strefy uwolnienia i wzorce wyników do testów solvera. | Sprawdzić pochodzenie i prawo dalszej dystrybucji geometrii każdego przypadku. |
+| 2 | [GEODAR Vallée de la Sionne](https://zenodo.org/records/1042108), [DOI 10.5281/zenodo.1042108](https://doi.org/10.5281/zenodo.1042108) | Trajektorie czoła 77 lawin, 19,9 GB. | Radar **ruchu lawiny**, nie radar grubości nieruchomego śniegu. |
+| 2 | [Davos PRA](https://www.envidat.ch/metadata/automated-avalanche-release-area-pra-delineation-davos), [DOI 10.16904/envidat.55](https://doi.org/10.16904/envidat.55) | Referencyjne strefy startowe i symulowane ciśnienia RAMMS. | Wynik RAMMS nie jest zaobserwowanym zasięgiem. |
+| 2 | [ERA5 godzinowe](https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels), [DOI 10.24381/cds.adbb2d47](https://doi.org/10.24381/cds.adbb2d47) | Pogoda historyczna do odtworzenia sezonu. | Konto/API CDS, CC-BY. Reanaliza zna korekty po fakcie; osobno testować prognozę z danych dostępnych w danym dniu. |
+| 3 | [Francuski EPA](https://www.avalanches.fr/donnees-publiques-epa/) i [CLPA](https://www.avalanches.fr/donnees-publiques-clpa/) | Historia zdarzeń oraz obwiednie maksymalnych zasięgów. | Publiczne PDF/mapy; CLPA łączy wiele zdarzeń i nie jest obrysem pojedynczej lawiny. Zweryfikować ponowne użycie. |
+
+## Pierwsze spójne doświadczenia
+
+1. **Pomiar śniegu:** zestawić bazowy DTM Grand Mesa, zimowy LiDAR, profile GPR i tyczki. Część tyczek/profili odłożyć do niezależnego testu. Wynik: mapa `HS`, maska widoczności, rozkład błędu; brak etykiety lawiny.
+2. **Dynamika:** uruchomić wzorcowe przypadki AvaFrame, potem wybrać jeden stok, dla którego można połączyć czas zdarzenia, teren, pogodę, obszar uwolnienia i faktyczny zasięg/front. Dane Dorfberg albo GEODAR są kandydatami, lecz dopasowanie wymaga sprawdzenia współrzędnych, czasu i praw użycia. Nie skleić rekordów z innych dolin tylko dlatego, że każdy opisuje lawinę.
+
+Manifest każdego surowego pliku: DOI, źródło, licencja, UTC pozyskania, SHA-256, miejsce i zdarzenie, zakres czasu, poziomy/pionowy CRS, rozdzielczość, czujnik, historia przetwarzania, maska i model niepewności. [Meehan i in., *The Cryosphere* 2024, §4.3](https://doi.org/10.5194/tc-18-3253-2024) opisują przesunięcia 1–5 m między LiDAR a GPR: rejestracja jest osobnym eksperymentem, nie szczegółem technicznym.

@@ -1,0 +1,68 @@
+{
+ "mornings": 30,
+ "weather_source": "IMGW-PIB Kasprowy Wierch, 2024-12-23 – 2025-01-21 (kierunek wiatru założony)",
+ "slopes": 48,
+ "sector_mornings": 1440,
+ "threatening": 144,
+ "flights_cancelled": 15,
+ "misses": {
+  "avalauncher": 0,
+  "baseline_3d": 121
+ },
+ "false_alarms": {
+  "avalauncher": 0,
+  "baseline_3d": 25
+ },
+ "unknown_flags": 549,
+ "unknown_split": {
+  "drone_flew": 44,
+  "flight_cancelled": 505,
+  "on_not_threatening": 431
+ },
+ "model_error_flips": 44,
+ "model_error_flips_note": "ile razy błąd modelu zmienia prawdę (zagraża / nie zagraża) względem biblioteki",
+ "flight_test": {
+  "mornings": 30,
+  "budget_min": 20,
+  "unknown_before": 683,
+  "threatening": 144,
+  "unknowns_resolved": {
+   "plan": 86,
+   "fixed_route": 71
+  },
+  "threatening_flagged_after": {
+   "plan": 29,
+   "fixed_route": 16
+  },
+  "slopes_measured": {
+   "plan": 201,
+   "fixed_route": 210
+  },
+  "fixed_route": [
+   "S51",
+   "S14",
+   "S10",
+   "S64",
+   "S55",
+   "S69",
+   "S35"
+  ]
+ },
+ "unknowns_resolved": {
+  "plan": 86,
+  "fixed_route": 71
+ },
+ "uncertainty_drop": {
+  "plan": 23,
+  "fixed_route": 7,
+  "unit": "% niepewności decyzji po przelocie 20 min"
+ },
+ "model_error": "prawda: jedna kalibracja tarcia na poranek i błąd grubości ±15–25% plus szum; silnik o nich nie wie",
+ "baseline": "suma nowego śniegu z 3 dni ≥ 30 cm: flaga na wszystkich stokach nad szlakami",
+ "fixed_route_rule": "patrol wzdłuż niebieskiego szlaku Murowaniec – Czarny Staw – Zawrat, potem najbliższe stoki",
+ "library": {
+  "runs": 1566,
+  "sectors": 48
+ },
+ "note": "dane syntetyczne, test logiki"
+}

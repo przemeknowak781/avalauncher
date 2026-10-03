@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Avalauncher</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cpath d=%27M2 27 L12 9 L17 17 L21 12 L30 27 Z%27 fill=%27%23fff%27 stroke=%27%231d3f7a%27 stroke-width=%272%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2727%27 cy=%276%27 r=%274%27 fill=%27%23d6007e%27/%3E%3C/svg%3E">
+  <script>
+    try {
+      if (sessionStorage.getItem("xp.splash") || matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("nosplash");
+    } catch (e) {}
+  </script>
+  <link rel="preload" href="vendor/fonts/Archivo-var.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="xp/xp.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Icon sprite: every icon is drawn here by hand, no external images. -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="g-rock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9cbe4"/><stop offset=".55" stop-color="#6f8db8"/><stop offset="1" stop-color="#3f5f8f"/></linearGradient>
+      <linearGradient id="g-grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9be15d"/><stop offset="1" stop-color="#2f8f1f"/></linearGradient>
+      <linearGradient id="g-warn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff4a8"/><stop offset=".45" stop-color="#ffd52e"/><stop offset="1" stop-color="#e8a300"/></linearGradient>
+      <radialGradient id="g-blue" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#bfe0ff"/><stop offset=".45" stop-color="#3b8cf0"/><stop offset="1" stop-color="#0b3f9e"/></radialGradient>
+      <radialGradient id="g-violet" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#e2d9ff"/><stop offset=".45" stop-color="#7a5ef0"/><stop offset="1" stop-color="#3a239a"/></radialGradient>
+      <radialGradient id="g-green" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#d9ffc9"/><stop offset=".45" stop-color="#4cc33a"/><stop offset="1" stop-color="#1d7a16"/></radialGradient>
+      <radialGradient id="g-orange" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffd9b8"/><stop offset=".5" stop-color="#f07a2a"/><stop offset="1" stop-color="#a8420a"/></radialGradient>
+      <linearGradient id="g-folder" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset=".5" stop-color="#ffd665"/><stop offset="1" stop-color="#e8a83a"/></linearGradient>
+      <linearGradient id="g-folder-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c95a"/><stop offset="1" stop-color="#d39226"/></linearGradient>
+      <linearGradient id="g-screen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d4ecff"/><stop offset=".5" stop-color="#4f9be8"/><stop offset="1" stop-color="#1c56b0"/></linearGradient>
+      <linearGradient id="g-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#cfd5dd"/><stop offset="1" stop-color="#8d97a5"/></linearGradient>
+      <linearGradient id="g-paper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dfe6f0"/></linearGradient>
+      <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a6fe0"/><stop offset="1" stop-color="#bfe0ff"/></linearGradient>
+      <linearGradient id="g-power" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb08a"/><stop offset=".5" stop-color="#e2531c"/><stop offset="1" stop-color="#b3330a"/></linearGradient>
+      <linearGradient id="g-key" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1a0"/><stop offset=".5" stop-color="#f2be22"/><stop offset="1" stop-color="#c98e05"/></linearGradient>
+      <linearGradient id="g-book1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3b6fd8"/><stop offset="1" stop-color="#7fa8f5"/></linearGradient>
+      <linearGradient id="g-book2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2f9a2a"/><stop offset="1" stop-color="#84d66d"/></linearGradient>
+      <linearGradient id="g-book3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c25a10"/><stop offset="1" stop-color="#f3a052"/></linearGradient>
+      <pattern id="p-hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#fbd6bd"/><rect width="2" height="5" fill="#e8590c"/></pattern>
+    </defs>
+
+    <symbol id="i-logo" viewBox="0 0 32 32">
+      <path d="M2 27 L12 9 L17 17 L21 12 L30 27 Z" fill="#fff" stroke="#1d3f7a" stroke-width="1.4" stroke-linejoin="round"/>
+      <path d="M2 27 L12 9 L14.6 13.6 L12.4 12.6 L10.2 15.4 L8.4 14.2 Z" fill="#cfe0f5"/>
+      <path d="M4 7 C 11 2.5, 21 2.5, 27 6" fill="none" stroke="#d6007e" stroke-width="2.2" stroke-dasharray="3 2.2" stroke-linecap="round"/>
+      <circle cx="27.5" cy="6.4" r="2.6" fill="#d6007e" stroke="#fff" stroke-width="1"/>
+    </symbol>
+
+    <symbol id="i-mountain" viewBox="0 0 32 32">
+      <path d="M1.5 27.5 L11.5 8.5 L16.5 16 L20.5 10.5 L30.5 27.5 Z" fill="url(#g-rock)" stroke="#2c4870" stroke-width="1.1" stroke-linejoin="round"/>
+      <path d="M11.5 8.5 L15 15.2 L13 14 L11.2 16 L9.4 14.1 L8.3 14.6 Z" fill="#fff"/>
+      <path d="M20.5 10.5 L23.6 15.6 L21.9 14.8 L20.4 16.2 L18.9 14.9 L18 15.3 Z" fill="#fff"/>
+      <path d="M1.5 27.5 C 7 23, 12 24.5, 17 23 C 22 21.5, 27 23.5, 30.5 27.5 Z" fill="url(#g-grass)" stroke="#2a6f18" stroke-width=".8"/>
+    </symbol>
+
+    <symbol id="i-drone" viewBox="0 0 32 32">
+      <path d="M8 8 L24 24 M24 8 L8 24" stroke="#3a4350" stroke-width="2.6" stroke-linecap="round"/>
+      <g fill="url(#g-metal)" stroke="#3a4350" stroke-width="1">
+        <ellipse cx="7" cy="7" rx="6" ry="2.4"/><ellipse cx="25" cy="7" rx="6" ry="2.4"/>
+        <ellipse cx="7" cy="25" rx="6" ry="2.4"/><ellipse cx="25" cy="25" rx="6" ry="2.4"/>
+      </g>
+      <rect x="11" y="12" width="10" height="8" rx="3" fill="url(#g-metal)" stroke="#3a4350" stroke-width="1.1"/>
+      <circle cx="16" cy="16" r="2" fill="#d6007e"/>
+    </symbol>
+
+    <symbol id="i-warn" viewBox="0 0 32 32">
+      <path d="M16 2.5 C17 2.5 17.7 3.1 18.2 4 L30.1 25.8 C31 27.5 30.1 29.5 28.1 29.5 L3.9 29.5 C1.9 29.5 1 27.5 1.9 25.8 L13.8 4 C14.3 3.1 15 2.5 16 2.5 Z" fill="url(#g-warn)" stroke="#9a6a00" stroke-width="1.1"/>
+      <path d="M14.1 10.5 h3.8 l-.8 10 h-2.2 Z" fill="#1d1b17"/>
+      <circle cx="16" cy="24.2" r="2.1" fill="#1d1b17"/>
+      <path d="M4.6 25.2 L14.6 6.5" stroke="#fff" stroke-opacity=".7" stroke-width="1.3" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="i-question" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="14" fill="url(#g-violet)" stroke="#2a1877" stroke-width="1"/>
+      <ellipse cx="13" cy="9" rx="8" ry="4.5" fill="#fff" opacity=".35"/>
+      <path d="M11.4 12.2 C11.4 8.9 13.6 7.4 16.2 7.4 C19.2 7.4 21 9.3 21 11.8 C21 14.4 19 15.3 17.8 16.2 C17 16.8 16.9 17.4 16.9 18.6 L14.6 18.6 C14.5 16.6 15 15.6 16.3 14.6 C17.5 13.7 18.4 13.1 18.4 11.9 C18.4 10.6 17.5 9.8 16.1 9.8 C14.6 9.8 13.9 10.8 13.9 12.2 Z" fill="#fff"/>
+      <circle cx="15.8" cy="22.4" r="1.9" fill="#fff"/>
+    </symbol>
+
+    <symbol id="i-info" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="14" fill="url(#g-blue)" stroke="#0a3080" stroke-width="1"/>
+      <ellipse cx="13" cy="9" rx="8" ry="4.5" fill="#fff" opacity=".35"/>
+      <circle cx="16" cy="9.6" r="2.2" fill="#fff"/>
+      <path d="M13 13.4 h4.8 v8.8 h1.8 v2.4 h-6.6 v-2.4 h1.8 v-6.4 h-1.8 Z" fill="#fff"/>
+    </symbol>
+
+    <symbol id="i-folder" viewBox="0 0 32 32">
+      <path d="M2.5 8 h9 l3 3 h14.5 a1.5 1.5 0 0 1 1.5 1.5 V26 a1.5 1.5 0 0 1 -1.5 1.5 H4 A1.5 1.5 0 0 1 2.5 26 Z" fill="url(#g-folder-back)" stroke="#a87410" stroke-width="1"/>
+      <path d="M5.5 14.5 h25 l-2.4 13 H2.8 Z" fill="url(#g-folder)" stroke="#b9821a" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M6.5 15.8 h22.5" stroke="#fff" stroke-opacity=".8"/>
+    </symbol>
+
+    <symbol id="i-report" viewBox="0 0 32 32">
+      <path d="M6 2.5 h14 l6 6 V29.5 H6 Z" fill="url(#g-paper)" stroke="#5d6f8f" stroke-width="1"/>
+      <path d="M20 2.5 v6 h6" fill="#c8d4e6" stroke="#5d6f8f" stroke-width="1"/>
+      <path d="M9.5 12 h10 M9.5 15 h13" stroke="#8796b0" stroke-width="1.4"/>
+      <rect x="10" y="22" width="3" height="5" fill="#e8590c"/><rect x="14.5" y="19" width="3" height="8" fill="#5b3fd1"/><rect x="19" y="21" width="3" height="6" fill="#2a9d3c"/>
+    </symbol>
+
+    <symbol id="i-list" viewBox="0 0 32 32">
+      <rect x="2.5" y="4.5" width="27" height="23" rx="2" fill="#fff" stroke="#3d5f9a" stroke-width="1"/>
+      <rect x="3" y="5" width="26" height="4.5" fill="url(#g-screen)"/>
+      <path d="M3 9.5 h26" stroke="#3d5f9a"/>
+      <circle cx="7" cy="14" r="2" fill="#e8590c"/><circle cx="7" cy="19" r="2" fill="#e8590c"/><circle cx="7" cy="24" r="2" fill="#5b3fd1"/>
+      <path d="M11 14 h15 M11 19 h12 M11 24 h14" stroke="#7c8aa6" stroke-width="1.6"/>
+    </symbol>
+
+    <symbol id="i-plan" viewBox="0 0 32 32">
+      <path d="M2.5 7 L11 4 L21 7 L29.5 4 V25 L21 28 L11 25 L2.5 28 Z" fill="#fbf3dc" stroke="#7d6a45" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M11 4 V25 M21 7 V28" stroke="#cdbb91" stroke-width="1"/>
+      <path d="M6 22 C 9 14, 14 18, 17 12 S 25 10, 26 9" fill="none" stroke="#d6007e" stroke-width="2" stroke-dasharray="3 2" stroke-linecap="round"/>
+      <circle cx="6" cy="22" r="2.4" fill="#d6007e" stroke="#fff" stroke-width=".8"/>
+    </symbol>
+
+    <symbol id="i-trail" viewBox="0 0 32 32">
+      <rect x="4" y="4" width="24" height="24" rx="3" fill="#fff" stroke="#8a8a8a" stroke-width="1"/>
+      <rect x="4.5" y="12.5" width="23" height="7" fill="#d62828"/>
+      <path d="M5 6 h22" stroke="#fff" stroke-width="1"/>
+      <rect x="4" y="4" width="24" height="24" rx="3" fill="none" stroke="#6e6e6e" stroke-width="1"/>
+    </symbol>
+
+    <symbol id="i-sectors" viewBox="0 0 32 32">
+      <path d="M3 26 L10 6 L20 9 L29 24 L16 29 Z" fill="url(#p-hatch)" stroke="#a63b00" stroke-width="1.4" stroke-linejoin="round"/>
+      <path d="M10 6 L13 13 M20 9 L17 15" stroke="#a63b00" stroke-width=".9" opacity=".6"/>
+    </symbol>
+
+    <symbol id="i-library" viewBox="0 0 32 32">
+      <rect x="4" y="5" width="6" height="23" rx="1" fill="url(#g-book1)" stroke="#1d3f8a"/>
+      <rect x="11" y="3" width="6" height="25" rx="1" fill="url(#g-book2)" stroke="#155a12"/>
+      <rect x="18.5" y="7" width="6" height="21" rx="1" fill="url(#g-book3)" stroke="#7a3206" transform="rotate(-12 21.5 17.5)"/>
+      <path d="M5.5 9 h3 M12.5 7 h3 M5.5 24 h3 M12.5 24 h3" stroke="#fff" stroke-opacity=".8"/>
+      <path d="M2 28.5 h28" stroke="#5a5244" stroke-width="1.4"/>
+    </symbol>
+
+    <symbol id="i-user" viewBox="0 0 48 48">
+      <rect x="1" y="1" width="46" height="46" rx="5" fill="url(#g-sky)"/>
+      <circle cx="35" cy="13" r="4.5" fill="#fff6c8"/>
+      <path d="M1 40 L15 14 L22 25 L28 17 L47 40 V47 H1 Z" fill="#7a92b8"/>
+      <path d="M15 14 L19.6 21.6 L17 20.4 L14.6 22.6 L12.4 20.4 Z M28 17 L32 23 L29.8 22 L28 23.6 L26 22.2 Z" fill="#fff"/>
+      <path d="M1 41 C 12 35, 22 38, 32 35 C 39 33, 44 36, 47 38 V47 H1 Z" fill="#4fae2c"/>
+      <path d="M8 6 C 18 1, 30 2, 40 8" fill="none" stroke="#d6007e" stroke-width="1.8" stroke-dasharray="3 2"/>
+      <rect x="1" y="1" width="46" height="46" rx="5" fill="none" stroke="#fff" stroke-width="2"/>
+    </symbol>
+
+    <symbol id="i-power" viewBox="0 0 32 32">
+      <rect x="2" y="2" width="28" height="28" rx="5" fill="url(#g-power)" stroke="#8a2804"/>
+      <path d="M11 9.6 A8 8 0 1 0 21 9.6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
+      <path d="M16 6 V15.5" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="i-logoff" viewBox="0 0 32 32">
+      <rect x="2" y="2" width="28" height="28" rx="5" fill="url(#g-key)" stroke="#8a6205"/>
+      <path d="M9 7 h9 v18 h-9 Z" fill="#fff" opacity=".9"/>
+      <path d="M15 16 h10 M21.5 12 L25.5 16 L21.5 20" fill="none" stroke="#7a4f00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="i-arrow" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="13" fill="url(#g-green)" stroke="#16630f"/>
+      <path d="M10 16 h11 M16.5 10.5 L22 16 L16.5 21.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="i-desktop" viewBox="0 0 32 32">
+      <rect x="3" y="4" width="26" height="18" rx="2" fill="#2d4f86" stroke="#1a2f55"/>
+      <rect x="5" y="6" width="22" height="14" fill="url(#g-sky)"/>
+      <path d="M5 20 C 10 14, 16 15, 27 17 V20 Z" fill="#4fae2c"/>
+      <path d="M12 22 h8 l1.5 5 h-11 Z" fill="#9aa6b8" stroke="#5c6778"/>
+    </symbol>
+
+    <symbol id="i-clock" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="13.5" fill="url(#g-blue)" stroke="#0a3080"/>
+      <circle cx="16" cy="16" r="10.5" fill="#fff"/>
+      <path d="M16 9 V16 L21 19" fill="none" stroke="#1d1b17" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="i-network" viewBox="0 0 16 16">
+      <rect x=".5" y="1" width="8.5" height="6.5" rx="1" fill="url(#g-screen)" stroke="#173a72"/>
+      <rect x="7" y="6.5" width="8.5" height="6.5" rx="1" fill="url(#g-screen)" stroke="#173a72"/>
+      <path d="M4.7 7.5 V10 H7 M11.2 13 V15 M9 15.2 h4.5" fill="none" stroke="#173a72" stroke-width="1"/>
+    </symbol>
+
+    <symbol id="i-badge-ok" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="7" fill="url(#g-green)" stroke="#fff" stroke-width="1.2"/>
+      <path d="M4.6 8.2 L7 10.6 L11.4 5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="i-badge-warn" viewBox="0 0 16 16">
+      <path d="M8 1 L15.2 14.5 H.8 Z" fill="url(#g-warn)" stroke="#8a5d00" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M8 5.5 V10" stroke="#1d1b17" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="12.4" r="1" fill="#1d1b17"/>
+    </symbol>
+
+    <symbol id="i-min" viewBox="0 0 12 12"><rect x="2" y="8" width="6" height="2.2" fill="#fff"/></symbol>
+    <symbol id="i-max" viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="2" y="2" width="8" height="2.4" fill="#fff"/></symbol>
+    <symbol id="i-restore" viewBox="0 0 12 12"><rect x="4" y="1.5" width="6.5" height="6" fill="none" stroke="#fff" stroke-width="1.2"/><rect x="1.5" y="4.5" width="6.5" height="6" fill="#2562d6" stroke="#fff" stroke-width="1.2"/><rect x="1.5" y="4.5" width="6.5" height="1.8" fill="#fff"/></symbol>
+    <symbol id="i-close" viewBox="0 0 12 12"><path d="M2.5 2.5 L9.5 9.5 M9.5 2.5 L2.5 9.5" stroke="#fff" stroke-width="2" stroke-linecap="square"/></symbol>
+  </svg>
+
+  <!-- ===================== desktop ===================== -->
+  <div id="screen">
+    <main id="desktop" aria-label="Pulpit Avalauncher">
+      <svg class="wallpaper" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="wp-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1c54c4"/><stop offset=".3" stop-color="#3a7fe2"/><stop offset=".62" stop-color="#86bdf3"/><stop offset=".8" stop-color="#c4e1fb"/>
+          </linearGradient>
+          <linearGradient id="wp-ridge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ea7cf"/><stop offset="1" stop-color="#b9cde8"/></linearGradient>
+          <linearGradient id="wp-ridge2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f8cbb"/><stop offset="1" stop-color="#a3bcdf"/></linearGradient>
+          <linearGradient id="wp-hill" x1="0" y1="0" x2=".25" y2="1">
+            <stop offset="0" stop-color="#93e04a"/><stop offset=".35" stop-color="#5fbf2a"/><stop offset=".75" stop-color="#3a9418"/><stop offset="1" stop-color="#26700e"/>
+          </linearGradient>
+          <linearGradient id="wp-hill2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6cc934"/><stop offset="1" stop-color="#2c7c12"/></linearGradient>
+          <radialGradient id="wp-shine" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e9ff9c" stop-opacity=".55"/><stop offset="1" stop-color="#e9ff9c" stop-opacity="0"/></radialGradient>
+          <filter id="wp-blur-l" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="22"/></filter>
+          <filter id="wp-blur-s" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="7"/></filter>
+          <filter id="wp-haze"><feGaussianBlur stdDeviation="1.2"/></filter>
+        </defs>
+        <rect width="1600" height="1000" fill="url(#wp-sky)"/>
+        <g fill="#fff" filter="url(#wp-blur-l)" opacity=".75">
+          <ellipse cx="260" cy="170" rx="230" ry="60"/><ellipse cx="760" cy="110" rx="300" ry="55"/>
+          <ellipse cx="1290" cy="210" rx="260" ry="70"/><ellipse cx="1050" cy="340" rx="200" ry="40"/>
+          <ellipse cx="420" cy="360" rx="180" ry="36"/>
+        </g>
+        <g fill="#fff" filter="url(#wp-blur-s)" opacity=".85">
+          <ellipse cx="220" cy="180" rx="120" ry="30"/><ellipse cx="320" cy="160" rx="90" ry="34"/>
+          <ellipse cx="740" cy="120" rx="150" ry="26"/><ellipse cx="850" cy="102" rx="90" ry="28"/>
+          <ellipse cx="1260" cy="220" rx="140" ry="34"/><ellipse cx="1360" cy="196" rx="90" ry="36"/>
+          <ellipse cx="1050" cy="345" rx="110" ry="18"/>
+        </g>
+        <!-- distant Tatra ridge with snow -->
+        <g filter="url(#wp-haze)">
+          <path d="M0 640 L60 610 L110 622 L170 560 L215 590 L270 520 L320 548 L360 505 L410 560 L470 530 L520 575 L600 600 L640 585 L700 610 L760 560 L800 575 L850 500 L900 470 L935 505 L980 450 L1030 498 L1070 480 L1120 530 L1180 512 L1240 556 L1300 540 L1360 580 L1420 548 L1480 590 L1540 570 L1600 600 L1600 760 L0 760 Z" fill="url(#wp-ridge)" opacity=".9"/>
+          <path d="M270 520 L292 532 L300 548 L284 542 L272 556 L258 540 Z M360 505 L376 522 L366 520 L358 532 L348 518 Z M900 470 L920 488 L906 486 L896 500 L884 486 Z M980 450 L1004 474 L990 470 L980 486 L966 470 Z M1070 480 L1090 496 L1076 494 L1066 506 Z M850 500 L866 514 L852 514 L842 526 L834 514 Z" fill="#fff" opacity=".95"/>
+          <path d="M0 690 L90 650 L160 668 L240 632 L330 666 L420 640 L520 676 L640 650 L760 672 L880 630 L990 660 L1100 636 L1220 668 L1340 640 L1460 668 L1600 640 L1600 780 L0 780 Z" fill="url(#wp-ridge2)" opacity=".75"/>
+        </g>
+        <!-- rolling hills -->
+        <path d="M0 760 C 220 690, 420 650, 640 680 C 860 712, 1080 770, 1600 740 L1600 1000 L0 1000 Z" fill="url(#wp-hill2)"/>
+        <path d="M0 700 C 160 640, 360 585, 600 600 C 860 618, 1050 700, 1280 760 C 1420 795, 1520 800, 1600 796 L1600 1000 L0 1000 Z" fill="url(#wp-hill)"/>
+        <ellipse cx="520" cy="660" rx="420" ry="90" fill="url(#wp-shine)"/>
+        <path d="M0 880 C 300 830, 700 850, 1000 900 C 1250 940, 1450 930, 1600 900 L1600 1000 L0 1000 Z" fill="#2a7a10" opacity=".35"/>
+      </svg>
+
+      <ul class="desk-icons" aria-label="Ikony pulpitu">
+        <li><button class="desk-icon" data-open="w-map"><svg><use href="#i-plan"/></svg><span>Mapa</span></button></li>
+        <li><button class="desk-icon" data-open="w-sit"><svg><use href="#i-report"/></svg><span>Sytuacja</span></button></li>
+        <li><button class="desk-icon" data-open="w-sec"><svg><use href="#i-list"/></svg><span>Sektory do uwagi</span></button></li>
+        <li><button class="desk-icon" data-open="w-plan"><svg><use href="#i-drone"/></svg><span>Plan przelotu</span></button></li>
+        <li><button class="desk-icon" data-action="library"><svg><use href="#i-library"/></svg><span>Biblioteka scenariuszy</span></button></li>
+      </ul>
+
+      <div class="watermark" aria-label="Zastrzeżenia">
+        <strong>Brak flagi nie oznacza, że jest bezpiecznie. Decyzję podejmuje prognosta.</strong>
+        <span>Śnieg, przeloty i pogoda w scenariuszu to dane syntetyczne.</span>
+        <span>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap</span>
+      </div>
+
+      <!-- Mapa -->
+      <section class="window" id="w-map" data-title="Mapa — Hala Gąsienicowa" data-icon="i-plan" aria-label="Mapa: Hala Gąsienicowa, Kasprowy Wierch, Świnica">
+        <div class="title-bar">
+          <svg class="title-icon"><use href="#i-plan"/></svg>
+          <span class="title-text">Mapa — Hala Gąsienicowa</span>
+          <div class="title-controls"><button class="tb-min" aria-label="Minimalizuj"></button><button class="tb-max" aria-label="Maksymalizuj"></button><button class="tb-close" aria-label="Zamknij"></button></div>
+        </div>
+        <nav class="menubar" aria-label="Menu mapy">
+          <div class="menu"><button class="menu-head">Plik</button>
+            <div class="menu-pop">
+              <button data-action="layout">Przywróć układ okien</button>
+              <hr>
+              <button data-action="shutdown">Wyłącz komputer…</button>
+            </div>
+          </div>
+          <div class="menu"><button class="menu-head">Widok</button>
+            <div class="menu-pop">
+              <button data-action="max-map">Mapa na cały ekran</button>
+              <button data-action="show-desktop">Pokaż pulpit</button>
+            </div>
+          </div>
+          <div class="menu"><button class="menu-head">Dzień</button>
+            <div class="menu-pop">
+              <button data-action="day1" class="check-day" data-day="0">Dzień 1 · przelot wykonany</button>
+              <button data-action="day2" class="check-day" data-day="1">Dzień 2 · śnieżyca</button>
+            </div>
+          </div>
+          <div class="menu"><button class="menu-head">Przelot</button>
+            <div class="menu-pop">
+              <button data-action="fly">Wykonaj przelot</button>
+              <button data-open="w-plan">Plan przelotu…</button>
+            </div>
+          </div>
+          <div class="menu"><button class="menu-head">Pomoc</button>
+            <div class="menu-pop"><button data-action="about">O projekcie Avalauncher</button></div>
+          </div>
+        </nav>
+        <div class="window-body map-body">
+          <div class="map-wrap">
+            <canvas id="map"></canvas>
+            <div id="tooltip" class="tooltip" hidden></div>
+          </div>
+          <div class="legend">
+            <span><i class="sw hatch"></i>Może zagrozić szlakowi</span>
+            <span><i class="sw fog"></i>Nie wiem</span>
+            <span><i class="sw idle"></i>Strefa startowa</span>
+            <span><i class="sw route"></i>Plan przelotu</span>
+          </div>
+        </div>
+        <div class="status-bar">
+          <p class="status-field scale"><i class="bar"></i>500 m</p>
+          <p class="status-field grow">Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap</p>
+          <p class="status-field">Dane syntetyczne</p>
+        </div>
+      </section>
+
+      <!-- Sytuacja -->
+      <section class="window" id="w-sit" data-title="Sytuacja" data-icon="i-report">
+        <div class="title-bar">
+          <svg class="title-icon"><use href="#i-report"/></svg>
+          <span class="title-text">Sytuacja</span>
+          <div class="title-controls"><button class="tb-min" aria-label="Minimalizuj"></button><button class="tb-max" aria-label="Maksymalizuj"></button><button class="tb-close" aria-label="Zamknij"></button></div>
+        </div>
+        <div class="window-body sit-body">
+          <div class="tabs" role="tablist" aria-label="Poranek">
+            <button class="tab day" data-day="0" role="tab"></button>
+            <button class="tab day" data-day="1" role="tab"></button>
+          </div>
+          <div class="tab-panel xp-scroll" role="tabpanel">
+            <div class="sit-head">
+              <p class="summary" id="summary" aria-live="polite"></p>
+              <span class="stamp" id="stamp"></span>
+            </div>
+            <div class="kpis" id="kpis"></div>
+            <fieldset class="group sources-group">
+              <legend>Źródła danych</legend>
+              <div class="sources" id="sources"></div>
+            </fieldset>
+            <p class="facts" id="library"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sektory do uwagi -->
+      <section class="window" id="w-sec" data-title="Sektory do uwagi" data-icon="i-list">
+        <div class="title-bar">
+          <svg class="title-icon"><use href="#i-list"/></svg>
+          <span class="title-text">Sektory do uwagi</span>
+          <div class="title-controls"><button class="tb-min" aria-label="Minimalizuj"></button><button class="tb-max" aria-label="Maksymalizuj"></button><button class="tb-close" aria-label="Zamknij"></button></div>
+        </div>
+        <div class="window-body sec-body">
+          <div class="listview">
+            <table class="sectors">
+              <thead><tr><th class="c-n"></th><th>Sektor</th><th>Typ</th><th class="num">ΔHS</th><th class="num">σ</th><th class="num">Pomiar</th><th>Szlak</th></tr></thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+          <p class="why" id="why"></p>
+        </div>
+        <div class="status-bar">
+          <p class="status-field" id="sec-count"></p>
+          <p class="status-field grow"><b>Brak flagi nie oznacza, że jest bezpiecznie.</b> Decyzję podejmuje prognosta.</p>
+        </div>
+      </section>
+
+      <!-- Plan przelotu -->
+      <section class="window" id="w-plan" data-title="Plan przelotu" data-icon="i-drone">
+        <div class="title-bar">
+          <svg class="title-icon"><use href="#i-drone"/></svg>
+          <span class="title-text">Plan przelotu</span>
+          <div class="title-controls"><button class="tb-min" aria-label="Minimalizuj"></button><button class="tb-max" aria-label="Maksymalizuj"></button><button class="tb-close" aria-label="Zamknij"></button></div>
+        </div>
+        <div class="window-body plan-body">
+          <div class="plan-left">
+            <fieldset class="group">
+              <legend>Czas lotu: <output id="budget-out" for="budget">20 min</output></legend>
+              <div class="trackbar">
+                <input id="budget" type="range" min="10" max="40" step="5" value="20" aria-label="Czas lotu w minutach">
+                <div class="ticks" aria-hidden="true"><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span><span>35</span><span>40</span></div>
+              </div>
+            </fieldset>
+            <button id="fly" class="xp-btn fly default" type="button"></button>
+          </div>
+          <div class="plan-right">
+            <div class="plan-kpis" id="plan-kpis"></div>
+            <fieldset class="group route-group">
+              <legend>Trasa drona</legend>
+              <ol class="route" id="route"></ol>
+            </fieldset>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===================== taskbar ===================== -->
+    <footer class="taskbar">
+      <button class="start-btn" id="start-btn" aria-haspopup="menu" aria-expanded="false"><svg><use href="#i-logo"/></svg><span>start</span></button>
+      <div class="quick-launch" aria-label="Szybkie uruchamianie">
+        <button data-action="show-desktop" title="Pokaż pulpit"><svg><use href="#i-desktop"/></svg></button>
+        <button data-open="w-map" title="Mapa — Hala Gąsienicowa"><svg><use href="#i-plan"/></svg></button>
+        <button data-action="fly" title="Wykonaj przelot"><svg><use href="#i-drone"/></svg></button>
+      </div>
+      <div class="task-buttons" id="task-buttons"></div>
+      <div class="tray">
+        <button class="tray-icon" id="tray-drone" data-action="tray-drone"><svg class="main"><use href="#i-drone"/></svg><svg class="badge"><use href="#i-badge-ok"/></svg></button>
+        <button class="tray-icon" id="tray-net" data-action="tray-net"><svg class="main"><use href="#i-network"/></svg><svg class="badge"><use href="#i-badge-warn"/></svg></button>
+        <time class="clock" id="clock"></time>
+      </div>
+    </footer>
+
+    <!-- ===================== start menu ===================== -->
+    <div class="start-menu" id="start-menu" role="menu" hidden>
+      <header class="sm-head"><svg class="sm-user"><use href="#i-user"/></svg><b>Prognosta dyżurny</b></header>
+      <div class="sm-cols">
+        <div class="sm-left">
+          <button data-action="day1" class="sm-item big check-day" data-day="0"><svg><use href="#i-mountain"/></svg><span><b>Dzień 1</b><small>Przelot wykonany</small></span></button>
+          <button data-action="day2" class="sm-item big check-day" data-day="1"><svg><use href="#i-badge-warn"/></svg><span><b>Dzień 2</b><small>Śnieżyca, przelot odwołany</small></span></button>
+          <hr>
+          <button data-action="fly" class="sm-item big"><svg><use href="#i-drone"/></svg><span><b>Wykonaj przelot</b><small>Dron czyści mgłę niewiedzy</small></span></button>
+          <button data-action="about" class="sm-item big"><svg><use href="#i-info"/></svg><span><b>O projekcie</b><small>Avalauncher · HackYeah 2026</small></span></button>
+          <div class="sm-spacer"></div>
+          <hr>
+          <button data-action="layout" class="sm-item all"><span>Przywróć układ okien</span><svg><use href="#i-arrow"/></svg></button>
+        </div>
+        <div class="sm-right">
+          <button data-action="zones" class="sm-item"><svg><use href="#i-sectors"/></svg><b>Moje strefy startowe</b></button>
+          <button data-action="trails" class="sm-item"><svg><use href="#i-trail"/></svg><b>Szlaki</b></button>
+          <button data-action="library" class="sm-item"><svg><use href="#i-library"/></svg><b>Biblioteka scenariuszy</b></button>
+          <hr>
+          <button data-open="w-map" class="sm-item"><svg><use href="#i-plan"/></svg>Mapa</button>
+          <button data-open="w-sit" class="sm-item"><svg><use href="#i-report"/></svg>Sytuacja</button>
+          <button data-open="w-sec" class="sm-item"><svg><use href="#i-list"/></svg>Sektory do uwagi</button>
+          <button data-open="w-plan" class="sm-item"><svg><use href="#i-folder"/></svg>Plan przelotu</button>
+          <hr>
+          <button data-action="tray-net" class="sm-item"><svg><use href="#i-network"/></svg>Stacja IMGW Kasprowy Wierch</button>
+        </div>
+      </div>
+      <footer class="sm-foot">
+        <button data-action="logoff"><svg><use href="#i-logoff"/></svg>Wyloguj</button>
+        <button data-action="shutdown"><svg><use href="#i-power"/></svg>Wyłącz komputer</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ===================== welcome splash ===================== -->
+  <div id="splash" aria-hidden="true">
+    <div class="sp-top"></div>
+    <div class="sp-mid">
+      <div class="sp-brand"><svg><use href="#i-logo"/></svg><div><b>Avalauncher</b><span>Cyfrowy bliźniak góry</span></div></div>
+      <div class="sp-divider"></div>
+      <div class="sp-welcome">witaj</div>
+    </div>
+    <div class="sp-bottom"><span>Wczytywanie ustawień osobistych…</span></div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
