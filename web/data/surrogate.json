@@ -1,0 +1,34 @@
+{
+ "model": "U-Net 6 poziomów (32-320 kanałów), wejście 256x256 komórek po 10 m, PyTorch bf16",
+ "trained_on_runs": 1215,
+ "train_sectors": 45,
+ "held_out_sectors": [
+  "S14",
+  "S22",
+  "S31"
+ ],
+ "held_out_runs": 81,
+ "excluded_sectors": [
+  "S09",
+  "S49",
+  "S50",
+  "S53",
+  "S55",
+  "S56",
+  "S59",
+  "S64",
+  "S69",
+  "S71"
+ ],
+ "iou_mean": 0.805,
+ "iou_by_sector": {
+  "S14": 0.832,
+  "S22": 0.719,
+  "S31": 0.863
+ },
+ "iou_definition": "IoU zasięgu pft > 0,1 m na siatce 400x400, stoki wyłączone z treningu",
+ "ms_per_map_gpu": 2.3,
+ "ms_per_map_gpu_film": 3.26,
+ "s_per_run_avaframe": 10.43,
+ "note": "Dowód koncepcji: U-Net wytrenowany na 1215 przebiegach AvaFrame com1DFA (DGX Spark, GPU GB10). Stoki testowe i stoki, których lawiny wchodzą na ich teren, wyłączone z treningu. Przybliża mapę maksymalnej grubości przepływu dla zadanej strefy startowej, grubości płyty i wariantu tarcia; nie zastępuje AvaFrame. Czas AvaFrame: mediana na symulację, 1 rdzeń CPU; czas surogatu: jedna mapa 256x256 na GPU."
+}
