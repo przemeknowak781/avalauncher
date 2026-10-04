@@ -18,3 +18,9 @@ Pełny plan, kontrakt danych i podział pracy: [docs/09_plan_budowy.md](docs/09_
 - Nie zmieniaj `docs/00`–`docs/08` ani `src/avalauncher/`.
 - Surowe dane trafiają do `data/raw/` (poza Git). Nie commituj sekretów ani plików powyżej 15 MB.
 - Małe commity na `main`, przed pushem `git pull --rebase`.
+
+## Prezentacja i film (decyzja użytkownika, 4.10.2026, ok. 02:40)
+
+- **Nie eksportuj decku do PDF**, dopóki projekt graficzny decku nie jest zatwierdzony (powstanie w docs/16_design_decku.md). Wolno najwyżej szkic HTML w deck/.
+- **Nie montuj finalnego filmu demo.** Scenariusz filmu: docs/15_wideo.md (fikcyjna rozmowa wideo z ratownikiem, potem pokaz ekranu). Nagrywaj tylko surowe ujęcia ekranu pod ten scenariusz, opisane numerami scen.
+- Postać ratownika jest fikcyjna; nie używamy nazwy ani logo TOPR, Skype ani Microsoft jako sugestii partnerstwa.
