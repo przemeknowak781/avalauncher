@@ -3,7 +3,7 @@
 HackYeah 2026, zadanie Defence. Termin zgłoszenia: 4.10.2026, 11:00. Zamrożenie funkcji: 02:30.
 
 **Teza, której służy każda linijka kodu:**
-Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z tysiącami scenariuszy lawin policzonych z góry, których uczy się sieć neuronowa i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom. Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.
+Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z tysiącami scenariuszy lawin policzonych z góry, których uczy się sieć neuronowa, i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom. Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.
 
 Pełny plan, kontrakt danych i podział pracy: [docs/09_plan_budowy.md](docs/09_plan_budowy.md). Przeczytaj go przed pierwszą zmianą.
 
