@@ -1,47 +1,37 @@
-# Real data in Avalauncher: sources and licences
+# Prawdziwe dane w demo
 
-What on screen is real, and what is still a scenario.
+`python tools/real/build_kasprowy.py` czyta archiwum IMGW-PIB i zapisuje `web/data/kasprowy_2024_25.json`
+(seria dobowa 1.10.2024–31.05.2025, epizody burzowe, poranki demo).
 
-| Layer | Source | Status | Licence / attribution |
+| Warstwa | Źródło | Status w demo | Licencja / atrybucja |
 |---|---|---|---|
-| Terrain (slopes, release zones, AvaFrame DEM) | GUGiK NMT, 5 m grid resampled to 10 m (`data/raw/nmt_gasienicowa_5m.tif`) | real | GUGiK open data, free reuse (Prawo geodezyjne i kartograficzne art. 40a); "Teren: GUGiK NMT" |
-| Orthophoto (3D render texture) | GUGiK orthophoto (`data/raw/ortho_*.jpg`) | real, summer image; the snow on it is synthetic | GUGiK open data; "Ortofoto: GUGiK" |
-| Hiking trails | OpenStreetMap (`data/raw/osm_hiking.json`) | real | ODbL; "© współtwórcy OpenStreetMap" |
-| Weather, winter 2024/25 | IMGW-PIB daily synop archive, station Kasprowy Wierch 349190650, 1987 m (`data/raw/kasprowy_2024.zip`, `kasprowy_2025.zip`) | real | IMGW-PIB public data, reuse allowed with source credit: "Źródło: IMGW-PIB" |
-| Weather, live | IMGW-PIB API `danepubliczne.imgw.pl/api/data/synop/station/kasprowywierch` | real, live | as above |
-| Avalanche library | AvaFrame com1DFA runs on the DGX Spark (`web/data/scenarios.json`, `scenario_cells.bin`, `library_heat.bin`) | computed from the real terrain | AvaFrame is EUPL-1.2 |
-| Slab thickness on slopes, drone passes and readings | `tools/build_days.mjs` | synthetic | none |
+| Teren | GUGiK NMT (`data/raw/nmt_gasienicowa_5m.tif`, siatka 10 m w aplikacji) | prawdziwe | dane GUGiK udostępniane bezpłatnie (podstawę prawną do sprawdzenia przed publikacją); „Teren: GUGiK NMT” |
+| Ortofoto | GUGiK ortofotomapa (`data/raw/ortho_*.jpg`) | prawdziwe, tylko w renderach 3D | jw.; „Ortofoto: GUGiK” |
+| Szlaki | OpenStreetMap (`data/raw/osm_hiking.json`) | prawdziwe | ODbL; „© współtwórcy OpenStreetMap” |
+| Pogoda, archiwum | IMGW-PIB, dane publiczne, dobowe synop `s_d`, stacja Kasprowy Wierch 349190650, 1987 m (`data/raw/kasprowy_2024.zip`, `kasprowy_2025.zip`) | prawdziwe | „Źródło: IMGW-PIB”; dane z danepubliczne.imgw.pl, wolno je przetwarzać z podaniem źródła; przetworzenie jest nasze, nie IMGW |
+| Pogoda, na żywo | IMGW-PIB API `danepubliczne.imgw.pl/api/data/synop/station/kasprowywierch` | prawdziwe, poza scenariuszem demo | jw. |
+| Biblioteka lawin | AvaFrame com1DFA 2.1 (EUPL-1.2) policzone na DGX Spark: `web/data/scenarios.json`, `scenario_cells.bin`, `library_heat.bin` | wynik symulacji na prawdziwym terenie | AvaFrame: EUPL-1.2 |
+| Grubość płyty na stokach, przeloty drona | `web/data/days.json` | syntetyczne | podpisane na ekranie |
 
-## `build_kasprowy.py`
+## Jak czytamy IMGW `s_d` (opis kolumn: `s_d_format.txt`)
 
-`python tools/real/build_kasprowy.py` reads the two IMGW zips (cp1250 CSV, no header; columns per
-[`s_d_format.txt`](https://danepubliczne.imgw.pl/data/dane_pomiarowo_obserwacyjne/dane_meteorologiczne/dobowe/synop/s_d_format.txt))
-and writes `web/data/kasprowy_2024_25.json`: one record per day from 1 Oct 2024 to 31 May 2025.
+- Pliki CSV bez nagłówka, kodowanie cp1250. Status `8` = brak pomiaru (zapisujemy `null`), status `9` = brak zjawiska (zapisujemy `0`).
+- `hs_cm` = PKSN, poranny pomiar pokrywy (06 UTC). `new_cm` = dodatni przyrost PKSN względem poprzedniego ranka: przybliżenie świeżego śniegu, zaniżone przez osiadanie i wywiewanie.
+- `swe_mm` = PKSN × RWSN (RWSN to mm wody na cm śniegu). `precip_mm` = SMDB z rodzajem ROOP (S śnieg, W deszcz); przyrost PKSN rano dnia D to głównie opad doby D−1.
+- Zamieć: ZMNI (niska) i ZMWS (wysoka), godziny; `blowing_h` = większa z nich. Wiatr: FF10 i FF15, godziny z wiatrem ≥10 i >15 m/s.
 
-- `hs_cm` PKSN snow depth (morning 06 UTC reading), `new_cm` = positive day-to-day rise of PKSN,
-  `swe_mm` = PKSN × RWSN (RWSN is water equivalent in mm per cm of snow, not a total),
-  `precip_mm`/`precip_type` SMDB/ROOP, `snowfall_h` SNEG, `blowing_low_h`/`blowing_high_h` ZMNI/ZMWS,
-  `wind10_h`/`wind15_h` FF10/FF15 (hours with wind ≥10 / >15 m/s), `tmin_c`/`tmax_c`/`tmean_c`.
-- IMGW status "9" (phenomenon did not occur) becomes 0, status "8" (no measurement) becomes null.
-  The winter has no missing rows or status-8 values in these fields.
-- Episodes are the three largest non-overlapping 3-day sums of `new_cm` with blowing snow in the window.
-  `demo_days` are the two demo mornings: the day before and the morning of the biggest snow rise of
-  the top episode.
+## Luki, powiedziane wprost
 
-Storm episodes found:
+- W serii październik–maj nie ma brakujących pomiarów PKSN, SNEG, ZMWS ani opadu.
+- Brak średniej prędkości i kierunku wiatru dla zimy 2024/25: plik `s_d_t` w archiwum 2024 kończy się 30.06.2024, archiwum 2025 go nie ma (sprawdzone na serwerze IMGW 4.10.2026). Kierunek wiatru pokazujemy tylko z odczytu na żywo.
+- Kasprowy Wierch to wywiewana kopuła szczytowa: pokrywa na stacji jest niższa niż w nawiewanych żlebach. Stacja mówi, kiedy padało i wiało, a nie ile śniegu leży na danym stoku. Tę lukę w demo wypełnia scenariusz syntetyczny płyty.
 
-| Window | New snow (3 days) | Blowing snow | Precipitation | Snow depth |
+## Epizody burzowe (3 dni przyrostu PKSN z zamiecią, bez nakładania)
+
+| Okno | Przyrost | Zamieć | Opad | Pokrywa |
 |---|---|---|---|---|
-| 28–30 Nov 2024 | +29 cm | 40 h | 32.5 mm | 1 → 30 cm |
-| 11–13 Jan 2025 | +34 cm | 72 h | 43.5 mm | 51 → 85 cm (demo days 12 and 13 Jan) |
-| 6–8 Apr 2025 | +30 cm | 72 h | 39.1 mm | 65 → 95 cm |
+| 28–30.11.2024 | +29 cm | 40 h | 32,5 mm | 1 → 30 cm |
+| 11–13.01.2025 | +34 cm | 72 h | 43,5 mm | 51 → 85 cm |
+| 6–8.04.2025 | +30 cm | 72 h | 39,1 mm | 65 → 95 cm |
 
-## Known gaps
-
-- There is no daily mean wind speed or direction for the 2024/25 winter. The `s_d_t` file in the 2024
-  archive ends on 2024-06-30, and the 2025 archive (local and on the IMGW server) has no `s_d_t` file.
-  FF10/FF15 hours stand in for wind. Only the live reading has wind direction.
-- `new_cm` underestimates snowfall: settling and wind scouring at the summit offset some of the rise.
-  Kasprowy Wierch is a wind-exposed dome, so gullies get more snow than the station records.
-- The rise read on the morning of day D is mostly snow from precipitation day D−1 (IMGW precipitation
-  days run 06–06 UTC). For example, 25.1 mm on 12 Jan was followed by +20 cm on the morning of 13 Jan.
+Poranki demo (`demo_days`): 12.01.2025 (dzień 1, przelot wykonany) i 13.01.2025 (dzień 2: +20 cm w dobę, zamieć wysoka 24 h, przelot odwołany).

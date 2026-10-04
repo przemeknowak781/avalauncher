@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Avalauncher: o projekcie</title>
+  <meta name="description" content="Cyfrowy bliźniak góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć. HackYeah 2026, zadanie Defence.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cpath d=%27M2 27 L12 9 L17 17 L21 12 L30 27 Z%27 fill=%27%23fff%27 stroke=%27%231d3f7a%27 stroke-width=%272%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2727%27 cy=%276%27 r=%274%27 fill=%27%23d6007e%27/%3E%3C/svg%3E">
+  <link rel="preload" href="vendor/fonts/Archivo-var.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="projekt.css">
+</head>
+<body>
+  <!-- Shared drawing parts: hazard hatching, fog of unknowing, logo. All icons are hand-drawn SVG. -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <defs>
+      <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="6" height="6" fill="#fbd6bd"/><rect width="2.2" height="6" fill="#e8590c"/>
+      </pattern>
+      <filter id="fog" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <marker id="head-ink" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M1 1 L9 5 L1 9" fill="none" stroke="#1d1b17" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+      <marker id="head-route" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M1 1 L9 5 L1 9" fill="none" stroke="#d6007e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+    <symbol id="logo" viewBox="0 0 32 32">
+      <path d="M2 27 L12 9 L17 17 L21 12 L30 27 Z" fill="#fbf8f1" stroke="#1d1b17" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M12 9 L14.8 14 L13 13.2 L11.4 15 L9.8 13.6 L8.6 14.3 Z" fill="#fff" stroke="#1d1b17" stroke-width=".8" stroke-linejoin="round"/>
+      <path d="M3.5 7.5 C 10 3, 20 3, 26 6.2" fill="none" stroke="#d6007e" stroke-width="2" stroke-dasharray="3 2.2" stroke-linecap="round"/>
+      <circle cx="27.4" cy="6.6" r="2.7" fill="#d6007e" stroke="#fbf8f1" stroke-width="1"/>
+    </symbol>
+    <symbol id="i-map" viewBox="0 0 24 24">
+      <path d="M3 6.5 L9 4 L15 6.5 L21 4 V17.5 L15 20 L9 17.5 L3 20 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M9 4 V17.5 M15 6.5 V20" fill="none" stroke="currentColor" stroke-width="2"/>
+    </symbol>
+    <symbol id="i-snow" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M12 2.5 V21.5 M3.8 7.25 L20.2 16.75 M3.8 16.75 L20.2 7.25"/>
+        <path d="M9.5 4 L12 6 L14.5 4 M9.5 20 L12 18 L14.5 20"/>
+      </g>
+    </symbol>
+    <symbol id="i-stack" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+        <path d="M12 3 L21 7.5 L12 12 L3 7.5 Z"/><path d="M3 12 L12 16.5 L21 12"/><path d="M3 16.5 L12 21 L21 16.5"/>
+      </g>
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24">
+      <path d="M5 12 H18 M13 7 L18 12 L13 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </svg>
+
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="#top" aria-label="Avalauncher, początek strony"><svg aria-hidden="true"><use href="#logo"/></svg>Avalauncher</a>
+      <nav class="topnav" aria-label="Sekcje">
+        <a href="#jak">Jak to działa</a>
+        <a href="#wyniki">Wyniki</a>
+        <a href="#filmy">Filmy</a>
+        <a href="#prawda">Prawdziwe a symulowane</a>
+        <a href="#dane">Dane i licencje</a>
+      </nav>
+      <span class="event">HackYeah 2026 · zadanie Defence</span>
+      <a class="btn small primary" href="index.html">Otwórz demo</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ================= HERO ================= -->
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-text">
+          <h1>Cyfrowy bliźniak góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć.</h1>
+          <p class="thesis"><strong>Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z ponad 1500 policzonymi z góry scenariuszami lawin i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom.</strong> Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.</p>
+          <div class="cta">
+            <a class="btn primary" href="index.html"><svg aria-hidden="true"><use href="#i-map"/></svg>Otwórz demo</a>
+            <a class="btn storm" href="index.html?day=2"><svg aria-hidden="true"><use href="#i-snow"/></svg>Otwórz demo: śnieżyca</a>
+            <a class="btn" href="biblioteka.html"><svg aria-hidden="true"><use href="#i-stack"/></svg>Biblioteka scenariuszy</a>
+          </div>
+          <p class="note">Demo działa w przeglądarce, także bez sieci. Teren: GUGiK NMT. Pogoda: IMGW-PIB (prawdziwa). Grubość płyty i przeloty: syntetyczne.</p>
+        </div>
+        <figure class="hero-fig">
+          <img src="media/landing/hero_koncepcja_1280.jpg"
+               srcset="media/landing/hero_koncepcja_1280.jpg 1280w, media/landing/hero_koncepcja_2400.jpg 2400w"
+               sizes="(max-width: 1100px) 100vw, 58vw" width="2400" height="1350" fetchpriority="high"
+               alt="Teren Hali Gąsienicowej w 3D: dwa stoki zakreskowane na pomarańczowo jako mogące zagrozić szlakowi, sektory pod białą mgłą z fioletowym obrysem jako „nie wiem” i magentowa trasa przelotu drona z bazy przy Murowańcu.">
+          <figcaption>
+            <b>Dzień 2, 13.01.2025, 7:00: śnieżyca, przelot odwołany.</b> Wynik silnika demo na 1566 symulacjach AvaFrame, teren GUGiK NMT, stan śniegu syntetyczny.<br>
+            <span class="key"><i class="k-haz"></i>może zagrozić szlakowi</span><span class="key"><i class="k-unk"></i>nie wiem</span><span class="key"><i class="k-route"></i>plan przelotu</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= HOW IT WORKS ================= -->
+    <section class="block alt" id="jak">
+      <div class="wrap">
+        <h2>Jak to działa</h2>
+        <p class="lead">Trzy kroki, które dyżurny służby lawinowej widzi rano na jednym ekranie. Scenariusze są policzone z góry, więc odpowiedź jest natychmiastowa i nie potrzebuje sieci.</p>
+
+        <ol class="flow">
+          <li class="step">
+            <div class="ill">
+              <svg viewBox="0 0 320 180" role="img" aria-labelledby="ill1">
+                <title id="ill1">Dron przelatuje nad stokiem i mierzy śnieg w strefie startowej nad szlakiem</title>
+                <path d="M0 180 V128 L58 84 L92 104 L150 34 L208 92 L246 74 L320 120 V180 Z" fill="#ebe4d4" stroke="#5a5244" stroke-width="1.5" stroke-linejoin="round"/>
+                <g fill="none" stroke="rgba(29,27,23,.16)" stroke-width="1">
+                  <path d="M0 146 C 50 124, 100 118, 150 70 C 190 110, 250 98, 320 134"/>
+                  <path d="M0 162 C 60 146, 110 140, 150 108 C 200 136, 260 124, 320 150"/>
+                </g>
+                <path d="M150 34 L167 51 L160 49 L154 55 L147 49 L141 53 L136 51 Z" fill="#fff" stroke="#5a5244" stroke-width="1" stroke-linejoin="round"/>
+                <path d="M164 58 L198 82 L190 101 L160 88 Z" fill="rgba(255,255,255,.7)" stroke="#1d1b17" stroke-width="1.4" stroke-dasharray="4 3" stroke-linejoin="round"/>
+                <path d="M0 160 C 60 150, 110 166, 170 150 S 270 140, 320 150" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round"/>
+                <path d="M0 160 C 60 150, 110 166, 170 150 S 270 140, 320 150" fill="none" stroke="#1f5fbf" stroke-width="3.5" stroke-linecap="round"/>
+                <path d="M200 32 L160 74 L200 96 Z" fill="rgba(214,0,126,.12)" stroke="rgba(214,0,126,.55)" stroke-width="1" stroke-dasharray="3 3"/>
+                <path stroke-dasharray="7 6" d="M8 44 C 70 12, 140 34, 200 26 S 290 18, 314 40" fill="none" stroke="#d6007e" stroke-width="2.4" stroke-linecap="round"/>
+                <g transform="translate(200 26)">
+                  <path d="M-11 -7 L11 7 M11 -7 L-11 7" stroke="#1d1b17" stroke-width="2.2" stroke-linecap="round"/>
+                  <g fill="#fbf8f1" stroke="#1d1b17" stroke-width="1.2">
+                    <ellipse cx="-11" cy="-7" rx="6.5" ry="2.3"/><ellipse cx="11" cy="-7" rx="6.5" ry="2.3"/>
+                    <ellipse cx="-11" cy="7" rx="6.5" ry="2.3"/><ellipse cx="11" cy="7" rx="6.5" ry="2.3"/>
+                  </g>
+                  <rect x="-6.5" y="-4.5" width="13" height="9" rx="3" fill="#fbf8f1" stroke="#1d1b17" stroke-width="1.4"/>
+                  <circle r="2.2" fill="#d6007e"/>
+                </g>
+                <text x="14" y="174" class="svg-label">szlak</text>
+                <text x="206" y="130" class="svg-label">strefa startowa</text>
+              </svg>
+            </div>
+            <span class="num">1</span>
+            <h3>Dron mierzy śnieg nad szlakami</h3>
+            <p>Regularne przeloty nad szlakiem i strefami startowymi nad nim. Każdy przelot to świeży pomiar śniegu w sektorach, nad którymi dron przeleciał.</p>
+          </li>
+
+          <li class="arrow" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M3 12 H34" fill="none" stroke="#1d1b17" stroke-width="2" marker-end="url(#head-ink)"/></svg></li>
+
+          <li class="step">
+            <div class="ill">
+              <svg viewBox="0 0 320 180" role="img" aria-labelledby="ill2">
+                <title id="ill2">Pomiar trafia do biblioteki policzonych scenariuszy lawin; wynikiem jest flaga „może zagrozić szlakowi” albo „nie wiem”</title>
+                <rect x="38" y="10" width="146" height="108" rx="6" fill="#ebe4d4" stroke="rgba(29,27,23,.35)"/>
+                <rect x="28" y="20" width="146" height="108" rx="6" fill="#f1ebdf" stroke="rgba(29,27,23,.45)"/>
+                <g>
+                  <rect x="18" y="30" width="146" height="108" rx="6" fill="#fbf8f1" stroke="#1d1b17" stroke-width="1.8"/>
+                  <g fill="none" stroke="rgba(29,27,23,.16)">
+                    <path d="M18 70 C 60 56, 110 64, 164 52"/><path d="M18 92 C 60 80, 110 90, 164 78"/><path d="M18 114 C 60 104, 110 112, 164 100"/>
+                  </g>
+                  <path d="M58 40 L84 38 L86 52 L60 54 Z" fill="none" stroke="#1d1b17" stroke-width="1.2" stroke-dasharray="3 2.5"/>
+                  <path d="M60 52 L84 50 C 90 72, 104 90, 100 124 L80 128 C 82 100, 64 80, 60 52 Z" fill="#e8590c" opacity=".9"/>
+                  <path d="M20 118 C 60 108, 116 126, 162 110" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round"/>
+                  <path d="M20 118 C 60 108, 116 126, 162 110" fill="none" stroke="#1f5fbf" stroke-width="3" stroke-linecap="round"/>
+                </g>
+                <text x="18" y="160" class="svg-label strong">1566 scenariuszy AvaFrame</text>
+                <text x="18" y="175" class="svg-label">policzonych z góry</text>
+                <path d="M174 84 H196 L216 54" fill="none" stroke="#1d1b17" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#head-ink)"/>
+                <path d="M196 84 L216 116" fill="none" stroke="#1d1b17" stroke-width="1.8" marker-end="url(#head-ink)"/>
+                <path d="M232 22 L292 18 L304 46 L270 66 L236 54 Z" fill="url(#hatch)" stroke="#e8590c" stroke-width="2" stroke-linejoin="round"/>
+                <text x="226" y="84" class="svg-label haz">może zagrozić</text>
+                <path d="M234 104 L290 98 L306 126 L276 146 L238 136 Z" fill="#d9d0fa" filter="url(#fog)"/>
+                <path d="M234 104 L290 98 L306 126 L276 146 L238 136 Z" fill="rgba(255,255,255,.8)" stroke="#5b3fd1" stroke-width="2" stroke-linejoin="round"/>
+                <text x="240" y="166" class="svg-label unk">nie wiem</text>
+              </svg>
+            </div>
+            <span class="num">2</span>
+            <h3>Porównanie z biblioteką scenariuszy</h3>
+            <p>Pomiar z każdej strefy startowej jest porównywany ze scenariuszami policzonymi z góry fizycznym solverem AvaFrame. Jeśli podobne lawiny dochodzą do szlaku, stok dostaje flagę. Jeśli pomiar się zestarzał, sektor dostaje „nie wiem” zamiast zniknąć z listy.</p>
+            <div class="outcomes">
+              <span class="haz"><i class="k-haz"></i>Może zagrozić szlakowi</span>
+              <span class="unk"><i class="k-unk"></i>Nie wiem</span>
+            </div>
+          </li>
+
+          <li class="arrow" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M3 12 H34" fill="none" stroke="#1d1b17" stroke-width="2" marker-end="url(#head-ink)"/></svg></li>
+
+          <li class="step">
+            <div class="ill">
+              <svg viewBox="0 0 320 180" role="img" aria-labelledby="ill3">
+                <title id="ill3">Plan przelotu: magentowa trasa z bazy drona przez sektory „nie wiem” i z powrotem</title>
+                <g fill="none" stroke="rgba(29,27,23,.15)">
+                  <path d="M0 40 C 80 20, 160 50, 320 24"/><path d="M0 86 C 90 64, 180 96, 320 70"/><path d="M0 132 C 100 112, 200 140, 320 118"/>
+                </g>
+                <path d="M120 150 C 132 134, 162 136, 170 150 C 160 166, 128 166, 120 150 Z" fill="#a9cbe8" stroke="#5f8fbf" stroke-width="1"/>
+                <path d="M0 172 C 70 160, 150 176, 220 158 S 300 142, 320 146" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round"/>
+                <path d="M0 172 C 70 160, 150 176, 220 158 S 300 142, 320 146" fill="none" stroke="#1f5fbf" stroke-width="3" stroke-linecap="round"/>
+                <g>
+                  <path d="M66 26 L118 20 L126 50 L98 66 L70 56 Z" fill="#d9d0fa" filter="url(#fog)"/>
+                  <path d="M66 26 L118 20 L126 50 L98 66 L70 56 Z" fill="rgba(255,255,255,.82)" stroke="#5b3fd1" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M206 36 L256 30 L270 62 L238 80 L210 68 Z" fill="#d9d0fa" filter="url(#fog)"/>
+                  <path d="M206 36 L256 30 L270 62 L238 80 L210 68 Z" fill="rgba(255,255,255,.82)" stroke="#5b3fd1" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M190 96 L230 92 L238 118 L210 130 L192 120 Z" fill="url(#hatch)" stroke="#e8590c" stroke-width="2" stroke-linejoin="round"/>
+                </g>
+                <path class="draw" d="M44 150 L96 42 L236 54 L44 150" fill="none" stroke="#d6007e" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+                <circle cx="96" cy="42" r="5" fill="#d6007e" stroke="#fff" stroke-width="2"/>
+                <circle cx="236" cy="54" r="5" fill="#d6007e" stroke="#fff" stroke-width="2"/>
+                <circle cx="44" cy="150" r="7" fill="#d6007e" stroke="#fff" stroke-width="2.4"/>
+                <text x="58" y="158" class="svg-label route">baza drona</text>
+              </svg>
+            </div>
+            <span class="num">3</span>
+            <h3>Plan przelotu</h3>
+            <p>Na dostępny czas lotu Avalauncher układa trasę przez sektory, w których pomiar najbardziej zmniejszy niepewność decyzji. Gdy dron nie może polecieć, mówi to wprost i trzyma plan na pierwsze okno pogodowe.</p>
+          </li>
+        </ol>
+
+        <div class="loop">
+          <svg viewBox="0 0 120 34" aria-hidden="true"><path stroke-dasharray="6 5" d="M114 4 C 114 30, 10 30, 8 8" fill="none" stroke="#d6007e" stroke-width="2.4" stroke-linecap="round" marker-end="url(#head-route)"/></svg>
+          <p><b>Pętla.</b> Plan przelotu wraca do kroku 1: następny przelot mierzy tam, gdzie wiedza zestarzała się najbardziej, i mgła niewiedzy znika z mapy.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RESULTS ================= -->
+    <section class="block" id="wyniki">
+      <div class="wrap">
+        <h2>Wyniki tej nocy</h2>
+        <p class="lead">Pomiary z nocy 3/4.10.2026. Każda liczba ma plik, z którego pochodzi, i zastrzeżenie, które ją ogranicza.</p>
+
+        <ul class="results">
+          <li class="result">
+            <div>
+              <div class="figure-num">1566</div>
+              <div class="figure-unit">symulacji AvaFrame w 30,4&nbsp;min</div>
+            </div>
+            <div>
+              <p class="claim">Biblioteka scenariuszy policzona fizycznym solverem AvaFrame com1DFA na prawdziwym terenie GUGiK, na 12 rdzeniach DGX Spark: 58 stref startowych × 9 grubości płyty (0,4–2,0&nbsp;m) × 3 kalibracje tarcia, 0 nieudanych przebiegów. 48 z 58 stref dochodzi do szlaku.</p>
+              <p class="caveat"><b>Zastrzeżenie:</b> standardowe kalibracje tarcia z AvaFrame, bez kalibracji dla Tatr. Strefy startowe wyznaczone z terenu regułą nachylenia i wysokości, bez inwentarza służby.</p>
+              <p class="src">Źródło: <a href="data/scenarios.json">data/scenarios.json</a></p>
+            </div>
+          </li>
+
+          <li class="result">
+            <div>
+              <div class="figure-num">IoU 0,727</div>
+              <div class="figure-unit">na prawdziwej lawinie, błąd zasięgu +20&nbsp;m</div>
+            </div>
+            <div>
+              <p class="claim">Kalibracja AvaFrame na obserwowanym zdarzeniu: lawina mokrego śniegu Popeletzbach (Tyrol Wschodni, Austria), 7.04.2009. Z 21 przebiegów najlepszy (samosAT, odryw 0,6&nbsp;m) daje zasięg 1795&nbsp;m wobec obserwowanych 1775&nbsp;m.</p>
+              <p class="caveat"><b>Zastrzeżenie:</b> grubości odrywu nie było w danych, to założenie z siatki 0,6–1,6&nbsp;m, a najlepszy wynik leży na jej dolnej krawędzi. samosAT to kalibracja dla suchego śniegu, tu użyta do lawiny mokrej. To przykładowa kalibracja na zdarzeniu z Austrii; dla Tatr potrzebne są lokalne obserwacje (TOPR).</p>
+              <p class="src">Źródło: <a href="data/calibration.json">data/calibration.json</a> · dane zdarzenia OpenNHM/AvaFrameData, <a href="https://doi.org/10.5281/zenodo.20701552">DOI 10.5281/zenodo.20701552</a></p>
+            </div>
+          </li>
+
+          <li class="result">
+            <div>
+              <div class="figure-num">IoU 0,805</div>
+              <div class="figure-unit">surogat: 2,3&nbsp;ms zamiast 10,43&nbsp;s</div>
+            </div>
+            <div>
+              <p class="claim">Sieć zastępcza U-Net, uczona na 1215 przebiegach AvaFrame z biblioteki, przewiduje zasięg lawiny na 3 stokach, których nie widziała (81 przebiegów), ok. 4500× szybciej niż AvaFrame. Trening: 11&nbsp;min na GPU DGX Spark.</p>
+              <p class="caveat"><b>Zastrzeżenie:</b> dowód koncepcji. Surogat przybliża mapę maksymalnej grubości przepływu, nie zastępuje AvaFrame. Czasy z różnego sprzętu: 2,3&nbsp;ms na mapę na GPU GB10, 10,43&nbsp;s na symulację na 1 rdzeniu CPU (mediana).</p>
+              <p class="src">Źródło: <a href="data/surrogate.json">data/surrogate.json</a></p>
+            </div>
+          </li>
+
+          <li class="result">
+            <div>
+              <div class="figure-num">0 <span class="vs">wobec</span> 121</div>
+              <div class="figure-unit">przeoczeń: Avalauncher wobec reguły „nowy śnieg z 3 dni ≥ 30&nbsp;cm”</div>
+            </div>
+            <div>
+              <p class="claim">Na 30 prawdziwych porankach IMGW silnik nie przeoczył żadnego stoku, który zagrażał szlakowi, i nie dał fałszywego alarmu „zagrożenie” (0 wobec 25 dla reguły).</p>
+              <p class="caveat"><b>Zastrzeżenie:</b> ceną jest 549 flag „nie wiem”, z czego 505 w poranki z odwołanym przelotem. Błąd modelu zmienia prawdę tylko w 44 przypadkach, więc 0/0 to słaby dowód. Grubość płyty, prawda i przeloty są syntetyczne: to test logiki.</p>
+              <p class="src">Źródło: <a href="data/proof.json">data/proof.json</a></p>
+            </div>
+          </li>
+
+          <li class="result">
+            <div>
+              <div class="figure-num">86 <span class="vs">wobec</span> 71</div>
+              <div class="figure-unit">wyjaśnionych sektorów „nie wiem”: plan przelotu wobec patrolu</div>
+            </div>
+            <div>
+              <p class="claim">Przy tym samym czasie lotu 20&nbsp;min plan Avalaunchera wyjaśnia więcej niewiadomych niż patrol wzdłuż szlaku. Zagrażające stoki oflagowane po przelocie: 29 wobec 16. Spadek niepewności decyzji: −23% wobec −7%.</p>
+              <p class="caveat"><b>Zastrzeżenie:</b> pogoda prawdziwa (IMGW-PIB Kasprowy Wierch, 23.12.2024–21.01.2025, kierunek wiatru założony), ale grubość płyty, prawda i przeloty są syntetyczne. To test logiki, nie walidacja na prawdziwych lawinach.</p>
+              <p class="src">Źródło: <a href="data/proof.json">data/proof.json</a></p>
+            </div>
+          </li>
+
+          <li class="result">
+            <div>
+              <div class="figure-num">19,9% <span class="vs">RL</span><br>20,2% <span class="vs">plan VOI</span></div>
+              <div class="figure-unit">spadku niepewności decyzji: RL dorównuje planowi według wartości informacji, ale go nie pokonuje</div>
+            </div>
+            <div>
+              <p class="claim">Polityka RL (REINFORCE, 10,4 mln epizodów w 6&nbsp;min na GPU DGX Spark) na 1000 porankach spoza treningu wypada jak prosty plan według wartości informacji. Zgodnie z planem walidacji zostajemy przy prostszym planerze.</p>
+              <p class="caveat"><b>Zastrzeżenie:</b> prawda losowana z przekonania silnika. To uczciwy test trasowania, ale nie świat z błędem modelu, więc liczby nie są wprost porównywalne z 86 wobec 71.</p>
+              <p class="src">Źródło: <a href="data/rl.json">data/rl.json</a></p>
+            </div>
+          </li>
+        </ul>
+
+        <figure class="results-fig">
+          <a href="media/landing/kalibracja_popeletzbach.jpg" title="Otwórz planszę w pełnym rozmiarze"><img src="media/landing/kalibracja_popeletzbach.jpg" width="1600" height="900" loading="lazy"
+               alt="Plansza kalibracji: cztery przebiegi AvaFrame na terenie Popeletzbach z obrysem obserwowanej lawiny; najlepszy ma IoU 0,73 i zasięg o 20 m dłuższy od obserwowanego. Obok siatka IoU dla kalibracji tarcia i grubości odrywu."></a>
+          <figcaption><b>AvaFrame wobec obrysu prawdziwej lawiny.</b> Popeletzbach, 7.04.2009. Linia przerywana: obserwowany zasięg. Dane zdarzenia: OpenNHM/AvaFrameData 1.0 (F. Perzl, BFW), CC BY 4.0. Teren: Land Tirol – data.tirol.gv.at, CC BY 4.0 AT.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= MEDIA ================= -->
+    <section class="block alt" id="filmy">
+      <div class="wrap">
+        <h2>Filmy z symulacji</h2>
+        <p class="lead">Krótkie filmy bez dźwięku. Lawiny policzył AvaFrame na terenie GUGiK NMT. Śnieg na ortofotomapie jest syntetyczny.</p>
+        <div class="media">
+          <figure>
+            <video controls muted playsinline preload="none" width="1280" height="720" poster="media/landing/koncepcja_orbit.jpg">
+              <source src="media/landing/koncepcja_orbit.mp4" type="video/mp4">
+            </video>
+            <figcaption><b>Co wiemy, czego nie wiemy i dokąd polecieć</b>Dzień 2, śnieżyca: stoki, które mogą zagrozić szlakom, sektory „nie wiem” i plan przelotu. Wynik silnika demo, stan śniegu syntetyczny.</figcaption>
+          </figure>
+          <figure>
+            <video controls muted playsinline preload="none" width="1280" height="720" poster="media/landing/mapa_zasiegow_orbit.jpg">
+              <source src="media/landing/mapa_zasiegow_orbit.mp4" type="video/mp4">
+            </video>
+            <figcaption><b>Cała biblioteka: gdzie lawiny dochodzą do szlaków</b>1566 symulacji AvaFrame na jednym terenie. Szlaki w zasięgu lawin są wyróżnione.</figcaption>
+          </figure>
+          <figure>
+            <video controls muted playsinline preload="none" width="1280" height="720" poster="media/landing/przeglad_3d.jpg">
+              <source src="media/landing/przeglad_3d.mp4" type="video/mp4">
+            </video>
+            <figcaption><b>Lawiny AvaFrame w 3D</b>Przegląd symulacji na terenie Hali Gąsienicowej, każda strefa w dwóch wariantach płyty i tarcia. Ortofotomapa GUGiK.</figcaption>
+          </figure>
+          <figure>
+            <video controls muted playsinline preload="none" width="1280" height="720" poster="media/landing/surogat_suwak.jpg">
+              <source src="media/landing/surogat_suwak.mp4" type="video/mp4">
+            </video>
+            <figcaption><b>Surogat przy zmianie grubości płyty</b>Sieć zastępcza (po lewej) i najbliższy przebieg AvaFrame (po prawej) na stoku spoza treningu. Dowód koncepcji.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= REAL VS SIMULATED ================= -->
+    <section class="block" id="prawda">
+      <div class="wrap">
+        <h2>Prawdziwe a symulowane</h2>
+        <p class="lead">Mówimy wprost, co pochodzi z prawdziwych źródeł, co policzyliśmy, a co wygenerowaliśmy.</p>
+        <div class="table-wrap">
+          <table class="stack">
+            <thead><tr><th scope="col">Element</th><th scope="col">Stan</th><th scope="col">Szczegóły</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Teren</th><td class="kind"><span class="tag real">prawdziwy</span></td><td>GUGiK NMT, wycinek 4×4&nbsp;km: Hala Gąsienicowa, Kasprowy Wierch, Kościelec, Świnica, Zawrat</td></tr>
+              <tr><th scope="row">Szlaki</th><td class="kind"><span class="tag real">prawdziwe</span></td><td>OpenStreetMap, w ich prawdziwych kolorach</td></tr>
+              <tr><th scope="row">Pogoda</th><td class="kind"><span class="tag real">prawdziwa</span></td><td>IMGW-PIB Kasprowy Wierch, zima 2024/25 (dobowe archiwum). Poranki demo 12 i 13.01.2025 leżą w prawdziwym epizodzie: +34&nbsp;cm nowego śniegu w 3 dni, 72&nbsp;h zamieci, pokrywa 51 → 85&nbsp;cm. Kierunek wiatru założony, bo brak go w archiwum</td></tr>
+              <tr><th scope="row">Biblioteka scenariuszy</th><td class="kind"><span class="tag calc">policzona</span></td><td>Fizyczny solver AvaFrame com1DFA na prawdziwym terenie, standardowe kalibracje tarcia, bez kalibracji dla Tatr</td></tr>
+              <tr><th scope="row">Kalibracja</th><td class="kind"><span class="tag calc">prawdziwe zdarzenie</span></td><td>Przykładowa, na lawinie Popeletzbach z Austrii (OpenNHM/AvaFrameData)</td></tr>
+              <tr><th scope="row">Strefy startowe</th><td class="kind"><span class="tag calc">wyznaczone</span></td><td>Z prawdziwego terenu prostą regułą nachylenia i wysokości, bez inwentarza służby</td></tr>
+              <tr><th scope="row">Grubość płyty, przeloty i odczyty drona</th><td class="kind"><span class="tag synth">syntetyczne</span></td><td>Wygenerowane naszymi skryptami</td></tr>
+              <tr><th scope="row">30 poranków dowodu</th><td class="kind"><span class="tag mixed">mieszane</span></td><td>Prawdziwa pogoda, syntetyczny stan stoków i błąd modelu</td></tr>
+              <tr><th scope="row">Śnieg w filmach 3D</th><td class="kind"><span class="tag synth">syntetyczny</span></td><td>Nałożony na prawdziwą ortofotomapę GUGiK</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="disclaimer"><b>Czym Avalauncher nie jest.</b> Nie jest zwalidowaną prognozą zagrożenia i nie służy do samodzielnego ostrzegania. Brak flagi nie oznacza braku zagrożenia. Stopień zagrożenia i zamknięcia szlaków ustala prognosta, a Avalauncher wskazuje mu, gdzie patrzeć.</p>
+      </div>
+    </section>
+
+    <!-- ================= SOURCES ================= -->
+    <section class="block alt" id="dane">
+      <div class="wrap">
+        <h2>Dane i licencje</h2>
+        <p class="lead">Wszystkie zasoby zewnętrzne zachowują własne licencje. Nasz kod jest na licencji MIT.</p>
+        <div class="table-wrap">
+          <table class="stack sources">
+            <thead><tr><th scope="col">Zasób</th><th scope="col">Do czego</th><th scope="col">Licencja</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">GUGiK, Numeryczny Model Terenu</th><td>Teren, nachylenie, strefy startowe, wejście dla AvaFrame</td><td>bez opłat, z podaniem źródła</td></tr>
+              <tr><th scope="row">GUGiK, ortofotomapa</th><td>Tekstura terenu w filmach 3D</td><td>bez opłat, z podaniem źródła</td></tr>
+              <tr><th scope="row">OpenStreetMap</th><td>Szlaki turystyczne z nazwami i kolorami</td><td><a href="https://www.openstreetmap.org/copyright">ODbL 1.0</a></td></tr>
+              <tr><th scope="row">IMGW-PIB, dane publiczne</th><td>Pogoda poranków demo i dowodu, stacja Kasprowy Wierch</td><td>z podaniem źródła i informacją o przetworzeniu</td></tr>
+              <tr><th scope="row">OpenNHM / AvaFrameData 1.0, zdarzenie Popeletzbach (F. Perzl, BFW)</th><td>Kalibracja AvaFrame na prawdziwej lawinie</td><td><a href="https://doi.org/10.5281/zenodo.20701552">CC BY 4.0</a></td></tr>
+              <tr><th scope="row">Land Tirol, model terenu 5&nbsp;m</th><td>Teren dla symulacji Popeletzbach</td><td>CC BY 4.0 AT</td></tr>
+              <tr><th scope="row">AvaFrame 2.1, moduł com1DFA</th><td>Symulacje lawin, biblioteka scenariuszy, dane do uczenia surogatu</td><td>EUPL-1.2</td></tr>
+              <tr><th scope="row">Archivo (Omnibus-Type)</th><td>Czcionka</td><td>SIL OFL 1.1</td></tr>
+              <tr><th scope="row">Kod Avalaunchera</th><td>Silnik, ekran demo, skrypty</td><td>MIT</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ai">
+          <p><b>Użycie AI.</b> Kod, teksty i wizualizacje powstały z dużym udziałem Claude Code (model Claude Opus 5.5). Problem, zakres, tezę, scenariusz demo i świat wizualny wybrali ludzie. Za treść zgłoszenia odpowiada zespół.</p>
+          <a class="btn" href="https://github.com/przemeknowak781/avalauncher/blob/main/docs/10_ai_i_licencje.md">Pełna lista: docs/10<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <nav class="links" aria-label="Linki">
+        <a href="index.html">Otwórz demo</a>
+        <a href="index.html?day=2">Demo: śnieżyca</a>
+        <a href="biblioteka.html">Biblioteka scenariuszy</a>
+        <a href="https://github.com/przemeknowak781/avalauncher">Kod na GitHubie</a>
+      </nav>
+      <p>Teren i ortofotomapa: GUGiK. Szlaki: © <a href="https://www.openstreetmap.org/copyright">współtwórcy OpenStreetMap</a> (ODbL). Symulacje: AvaFrame com1DFA (EUPL-1.2). Lawina Popeletzbach: OpenNHM/AvaFrameData (CC BY 4.0), teren Land Tirol – data.tirol.gv.at (CC BY 4.0 AT). Czcionka: Archivo (OFL). Nasz kod: MIT.</p>
+      <p>Pogoda: Źródłem pochodzenia danych jest Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy. Dane zostały przetworzone.</p>
+      <p>Avalauncher · HackYeah 2026, zadanie Defence. Grubość płyty, przeloty i odczyty drona są syntetyczne.</p>
+    </div>
+  </footer>
+
+  <script src="projekt.js" defer></script>
+</body>
+</html>

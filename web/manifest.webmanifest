@@ -1,0 +1,14 @@
+{
+  "name": "Avalauncher — cyfrowy bliźniak góry",
+  "short_name": "Avalauncher",
+  "description": "Drony mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z policzonymi z góry scenariuszami lawin i wskazuje stoki, które mogą zagrozić szlakom. Działa także bez sieci.",
+  "lang": "pl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#3a7fe2",
+  "theme_color": "#245edb",
+  "icons": [
+    { "src": "xp/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+ "date": "2025-01-16",
+ "acquired_utc": "2025-01-16T09:56:52Z",
+ "scene_id": "S2A_34UDV_20250116_0_L2A",
+ "cloud_pct_over_area": 0.0,
+ "snow_pct": 98.7,
+ "snow_pct_by_elevation_m": {
+  "1300-1500": 91.2,
+  "1500-1700": 99.5,
+  "1700-1900": 100.0,
+  "1900-2300": 100.0
+ },
+ "scl_snow_class_pct": 53.5,
+ "days_after_episode": 3,
+ "episode_cloud_pct_over_area": {
+  "2025-01-11": 100.0,
+  "2025-01-13": 86.3
+ },
+ "nearby_acquisitions": [
+  {
+   "date": "2025-01-06",
+   "scene_id": "S2A_34UDV_20250106_0_L2A",
+   "cloud_pct_over_area": 26.6
+  },
+  {
+   "date": "2025-01-08",
+   "scene_id": "S2B_34UDV_20250108_0_L2A",
+   "cloud_pct_over_area": 100.0
+  },
+  {
+   "date": "2025-01-11",
+   "scene_id": "S2B_34UDV_20250111_0_L2A",
+   "cloud_pct_over_area": 100.0
+  },
+  {
+   "date": "2025-01-13",
+   "scene_id": "S2A_34UDV_20250113_0_L2A",
+   "cloud_pct_over_area": 86.3
+  },
+  {
+   "date": "2025-01-16",
+   "scene_id": "S2A_34UDV_20250116_0_L2A",
+   "cloud_pct_over_area": 0.0
+  },
+  {
+   "date": "2025-01-18",
+   "scene_id": "S2B_34UDV_20250118_0_L2A",
+   "cloud_pct_over_area": 0.0
+  }
+ ],
+ "method": "NDSI = (B03 - B11) / (B03 + B11); śnieg gdy NDSI > 0,4 i B03 > 0,1; chmury z SCL (klasy 8, 9, 10). B11 (20 m) i SCL przepróbkowane do siatki 10 m EPSG:2180.",
+ "grid": {
+  "crs": "EPSG:2180",
+  "e0": 570500,
+  "n0": 153500,
+  "cell_m": 10,
+  "width": 400,
+  "height": 400,
+  "rows": "od północy"
+ },
+ "files": {
+  "overlay": "sentinel_snow.png",
+  "truecolor": "sentinel_truecolor.jpg"
+ },
+ "overlay_legend": {
+  "snow": [
+   196,
+   224,
+   255,
+   150
+  ],
+  "cloud": [
+   128,
+   128,
+   128,
+   110
+  ],
+  "cloud_hatch": [
+   90,
+   90,
+   90,
+   220
+  ],
+  "no_snow": "przezroczyste (brak potwierdzenia: las, głęboki cień)"
+ },
+ "source": "Copernicus Sentinel-2 L2A via Element84 Earth Search (AWS Open Data)",
+ "licence": "Copernicus data free and open",
+ "credit": "Zawiera zmodyfikowane dane Copernicus Sentinel (2025)",
+ "note": "Prawdziwe zdjęcie satelitarne z 16.01.2025, 3 dni po epizodzie 11–13.01.2025. W dniach epizodu satelita nie widział terenu: 11.01 chmury nad 100% obszaru, 12.01 brak przelotu, 13.01 chmury nad 86% obszaru. Satelita pokazuje, gdzie leży śnieg, a nie jego grubość ani warstwy; grubość płyty w aplikacji pozostaje syntetyczna. Komórki bez potwierdzonego śniegu (1,3%) to ciemne piksele, w 84% poniżej 1500 m n.p.m., czyli w lesie: korony drzew zasłaniają śnieg, a jasność jest za niska, by go potwierdzić. Klasa śniegu SCL obejmuje tylko 54% obszaru, bo niskie styczniowe słońce zostawia stoki północne w cieniu (SCL: ciemne piksele); NDSI rozpoznaje śnieg także w cieniu.",
+ "wind_check": {
+  "question": "Czy odsłonięte przez wiatr komórki grzbietów leżą częściej na stokach nawietrznych W–SW niż zawietrznych NE–E?",
+  "scenes": [
+   "2025-01-16",
+   "2025-01-18",
+   "2025-01-31",
+   "2025-02-05",
+   "2025-02-10",
+   "2025-02-22",
+   "2025-02-25"
+  ],
+  "ridge_cells": 18480,
+  "episode_scene_bare_cells": 0,
+  "pooled_bare_pct_after_episode": {
+   "W": 0.1,
+   "E": 0.2,
+   "SW_W": 0.2,
+   "NE_E": 0.1
+  },
+  "max_bare_share_pct": 0.8,
+  "verdict": "Nie rozstrzyga. Na grzbietach powyżej 1800 m odsłonięte jest najwyżej 0,8% komórek w każdym z 7 bezchmurnych przelotów (16.01–25.02.2025), a 16.01 ani jednej. Łącznie po epizodzie: W 0,1% wobec E 0,2%, SW+W 0,2% wobec NE+E 0,1%. Te nieliczne odsłonięte komórki leżą głównie na stokach S, czyli raczej słońce niż wiatr. NDSI widzi obecność śniegu, nie jego grubość, więc założenia W–SW nie potwierdza ani nie obala; do tego potrzebny jest pomiar grubości z drona."
+ }
+}

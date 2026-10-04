@@ -10,6 +10,14 @@
       if (sessionStorage.getItem("xp.splash") || matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("nosplash");
     } catch (e) {}
   </script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#245edb">
+  <script>
+    // Offline mode: sw.js precaches the app and its data (skipped on file://).
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
+      addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+    }
+  </script>
   <link rel="preload" href="vendor/fonts/Archivo-var.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="xp/xp.css">
   <link rel="stylesheet" href="style.css">
@@ -188,6 +196,11 @@
       <path d="M8 5.5 V10" stroke="#1d1b17" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="12.4" r="1" fill="#1d1b17"/>
     </symbol>
 
+    <symbol id="i-badge-off" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="7" fill="url(#g-power)" stroke="#fff" stroke-width="1.2"/>
+      <path d="M5.2 5.2 L10.8 10.8 M10.8 5.2 L5.2 10.8" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+
     <symbol id="i-chart" viewBox="0 0 32 32">
       <rect x="2.5" y="3.5" width="27" height="25" rx="2" fill="#fff" stroke="#3d5f9a" stroke-width="1"/>
       <rect x="3" y="4" width="26" height="4.5" fill="url(#g-screen)"/>
@@ -196,6 +209,26 @@
       <path d="M5 24 L9 21 L12 22 L15 15 L18 13 L21 17 L24 18 L27 20" fill="none" stroke="#1d4fa8" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
       <path d="M6 26.5 v-1.5 M9 26.5 v-1 M14 26.5 v-3 M16 26.5 v-4 M20 26.5 v-1.5 M25 26.5 v-1" stroke="#3a86dc" stroke-width="1.6"/>
       <path d="M24.5 11.5 v4 M22.8 12.5 l3.4 2 M22.8 14.5 l3.4 -2" stroke="#5a86c8" stroke-width=".9" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="i-player" viewBox="0 0 32 32">
+      <rect x="2.5" y="5.5" width="27" height="21" rx="2.5" fill="#22324f" stroke="#0d1830"/>
+      <path d="M5 8 h2 M10 8 h2 M15 8 h2 M20 8 h2 M25 8 h2 M5 24 h2 M10 24 h2 M15 24 h2 M20 24 h2 M25 24 h2" stroke="#cfd8e8" stroke-width="1.6"/>
+      <rect x="5" y="10.5" width="22" height="11" fill="url(#g-sky)"/>
+      <path d="M5 21.5 L11 14.5 L14 17.5 L18 12.5 L27 21.5 Z" fill="#fff" opacity=".92"/>
+      <path d="M12.5 21.5 L15.5 17 L19.5 21.5 Z" fill="#e8590c"/>
+      <circle cx="23" cy="22.5" r="7" fill="url(#g-blue)" stroke="#0a3080"/>
+      <path d="M21 19 L27 22.5 L21 26 Z" fill="#fff"/>
+    </symbol>
+
+    <symbol id="i-sat" viewBox="0 0 32 32">
+      <g transform="rotate(-35 16 16)">
+        <rect x="1.5" y="12" width="9" height="8" fill="url(#g-screen)" stroke="#173a72"/>
+        <rect x="21.5" y="12" width="9" height="8" fill="url(#g-screen)" stroke="#173a72"/>
+        <path d="M4.5 12 v8 M7.5 12 v8 M24.5 12 v8 M27.5 12 v8 M10.5 16 h2 M19.5 16 h2" stroke="#173a72" stroke-width=".9"/>
+        <rect x="12.5" y="11" width="7" height="10" rx="1.2" fill="url(#g-metal)" stroke="#3a4350"/>
+      </g>
+      <path d="M20.5 24.5 C 23 25.5, 25.5 25, 27 23 M19 27.5 C 23 29, 27.5 28, 30 24.5" fill="none" stroke="#d6007e" stroke-width="1.5" stroke-linecap="round"/>
     </symbol>
 
     <symbol id="i-min" viewBox="0 0 12 12"><rect x="2" y="8" width="6" height="2.2" fill="#fff"/></symbol>
@@ -257,7 +290,7 @@
       </ul>
 
       <div class="watermark" aria-label="Zastrzeżenia">
-        <strong>Brak flagi nie oznacza, że jest bezpiecznie. Decyzję podejmuje prognosta.</strong>
+        <strong>Brak flagi to nie zielone światło. Decyzję podejmuje prognosta.</strong>
         <span>Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny.</span>
         <span>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Źródło: IMGW-PIB</span>
       </div>
@@ -274,13 +307,17 @@
             <div class="menu-pop">
               <button data-action="layout">Przywróć układ okien</button>
               <hr>
+              <button data-action="sim-offline" class="toggle sim-offline" title="Odcina dane na żywo; mapa, biblioteka i plan przelotu działają z pamięci podręcznej">Symuluj awarię łączności</button>
+              <hr>
               <button data-action="shutdown">Wyłącz komputer…</button>
             </div>
           </div>
           <div class="menu"><button class="menu-head">Widok</button>
             <div class="menu-pop">
               <button data-action="lib-heat" class="toggle" id="m-heat">Zasięgi z biblioteki AvaFrame</button>
+              <button data-action="sat-snow" class="toggle" id="m-sat" hidden title="Prawdziwe zdjęcie satelitarne: gdzie leży śnieg (nie jego grubość)">Pokrywa śnieżna z satelity (Sentinel-2)</button>
               <button data-open="w-imgw">Pogoda: Kasprowy Wierch, zima 2024/25…</button>
+              <button data-action="player">Pokaż lawinę w 3D…</button>
               <hr>
               <button data-action="max-map">Mapa na cały ekran</button>
               <button data-action="show-desktop">Pokaż pulpit</button>
@@ -299,7 +336,12 @@
             </div>
           </div>
           <div class="menu"><button class="menu-head">Pomoc</button>
-            <div class="menu-pop"><button data-action="about">O projekcie Avalauncher</button></div>
+            <div class="menu-pop">
+              <button data-action="about">O projekcie Avalauncher</button>
+              <hr>
+              <button data-action="project-page" title="Otwiera projekt.html w nowej karcie">Strona projektu: jak to działa, wyniki, dane…</button>
+              <button data-action="library-page" title="Otwiera biblioteka.html w nowej karcie">Biblioteka scenariuszy…</button>
+            </div>
           </div>
         </nav>
         <div class="window-body map-body">
@@ -314,6 +356,8 @@
             <span><i class="sw env"></i>Zasięg lawiny (AvaFrame)</span>
             <span><i class="sw route"></i>Plan przelotu</span>
             <span id="heat-legend" hidden><i class="sw heat"></i><b id="heat-n"></b></span>
+            <span id="whatif-legend" hidden><i class="sw whatif"></i><b id="whatif-n"></b></span>
+            <span id="sat-legend" hidden><i class="sw sat"></i><b id="sat-n"></b><span id="sat-cloud" hidden><i class="sw cloud"></i>chmury</span><small class="sat-credit">Zawiera zmodyfikowane dane Copernicus Sentinel (2025)</small></span>
           </div>
         </div>
         <div class="status-bar">
@@ -342,7 +386,7 @@
             </div>
             <div class="kpis" id="kpis"></div>
             <fieldset class="group sources-group">
-              <legend>Źródła danych</legend>
+              <legend>Źródła danych<span class="offline-flag" id="offline-flag" hidden> · brak łączności: pracuję na danych z pamięci podręcznej</span></legend>
               <div class="sources" id="sources"></div>
             </fieldset>
             <p class="facts" id="library"></p>
@@ -368,7 +412,7 @@
         </div>
         <div class="status-bar">
           <p class="status-field" id="sec-count"></p>
-          <p class="status-field grow"><b>Brak flagi nie oznacza, że jest bezpiecznie.</b> Decyzję podejmuje prognosta.</p>
+          <p class="status-field grow"><b>Brak flagi to nie zielone światło.</b> Decyzję podejmuje prognosta.</p>
         </div>
       </section>
 
@@ -428,6 +472,43 @@
           <p class="status-field">Źródło: IMGW-PIB · stacja 349190650, 1987 m</p>
         </div>
       </section>
+
+      <!-- Odtwarzacz 3D: animacje przebiegów AvaFrame com1DFA dla sektorów z flagą (skórka rysowana w CSS) -->
+      <section class="window wmp" id="w-player" data-title="Odtwarzacz 3D — scenariusz AvaFrame" data-icon="i-player" data-start="closed">
+        <div class="title-bar">
+          <svg class="title-icon"><use href="#i-player"/></svg>
+          <span class="title-text">Odtwarzacz 3D — scenariusz AvaFrame</span>
+          <div class="title-controls"><button class="tb-min" aria-label="Minimalizuj"></button><button class="tb-max" aria-label="Maksymalizuj"></button><button class="tb-close" aria-label="Zamknij"></button></div>
+        </div>
+        <div class="window-body wmp-body">
+          <div class="wmp-main">
+            <div class="wmp-screen">
+              <video id="pl-video" muted playsinline loop preload="metadata" aria-label="Animacja 3D przebiegu lawiny AvaFrame"></video>
+              <p class="wmp-empty" id="pl-empty" hidden></p>
+            </div>
+            <aside class="wmp-list" aria-label="Lista scenariuszy 3D">
+              <header>Scenariusze 3D <small>płyta · tarcie</small></header>
+              <ol id="pl-list"></ol>
+            </aside>
+          </div>
+          <div class="wmp-info" id="pl-caption"></div>
+          <div class="wmp-bar">
+            <input class="wmp-seek" id="pl-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Przewijanie filmu">
+            <div class="wmp-transport">
+              <button class="wmp-play" id="pl-play" type="button" aria-label="Odtwórz"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-play" d="M7 4.2 L16.2 10 L7 15.8 Z"/><path class="i-pause" d="M5.4 4.4 h3.2 v11.2 h-3.2 Z M11.4 4.4 h3.2 v11.2 h-3.2 Z"/></svg></button>
+              <button class="wmp-btn" id="pl-stop" type="button" aria-label="Zatrzymaj"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2.6" y="2.6" width="6.8" height="6.8" rx=".6"/></svg></button>
+              <button class="wmp-btn" id="pl-prev" type="button" aria-label="Poprzedni scenariusz"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.4 2.4 h1.7 v7.2 h-1.7 Z M10 2.4 L4.6 6 L10 9.6 Z"/></svg></button>
+              <button class="wmp-btn" id="pl-next" type="button" aria-label="Następny scenariusz"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 2.4 h-1.7 v7.2 h1.7 Z M2 2.4 L7.4 6 L2 9.6 Z"/></svg></button>
+              <span class="wmp-now" id="pl-now"></span>
+              <span class="wmp-time" id="pl-time">0:00 / 0:00</span>
+            </div>
+          </div>
+        </div>
+        <div class="status-bar">
+          <p class="status-field grow" id="pl-status">Gotowe</p>
+          <p class="status-field">AvaFrame com1DFA · teren GUGiK NMT · śnieg: scenariusz syntetyczny</p>
+        </div>
+      </section>
     </main>
 
     <!-- ===================== taskbar ===================== -->
@@ -441,7 +522,14 @@
       <div class="task-buttons" id="task-buttons"></div>
       <div class="tray">
         <button class="tray-icon" id="tray-drone" data-action="tray-drone"><svg class="main"><use href="#i-drone"/></svg><svg class="badge"><use href="#i-badge-ok"/></svg></button>
-        <button class="tray-icon" id="tray-net" data-action="tray-net"><svg class="main"><use href="#i-network"/></svg><svg class="badge"><use href="#i-badge-warn"/></svg></button>
+        <div class="menu tray-menu" id="tray-net-menu">
+          <button class="tray-icon" id="tray-net" data-action="tray-net" aria-haspopup="menu"><svg class="main"><use href="#i-network"/></svg><svg class="badge"><use href="#i-badge-warn"/></svg></button>
+          <div class="menu-pop" role="menu">
+            <button data-action="net-status" role="menuitem"><b>Stan stacji IMGW Kasprowy Wierch</b></button>
+            <hr>
+            <button data-action="sim-offline" class="toggle sim-offline" role="menuitemcheckbox">Symuluj awarię łączności</button>
+          </div>
+        </div>
         <time class="clock" id="clock"></time>
       </div>
     </footer>
@@ -464,6 +552,7 @@
           <button data-action="zones" class="sm-item"><svg><use href="#i-sectors"/></svg><b>Moje strefy startowe</b></button>
           <button data-action="trails" class="sm-item"><svg><use href="#i-trail"/></svg><b>Szlaki</b></button>
           <button data-action="library-page" class="sm-item" title="Otwiera biblioteka.html w nowej karcie"><svg><use href="#i-library"/></svg><b>Biblioteka scenariuszy</b></button>
+          <button data-action="project-page" class="sm-item" title="Otwiera projekt.html w nowej karcie: jak to działa, wyniki, dane i licencje"><svg><use href="#i-info"/></svg><b>O projekcie (strona)</b></button>
           <hr>
           <button data-open="w-map" class="sm-item"><svg><use href="#i-plan"/></svg>Mapa</button>
           <button data-open="w-sit" class="sm-item"><svg><use href="#i-report"/></svg>Sytuacja</button>
@@ -471,7 +560,9 @@
           <button data-open="w-plan" class="sm-item"><svg><use href="#i-folder"/></svg>Plan przelotu</button>
           <hr>
           <button data-open="w-imgw" class="sm-item"><svg><use href="#i-chart"/></svg>Kasprowy Wierch, zima 2024/25</button>
-          <button data-action="tray-net" class="sm-item"><svg><use href="#i-network"/></svg>Stacja IMGW Kasprowy Wierch</button>
+          <button data-action="player" class="sm-item"><svg><use href="#i-player"/></svg>Odtwarzacz 3D — scenariusz AvaFrame</button>
+          <button data-action="net-status" class="sm-item"><svg><use href="#i-network"/></svg>Stacja IMGW Kasprowy Wierch</button>
+          <button data-action="sim-offline" class="sm-item toggle sim-offline"><svg><use href="#i-badge-off"/></svg>Symuluj awarię łączności</button>
         </div>
       </div>
       <footer class="sm-foot">

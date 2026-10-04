@@ -255,6 +255,7 @@ input[type="range"].xp-range, .trackbar input[type="range"] {
 .task-btn:hover { filter: brightness(1.12); }
 .task-btn.active { background: linear-gradient(180deg, #1e52b7, #1a4cae 50%, #1d50b4); box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.55); }
 .task-btn.min { opacity: 0.88; }
+.task-btn[hidden] { display: none; }
 .task-btn.flash { animation: xp-flash 0.5s steps(1) 6; }
 @keyframes xp-flash { 50% { background: linear-gradient(180deg, #ffbf6b, #f2952b); border-color: #c46a09; } }
 
@@ -419,3 +420,13 @@ input[type="range"].xp-range, .trackbar input[type="range"] {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .copy .anim .sheet { opacity: 0.9; transform: translate(calc(var(--span, 300px) / 2), -10px); }
 }
+
+/* ---------- offline mode: tray menu and "Symuluj awarię łączności" ---------- */
+.tray-menu { display: flex; align-items: center; }
+.tray-menu .menu-pop { top: auto; bottom: calc(100% + 7px); left: auto; right: -8px; min-width: 260px; color: #000; text-align: left; }
+.tray-menu .menu-pop button { color: #000; white-space: nowrap; }
+.tray-menu .menu-pop button:hover { color: #fff; }
+.tray-icon[data-state="down"] .main { opacity: 0.72; filter: grayscale(0.75) drop-shadow(0 1px 0 rgba(0, 0, 0, 0.35)); }
+.sm-item.sim-offline.checked { font-weight: 700; }
+.offline-flag { color: #b3330a; font-weight: 700; }
+.offline-flag[hidden] { display: none; }

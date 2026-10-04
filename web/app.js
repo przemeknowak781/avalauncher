@@ -1,4 +1,4 @@
-import { assess, planFlight } from "./engine.js";
+import { assess, planFlight, hitSegments } from "./engine.js";
 import * as xp from "./xp/xp.js";
 
 const TRAIL = { red: "#d62828", blue: "#1f5fd1", green: "#2a9d3c", yellow: "#f2c200", black: "#22201c" };
@@ -16,24 +16,40 @@ const binary = (p, T) => fetch(p).then((r) => (r.ok ? r.arrayBuffer() : null))
   .then((b) => (b && b.byteLength % T.BYTES_PER_ELEMENT === 0 ? new T(b) : null)).catch(() => null);
 
 // ---------- data ----------
-const [terrain, sectors, trails, real, mock, scenarios, calibration, proof, kasprowy] = await Promise.all([
+const [terrain, sectors, trails, real, mock, scenarios, calibration, proof, kasprowy, media3d, sentinel] = await Promise.all([
   json("data/terrain.json"), json("data/sectors.json"), json("data/trails.json"),
   optional("data/days.json"), optional("data/mock/days.json"),
   optional("data/scenarios.json"), optional("data/calibration.json"), optional("data/proof.json"),
   optional("data/kasprowy_2024_25.json"), // real IMGW-PIB daily synop, tools/real/build_kasprowy.py
+  optional("media/3d/index.json"), // 3D AvaFrame animations of the flagged sectors (Odtwarzacz 3D)
+  optional("data/sentinel_snow.json"), // real Copernicus Sentinel-2 snow cover, tools/satellite/fetch_sentinel.py
 ]);
 // AvaFrame footprints (5 MB) load after the first frame; see loadLibraryCells()
 let cells = null, libHeat = null;
 const DAYS = real ?? mock;
 const index = new Uint8Array(await (await fetch("data/sectors_u8.bin")).arrayBuffer());
+// Image.decode() never settles while the page is hidden (background tab, headless capture), which left
+// the app blank; the load event does fire, and drawImage() decodes on first use.
+const loaded = (img) => new Promise((resolve, reject) => {
+  if (img.complete) { img.naturalWidth ? resolve(img) : reject(new Error(img.src)); return; }
+  img.addEventListener("load", () => resolve(img), { once: true });
+  img.addEventListener("error", () => reject(new Error(img.src)), { once: true });
+});
 const base = new Image();
 base.src = "data/map.png";
-await base.decode().catch(async () => { base.src = `data/${terrain.hillshade}`; await base.decode(); });
+await loaded(base).catch(async () => { base.src = `data/${terrain.hillshade}`; await loaded(base); });
 await document.fonts.load('700 16px "Archivo"').catch(() => {});
 
 const W = terrain.width, H = terrain.height;
 const byId = Object.fromEntries(sectors.map((s) => [s.id, s]));
 const ctx = { exposure: DAYS.exposure, base: DAYS.base, scenarios, trails, cells: null };
+
+// Library runs by sector, friction and slab ("Co jeśli płyta ma X m?"), trail names and segment geometry.
+const runKey = (sector, frict, th) => `${sector}|${frict}|${Number(th).toFixed(1)}`;
+const RUNS = new Map((scenarios?.runs ?? []).map((r) => [runKey(r.sector, r.frict, r.relTh), r]));
+const TRAIL_NAME = Object.fromEntries(trails.map((t) => [t.id, t.name]));
+const SEGMENT = new Map();
+for (const t of trails) for (const s of t.segments ?? []) SEGMENT.set(s.id, t.paths[s.part]?.slice(s.from, s.to + 1) ?? []);
 
 // ---------- real weather: IMGW-PIB Kasprowy Wierch, winter 2024/25 ----------
 const KW = kasprowy?.days?.length ? kasprowy : null;
@@ -55,6 +71,8 @@ const state = {
   day: new URLSearchParams(location.search).get("day") === "2" ? 1 : 0, selected: null, budget: 20,
   visited: new Set(), flight: null, // { path, len, t, done }
   heat: false, // "Widok › Zasięgi z biblioteki AvaFrame"
+  sat: false, // "Widok › Pokrywa śnieżna z satelity (Sentinel-2)"
+  whatIf: null, // { sector, th, frict }: the run chosen with the flag dialog's slider
   fog: new Float32Array(sectors.length + 1), // animated fog per sector index
   dash: 0,
 };
@@ -99,6 +117,7 @@ function resize() {
   document.querySelector(".scale").style.setProperty("--bar", `${(500 / terrain.cell_m) * scale / dpr}px`);
   buildHazardLayer();
   buildHeatLayer();
+  buildWhatIfLayer();
 }
 
 function maskCanvas(test) {
@@ -188,6 +207,7 @@ async function loadLibraryCells() {
   ctx.cells = cells;
   if (cells && !(state.flight && !state.flight.done)) recompute();
   buildHeatLayer();
+  if (shown) { buildWhatIfLayer(); const el = document.getElementById("wi-result"); if (el) el.innerHTML = whatIfText(); }
 }
 function buildHeatLayer() {
   if (!state.heat || !heatMax || !view.cw) { heatLayer = null; return; }
@@ -215,6 +235,49 @@ function toggleHeat() {
   if (!heatMax) dlg({ title: "Zasięgi z biblioteki AvaFrame", icon: "i-library", html: "<p>Biblioteka zasięgów jeszcze się liczy. Spróbuj za chwilę.</p>" });
 }
 
+// ---------- Sentinel-2 snow cover (real, Copernicus): "Widok › Pokrywa śnieżna z satelity" ----------
+// Same 400×400 EPSG:2180 grid as terrain.json (rows from north), so it is drawn exactly like the base map.
+const SAT = sentinel?.files?.overlay && sentinel.grid?.width === W && sentinel.grid?.height === H
+  && sentinel.grid?.e0 === terrain.e0 && sentinel.grid?.n0 === terrain.n0 ? sentinel : null;
+let satImg = null;
+if (SAT) {
+  const im = new Image();
+  im.src = `data/${SAT.files.overlay}`;
+  loaded(im).then(() => {
+    satImg = im;
+    const m = $("m-sat");
+    m.hidden = false;
+    m.textContent = `Pokrywa śnieżna z satelity (Sentinel-2, ${dmy(SAT.date)})`;
+  }).catch(() => {});
+}
+/** "11.01 chmury nad 100% obszaru, 12.01 brak przelotu, 13.01 chmury nad 86% obszaru" from the JSON. */
+function satStormText() {
+  const ep = SAT?.episode_cloud_pct_over_area ?? {};
+  const dates = Object.keys(ep).sort();
+  if (!dates.length) return "";
+  const out = [];
+  for (let t = Date.parse(dates[0]); t <= Date.parse(dates.at(-1)); t += 864e5) {
+    const iso = new Date(t).toISOString().slice(0, 10), v = ep[iso];
+    out.push(`${dmy(iso).slice(0, -5)} ${v == null ? "brak przelotu" : `chmury nad ${pl(v)}% obszaru`}`);
+  }
+  return out.join(", ");
+}
+function toggleSat() {
+  if (!satImg) return;
+  state.sat = !state.sat;
+  const n = SAT.days_after_episode;
+  $("m-sat").classList.toggle("checked", state.sat);
+  $("sat-legend").hidden = !state.sat;
+  $("sat-n").textContent = `Śnieg z satelity Sentinel-2, ${dmy(SAT.date)}${n ? ` (${n} ${plural(n, "dzień", "dni", "dni")} po zamieci)` : ""}`;
+  $("sat-cloud").hidden = !(SAT.cloud_pct_over_area > 0);
+  if (!state.sat) return;
+  const storm = satStormText();
+  xp.balloon({
+    title: `Satelita Sentinel-2, ${dmy(SAT.date)}: prawdziwe zdjęcie`, icon: "i-sat", timeout: 10000,
+    text: `Pierwszy czysty obraz po zamieci: śnieg na ${pl(SAT.snow_pct, 1)}% obszaru.${storm ? ` W dniach zamieci satelita nie widział terenu: ${storm}.` : ""} Satelita pokazuje, gdzie leży śnieg, a nie jego grubość; grubość płyty musi zmierzyć dron.`,
+  });
+}
+
 function fogLayer() {
   const img = new ImageData(W, H);
   for (let i = 0; i < index.length; i++) {
@@ -232,6 +295,7 @@ function draw() {
   g.fillStyle = PAPER; g.fillRect(0, 0, view.cw, view.ch);
   g.imageSmoothingEnabled = true;
   g.drawImage(base, view.ox, view.oy, W * view.scale, H * view.scale);
+  if (state.sat && satImg) { g.globalAlpha = 0.85; g.drawImage(satImg, view.ox, view.oy, W * view.scale, H * view.scale); g.globalAlpha = 1; }
   if (idleLayer) g.drawImage(idleLayer, 0, 0);
   if (heatLayer) g.drawImage(heatLayer, 0, 0);
   if (hazardLayer) g.drawImage(hazardLayer, 0, 0);
@@ -247,9 +311,11 @@ function draw() {
   g.filter = "none";
   g.restore();
   if (unknownLayer) g.drawImage(unknownLayer, 0, 0);
-  if (envSelected) g.drawImage(envSelected, 0, 0);
+  if (whatIfLayer) g.drawImage(whatIfLayer, 0, 0);
+  else if (envSelected) g.drawImage(envSelected, 0, 0);
 
-  // trails
+  // trails (segments the what-if run reaches with >= 0.5 m of flow get an orange halo)
+  for (const id of whatIfSegments()) { const pts = SEGMENT.get(id); if (pts?.length > 1) stroke(pts, "rgba(232, 89, 12, 0.9)", 14 * dpr); }
   for (const t of trails) for (const part of t.paths) {
     stroke(part, "rgba(255,255,255,0.95)", 6 * dpr);
     stroke(part, TRAIL[t.color] ?? TRAIL.red, 3.2 * dpr);
@@ -406,14 +472,16 @@ function renderSituation() {
   const rm = realMorning();
   $("stamp").textContent = rm ? `stan na ${hour} · ${longDate(rm.date)}` : `stan na ${hour} · ${day.toLowerCase()}`;
   $("stamp").title = rm ? "Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny." : "";
-  const exposed = Object.keys(R.day.sectors).length;
+  // stoki, z których lawina w bibliotece AvaFrame dochodzi do szlaku (docs/12: 48 z 58), not every terrain zone
+  const { reach, simulated } = libraryReach();
   const since = state.flight?.done ? "0 h" : `${d.weather.hours_since_flight} h`;
   $("kpis").innerHTML = [
-    [exposed, "sektorów nad szlakami", ""],
+    reach ? [reach, "stoków może sięgnąć szlaku", "", simulated ? `${reach} z ${simulated} stref startowych w bibliotece AvaFrame dochodzi do szlaku (przepływ > 0,1 m)` : ""]
+      : [Object.keys(R.day.sectors).length, "stref startowych", ""],
     [nz, "może zagrozić", "hazard"],
     [nw, "nie wiem", "unknown"],
     [since, rm ? `od przelotu · +${pl(rm.new_cm)} cm śniegu w dobę (IMGW)` : `od przelotu · ${d.weather.new_cm} cm śniegu`, ""],
-  ].map(([v, l, c]) => `<div class="kpi ${c}"><b>${v}</b><span>${l}</span></div>`).join("");
+  ].map(([v, l, c, t]) => `<div class="kpi ${c}"${t ? ` title="${t}"` : ""}><b>${v}</b><span>${l}</span></div>`).join("");
   renderSources();
 }
 
@@ -429,15 +497,20 @@ function renderSources() {
   const REAL = `<b class="tag real">prawdziwe</b>`, SYN = `<b class="tag syn">syntetyczne</b>`;
   const lib = scenarios?.count ? `${scenarios.count.toLocaleString("pl-PL")} symulacji com1DFA` : "w budowie";
   const src = (icon, dt, tag, dd) => `<div><svg aria-hidden="true"><use href="#${icon}"/></svg><dl><dt>${dt} ${tag}</dt><dd>${dd}</dd></dl></div>`;
-  $("sources").innerHTML = [
-    src("i-mountain", "Teren GUGiK NMT", REAL, `siatka ${terrain.cell_m} m, nachylenia i strefy`),
-    src("i-desktop", "Ortofoto GUGiK", REAL, "tekstura renderów 3D"),
-    src("i-trail", "Szlaki OSM", REAL, `${trails.length} ${plural(trails.length, "odcinek", "odcinki", "odcinków")} w kolorach szlaków`),
-    src("i-network", "IMGW Kasprowy", KW ? REAL : "",
-      `${KW ? `<button class="link" data-open="w-imgw" title="Otwórz wykres zimy 2024/25">archiwum 2024/25</button> · teraz ` : ""}<span id="live">łączę…</span>`),
-    src("i-library", "Biblioteka AvaFrame", scenarios?.count ? `<b class="tag real">policzona</b>` : "", `${lib}${scenarios?.count ? " · DGX Spark" : ""}`),
-    src("i-drone", "Płyta, przeloty", SYN, `<span class="${st === "ok" ? "" : "warn"}">przelot ${text}</span>`),
-  ].join("");
+  const terrainSrc = src("i-mountain", "Teren GUGiK NMT", REAL, `siatka ${terrain.cell_m} m, nachylenia i strefy`);
+  const trailSrc = src("i-trail", "Szlaki OSM", REAL, "w prawdziwych kolorach szlaków");
+  const imgwSrc = src("i-network", "IMGW Kasprowy", KW ? REAL : "",
+    `${KW ? `<button class="link" data-open="w-imgw" title="Otwórz wykres zimy 2024/25">archiwum 2024/25</button> · teraz ` : ""}<span id="live">łączę…</span>`);
+  const libSrc = src("i-library", "Biblioteka AvaFrame", scenarios?.count ? `<b class="tag real">policzona</b>` : "", `${lib}${scenarios?.count ? " · DGX Spark" : ""}`);
+  const synSrc = src("i-drone", "Płyta, przeloty", SYN, `<span class="${st === "ok" ? "" : "warn"}">przelot ${text}</span>`);
+  // With the satellite the panel keeps two rows of three (the Sytuacja window has no room for a third):
+  // the GUGiK orthophoto joins the terrain cell, and the top row holds only one-line entries.
+  $("sources").innerHTML = (SAT ? [
+    src("i-mountain", "Teren GUGiK", REAL, `NMT ${terrain.cell_m} m · ortofoto w 3D`), trailSrc,
+    src("i-sat", "Satelita Sentinel-2", REAL,
+      `<button class="link" data-action="sat-snow" title="Pokaż na mapie. ${SAT.credit}. Satelita pokazuje, gdzie leży śnieg, a nie jego grubość.">śnieg ${dmy(SAT.date)}</button> · <span title="W dniach zamieci satelita nie widział terenu: ${satStormText()}">po zamieci</span>`),
+    imgwSrc, libSrc, synSrc,
+  ] : [terrainSrc, src("i-desktop", "Ortofoto GUGiK", REAL, "tekstura renderów 3D"), trailSrc, imgwSrc, libSrc, synSrc]).join("");
   xp.setTray("drone", { state: st, title: `Przelot drona: ${text}` });
   paintLive();
 }
@@ -458,7 +531,7 @@ function renderRows() {
   const n = R.flags.length;
   $("sec-count").textContent = `${n} ${plural(n, "obiekt", "obiekty", "obiektów")}`;
   if (!n) {
-    body.innerHTML = `<tr class="empty"><td colspan="7">Brak flag. To nie znaczy, że jest bezpiecznie.</td></tr>`;
+    body.innerHTML = `<tr class="empty"><td colspan="7">Brak flag. To nie zielone światło: decyzję podejmuje prognosta.</td></tr>`;
     $("why").textContent = "";
     return;
   }
@@ -480,14 +553,15 @@ function renderRows() {
   });
   const f = R.flagOf[state.selected] ?? R.flags[0];
   const analogs = f.analogs ? ` ${f.analogs_hitting} z ${f.analogs} podobnych scenariuszy dochodzi do szlaku.` : "";
-  $("why").innerHTML = `<b>${f.n}. ${byId[f.sector].name}:</b> ${f.reason}${analogs}`;
+  const film = hasVideo(f.sector) ? ` <button class="link" data-action="player-sel" title="Animacja 3D przebiegu AvaFrame dla tego sektora">Pokaż lawinę w 3D</button>` : "";
+  $("why").innerHTML = `<b>${f.n}. ${byId[f.sector].name}:</b> ${f.reason}${analogs}${film}`;
 }
 
 function renderPlan() {
   const p = R.plan;
   $("budget-out").textContent = `${state.budget} min`;
   $("plan-kpis").innerHTML = p.route.length
-    ? `<div><b>${p.route.length}</b><span>sektorów do zmierzenia</span></div><div><b>${p.minutes} min</b><span>lotu z powrotem</span></div><div><b class="gain">−${p.sigma_drop}%</b><span>niepewności nad szlakami</span></div>`
+    ? `<div><b>${p.route.length}</b><span>sektorów do zmierzenia</span></div><div><b>${p.minutes} min</b><span>lotu z powrotem</span></div><div><b class="gain">${p.sigma_drop > 0 ? "−" : ""}${p.sigma_drop}%</b><span>niepewności nad szlakami</span></div>`
     : `<div><b>0</b><span>za mało czasu na dolot i powrót</span></div>`;
   $("route").innerHTML = p.route.map((id) => `<li class="${state.visited.has(id) ? "done" : ""}" title="${byId[id].name}">${byId[id].name}</li>`).join("");
   const fly = $("fly");
@@ -499,10 +573,21 @@ function renderPlan() {
   fly.innerHTML = `<svg aria-hidden="true"><use href="#i-drone"/></svg><span>${label}</span>`;
 }
 
+/** Library coverage: zones with computed AvaFrame runs, and those whose runs reach a trail (days.json exposure). */
+function libraryReach() {
+  return { reach: Object.keys(DAYS.exposure ?? {}).length, simulated: scenarios?.sectors?.length ?? 0 };
+}
+
 function factParts() {
-  const parts = [`<strong>${sectors.length}</strong> stref startowych wyznaczonych z terenu GUGiK NMT (nachylenie 28–55°, powyżej 1600 m).`];
-  if (scenarios?.count) parts.push(`<strong>${scenarios.count.toLocaleString("pl-PL")}</strong> scenariuszy lawin policzonych z góry.`);
-  if (calibration?.runout_error_m != null) parts.push(`Prosty model skalibrowany do AvaFrame: błąd zasięgu ±${calibration.runout_error_m} m.`);
+  const { reach, simulated } = libraryReach();
+  const zones = "stref startowych wyznaczonych z terenu GUGiK NMT (nachylenie 28–55°, powyżej 1600 m)";
+  const parts = [simulated ? `Strefy startowe wyznaczone z terenu GUGiK NMT (nachylenie 28–55°, powyżej 1600 m): <strong>${simulated}</strong> w pobliżu szlaków ma policzone scenariusze lawin.`
+    : `<strong>${sectors.length}</strong> ${zones}.`];
+  if (scenarios?.count) parts.push(`<strong>${scenarios.count.toLocaleString("pl-PL")}</strong> scenariuszy lawin AvaFrame policzonych z góry${reach && simulated ? `; <strong>${reach}</strong> z ${simulated} stref może zrzucić lawinę na szlak` : ""}.`);
+  const cal = calibration?.best;
+  if (cal?.iou != null && cal.runout_error_m != null) {
+    parts.push(`Przykładowa kalibracja na prawdziwym zdarzeniu z Austrii (Popeletzbach): AvaFrame trafia zasięg obserwowanej lawiny z IoU ${pl(cal.iou, 2)}, błąd długości zasięgu ${cal.runout_error_m > 0 ? "+" : ""}${pl(cal.runout_error_m)} m.`);
+  }
   if (cells) parts.push("Na mapie: zasięgi tych symulacji, które z danego sektora dochodzą do szlaku.");
   const rm = realMorning();
   const top = KW?.episodes?.length ? KW.episodes.reduce((a, e) => (e.new_cm_3d > a.new_cm_3d ? e : a)) : null;
@@ -512,7 +597,7 @@ function factParts() {
 }
 function renderFacts() { $("library").innerHTML = factParts().join(" "); }
 
-function renderAll() { renderDays(); renderSituation(); renderRows(); renderPlan(); renderFacts(); }
+function renderAll() { renderDays(); renderSituation(); renderRows(); renderPlan(); renderFacts(); renderPlayer(); }
 
 function select(id, { toggle = true, explain = true } = {}) {
   state.selected = toggle && state.selected === id ? null : id;
@@ -525,17 +610,244 @@ function explainFlag(f) {
   const unknown = f.kind === "nie_wiem";
   const analogs = f.analogs ? `<p>${f.analogs_hitting} z ${f.analogs} podobnych scenariuszy dochodzi do szlaku.${f.envelope?.length ? " Ich zasięg jest zaznaczony na mapie na pomarańczowo." : ""}</p>` : "";
   const inPlan = R.plan.route.includes(f.sector);
+  const withLib = RUNS.size > 0;
   xp.msgbox({
-    id: "flag-dialog", title: `${f.n}. ${s.name}`, icon: unknown ? "i-question" : "i-warn",
-    html: `<h3>${unknown ? "Nie wiem" : "Może zagrozić szlakowi"}</h3>
+    id: "flag-dialog", title: `${f.n}. ${s.name}`, icon: unknown ? "i-question" : "i-warn", className: withLib ? "flag-detail" : "",
+    html: `<div class="fd-text"><h3>${unknown ? "Nie wiem" : "Może zagrozić szlakowi"}</h3>
       <p>${f.reason}</p>${analogs}
       <p>Szlak: <b>${f.trails.join(", ")}</b><br>${s.band} · ΔHS ${Math.round(st.dhs_m * 100)} cm · σ ±${Math.round(st.sigma_m * 100)} cm · pomiar ${st.hours_since_measured} h temu</p>
-      <p>${inPlan ? "Sektor jest w planie przelotu." : "Sektora nie ma w obecnym planie przelotu."}${unknown ? " Pomiar z drona zamieni „nie wiem” w liczbę." : ""}</p>`,
+      <p>${inPlan ? "Sektor jest w planie przelotu." : "Sektora nie ma w obecnym planie przelotu."}${unknown ? " Pomiar z drona zamieni „nie wiem” w liczbę." : ""}</p></div>
+      ${withLib ? whatIfForm(f, snapTh(f.h_m ?? 1)) : ""}`,
     buttons: unknown && inPlan && !state.flight
       ? [{ label: "Wykonaj przelot", value: "fly" }, { label: "OK", value: true, default: true }]
       : [{ label: "OK", value: true, default: true }],
     near: xp.windowRect("w-sit"),
   }).then((v) => { if (v === "fly") startFlight(); });
+  wireWhatIf(document.getElementById("flag-dialog"), f.sector);
+}
+
+// ---------- "Co jeśli płyta ma X m?": one real AvaFrame run from the library, drawn on the map ----------
+const THS = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0];
+const FRICTS = [["samosATSmall", "małe lawiny"], ["samosATMedium", "średnie"], ["samosAT", "duże"]];
+const FRICT_PL = { samosATSmall: "tarcie dla małych lawin", samosATMedium: "tarcie dla średnich lawin", samosAT: "tarcie dla dużych lawin" };
+const snapTh = (x) => THS.reduce((a, t) => (Math.abs(t - x) < Math.abs(a - x) ? t : a));
+const cm = (m) => Math.round(m * 100);
+let whatIfLayer = null;
+
+function whatIfForm(f, th0) {
+  const frac = (x) => (Math.min(2, Math.max(0.4, x)) - 0.4) / 1.6;
+  const band = f.range_m
+    ? `<i class="wi-band" style="left: calc(6.5px + ${frac(f.range_m[0]).toFixed(3)} * (100% - 13px)); width: calc(${(frac(f.range_m[1]) - frac(f.range_m[0])).toFixed(3)} * (100% - 13px) + 2px)"></i>`
+    : "";
+  return `<fieldset class="group whatif">
+      <legend>Co jeśli płyta ma <output id="wi-out">${pl(th0, 1)} m</output>?</legend>
+      <div class="trackbar">${band}
+        <input id="wi-th" type="range" min="2" max="10" step="1" value="${Math.round(th0 / 0.2)}" aria-label="Grubość płyty w metrach">
+        <div class="ticks" aria-hidden="true">${THS.map((t) => `<span>${pl(t, 1)}</span>`).join("")}</div>
+      </div>
+      ${f.range_m ? `<p class="wi-today"><i class="wi-swatch"></i>Szacunek płyty na ten poranek: ${cm(f.range_m[0])}–${cm(f.range_m[1])} cm (syntetyczny)</p>` : ""}
+      <div class="wi-frict" role="radiogroup" aria-label="Tarcie w modelu AvaFrame">Tarcie:
+        ${FRICTS.map(([k, l]) => `<label class="xp-radio" title="${FRICT_PL[k]} (kalibracja AvaFrame)"><input type="radio" name="wi-fr" value="${k}"${k === "samosATMedium" ? " checked" : ""}>${l}</label>`).join("")}
+      </div>
+      <div class="wi-result" id="wi-result" aria-live="polite"></div>
+      <p class="wi-src">Prawdziwe przebiegi AvaFrame z biblioteki (${(scenarios?.count ?? RUNS.size).toLocaleString("pl-PL")} symulacji)</p>
+      <button class="xp-btn wi-3d" id="wi-3d" type="button"><svg aria-hidden="true"><use href="#i-player"/></svg>Pokaż lawinę w 3D</button>
+    </fieldset>`;
+}
+
+function wireWhatIf(el, sector) {
+  const range = el?.querySelector("#wi-th");
+  if (!range) return;
+  const update = () => {
+    const th = Math.round(+range.value * 2) / 10;
+    const frict = el.querySelector('input[name="wi-fr"]:checked')?.value ?? "samosATMedium";
+    setWhatIf({ sector, th, frict });
+    el.querySelector("#wi-out").textContent = `${pl(th, 1)} m`;
+    el.querySelector("#wi-result").innerHTML = whatIfText();
+    const v = videoFor(sector, th, frict), b = el.querySelector("#wi-3d");
+    b.disabled = !v;
+    b.title = v ? `Film 3D: płyta ${pl(v.relTh, 1)} m, ${FRICT_PL[v.frict]}` : "Brak filmu 3D dla tego sektora";
+  };
+  range.addEventListener("input", update);
+  el.querySelectorAll('input[name="wi-fr"]').forEach((i) => i.addEventListener("change", update));
+  el.querySelector("#wi-3d").addEventListener("click", () => {
+    const w = state.whatIf;
+    if (!w) return;
+    el.querySelector(".buttons .default")?.click(); // close the dialog like OK: it would cover the player
+    openPlayer(w.sector, w.th, w.frict); // the map then shows the library run of the film being played
+  });
+  update();
+}
+
+const runOf = (w) => (w ? RUNS.get(runKey(w.sector, w.frict, w.th)) ?? null : null);
+const whatIfRun = () => runOf(state.whatIf);
+const whatIfSegments = () => { const r = runOf(shown); return r ? hitSegments(r) : []; };
+
+// The run on the map: the dialog's slider while the flag dialog is open, otherwise the film playing in the
+// 3D player (its com1DFA run is the library run with the same sector, slab and friction, recomputed with time steps).
+let shown = null, shownKey = "";
+function activeWhatIf() {
+  if (state.whatIf && document.getElementById("flag-dialog")) return { ...state.whatIf, from: "dialog" };
+  const v = player.cur;
+  if (v && !player.el.classList.contains("is-hidden") && RUNS.has(runKey(v.sector, v.frict, v.relTh))) return { sector: v.sector, th: v.relTh, frict: v.frict, from: "player" };
+  return null;
+}
+function syncWhatIf() {
+  const w = activeWhatIf();
+  const k = w ? `${runKey(w.sector, w.frict, w.th)}|${w.from}` : "";
+  if (k === shownKey) return;
+  shown = w; shownKey = k;
+  buildWhatIfLayer();
+  $("whatif-legend").hidden = !w;
+  if (w) $("whatif-n").textContent = `${w.from === "player" ? "Film 3D" : "Co jeśli"}: ${byId[w.sector].name}, płyta ${pl(w.th, 1)} m (przebieg AvaFrame)`;
+}
+function setWhatIf(w) { state.whatIf = w; syncWhatIf(); }
+
+function buildWhatIfLayer() {
+  const r = runOf(shown);
+  if (!r || !cells || !view.cw) { whatIfLayer = null; return; }
+  whatIfLayer = outlined(cellMask(cells.subarray(r.cells_offset, r.cells_offset + r.cells_count)), "#6b1d00", 2.2 * view.dpr,
+    (x) => { x.fillStyle = "rgba(166, 59, 0, 0.46)"; x.fillRect(0, 0, view.cw, view.ch); });
+}
+
+function whatIfText() {
+  const r = whatIfRun();
+  if (!r) return "Tego przebiegu nie ma w bibliotece.";
+  const segs = hitSegments(r);
+  const byTrail = new Map(); // trail id -> peak flow on its segments
+  for (const id of segs) {
+    const t = id.split("-")[0], v = r.hits_pft_m?.[r.hits.indexOf(id)] ?? 0;
+    byTrail.set(t, Math.max(byTrail.get(t) ?? 0, v));
+  }
+  const top = [...byTrail].sort((a, b) => b[1] - a[1]);
+  const flow = top[0]?.[1] ?? 0;
+  const names = top.slice(0, 2).map(([t]) => TRAIL_NAME[t] ?? t).join("; ") + (top.length > 2 ? ` i ${top.length - 2} ${plural(top.length - 2, "inny", "inne", "innych")}` : "");
+  const reach = segs.length
+    ? `<b class="hit">Dochodzi do szlaku</b> z przepływem do ${pl(flow, 1)} m: <b>${names}</b>`
+    : r.hits?.length ? "Dotyka szlaku, ale przepływ na nim nie przekracza 0,5 m."
+    : "Nie dochodzi do szlaku z przepływem ≥ 0,5 m.";
+  return `Zasięg <b>${pl(r.runout_m)} m</b> · ${pl(r.area_ha, 1)} ha<br>${reach}`
+    + (cells ? "" : "<br><i>Obrys na mapie: wczytuję bibliotekę zasięgów…</i>");
+}
+
+// ---------- Odtwarzacz 3D: animations of AvaFrame runs for the flagged sectors ----------
+const VIDEOS = (media3d?.videos ?? []).filter((v) => byId[v.sector] && v.file);
+const FRICT_SHORT = { samosATSmall: "tarcie: małe", samosATMedium: "tarcie: średnie", samosAT: "tarcie: duże" };
+const player = { el: $("w-player"), video: $("pl-video"), cur: null, list: [], seeking: false };
+const mmss = (t) => { const s = Math.max(0, Math.floor(t || 0)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+const hasVideo = (sector) => VIDEOS.some((v) => v.sector === sector);
+
+/** The video closest to a slab thickness (default: this morning's estimate) and friction (default: medium). */
+function videoFor(sector, th = null, frict = null) {
+  const list = VIDEOS.filter((v) => v.sector === sector);
+  if (!list.length) return null;
+  const t = th ?? R.flagOf[sector]?.h_m ?? 1;
+  const cost = (v) => Math.abs(v.relTh - t) + (v.frict === (frict ?? "samosATMedium") ? 0 : 0.35);
+  return list.reduce((a, v) => (cost(v) < cost(a) ? v : a));
+}
+
+function playlist() {
+  const order = R.flags.map((f) => f.sector).filter(hasVideo);
+  for (const v of VIDEOS) if (!order.includes(v.sector)) order.push(v.sector);
+  const rank = (v) => (v.frict === "samosATMedium" ? 0 : 1);
+  return order.flatMap((id) => VIDEOS.filter((v) => v.sector === id).sort((a, b) => rank(a) - rank(b) || a.relTh - b.relTh));
+}
+
+function openPlayer(sector = null, th = null, frict = null) {
+  if (!VIDEOS.length) {
+    dlg({ title: "Odtwarzacz 3D — scenariusz AvaFrame", icon: "i-player", html: "<p>W tej kopii demo nie ma filmów 3D (web/media/3d/).</p>" });
+    return;
+  }
+  const id = sector ?? (R.flagOf[state.selected] ? state.selected : null) ?? R.flags.find((f) => hasVideo(f.sector))?.sector ?? VIDEOS[0].sector;
+  xp.open("w-player");
+  const v = videoFor(id, th, frict);
+  if (v) playVideo(v);
+  else {
+    player.cur = null; player.video.pause(); player.video.removeAttribute("src"); player.video.removeAttribute("poster"); player.video.load();
+    $("pl-empty").hidden = false;
+    $("pl-empty").textContent = `Dla sektora ${byId[id]?.name ?? id} nie ma jeszcze filmu 3D. Wybierz scenariusz z listy.`;
+    renderPlayer();
+  }
+}
+
+function playVideo(v) {
+  const vid = player.video;
+  player.cur = v;
+  $("pl-empty").hidden = true;
+  vid.poster = `media/3d/${v.poster}`;
+  vid.src = `media/3d/${v.file}`;
+  vid.play().catch(() => {});
+  renderPlayer();
+  paintSeek();
+}
+
+function renderPlayer() {
+  if (!player.el) return;
+  const v = player.cur;
+  player.list = playlist();
+  $("pl-list").innerHTML = player.list.map((x, i) => {
+    const f = R.flagOf[x.sector];
+    const near = f && videoFor(x.sector) === x;
+    return `<li><button type="button" data-i="${i}" aria-current="${x === v}">
+      <span class="pl-n">${f ? `<i class="n${f.kind === "nie_wiem" ? " unknown" : ""}">${f.n}</i>` : ""}</span><span class="pl-t">${byId[x.sector].name}</span><span class="pl-d">${mmss(x.duration_s)}</span>
+      <small>${pl(x.relTh, 1)} m · ${FRICT_SHORT[x.frict] ?? x.frict}${near ? ` <b class="near" title="Najbliżej szacunku płyty na ten poranek">≈ dziś</b>` : ""}</small></button></li>`;
+  }).join("");
+  if (!v) { $("pl-caption").innerHTML = `<p><b>Odtwarzacz 3D</b></p><p class="sub">AvaFrame com1DFA, teren GUGiK, śnieg: scenariusz syntetyczny</p>`; $("pl-now").textContent = ""; return; }
+  const s = byId[v.sector], f = R.flagOf[v.sector];
+  const pill = f ? ` <span class="pill ${f.kind}">${f.n}. ${f.kind === "nie_wiem" ? "Nie wiem" : "Może zagrozić szlakowi"}</span>` : "";
+  const today = f?.range_m ? ` · płyta na ten poranek ${cm(f.range_m[0])}–${cm(f.range_m[1])} cm` : "";
+  $("pl-caption").innerHTML = `<p><b>Lawina: ${s.name}</b> · płyta ${pl(v.relTh, 1)} m · ${FRICT_PL[v.frict] ?? v.frict}${pill}</p>
+    <p class="sub">AvaFrame com1DFA, teren GUGiK, śnieg: scenariusz syntetyczny${today}</p>`;
+  $("pl-now").textContent = `${s.name} · ${pl(v.relTh, 1)} m`;
+}
+
+function paintSeek() {
+  const vid = player.video, seek = $("pl-seek");
+  const d = Number.isFinite(vid.duration) ? vid.duration : player.cur?.duration_s ?? 0, t = vid.currentTime || 0;
+  if (!player.seeking) seek.value = d ? Math.round((t / d) * 1000) : 0;
+  seek.style.setProperty("--p", `${seek.value / 10}%`);
+  $("pl-time").textContent = `${mmss(t)} / ${mmss(d)}`;
+}
+
+if (player.el) {
+  const vid = player.video, seek = $("pl-seek");
+  const status = (t) => { $("pl-status").textContent = t; };
+  $("pl-play").addEventListener("click", () => { if (!player.cur) { openPlayer(); return; } vid.paused ? vid.play().catch(() => {}) : vid.pause(); });
+  $("pl-stop").addEventListener("click", () => { vid.pause(); vid.currentTime = 0; paintSeek(); status("Zatrzymano"); });
+  const step = (k) => {
+    const L = player.list;
+    if (!L.length) return;
+    const i = L.indexOf(player.cur);
+    playVideo(L[(i < 0 ? 0 : i + k + L.length) % L.length]);
+  };
+  $("pl-prev").addEventListener("click", () => step(-1));
+  $("pl-next").addEventListener("click", () => step(1));
+  $("pl-list").addEventListener("click", (e) => { const b = e.target.closest("button[data-i]"); if (b) playVideo(player.list[+b.dataset.i]); });
+  seek.addEventListener("input", () => {
+    player.seeking = true;
+    const d = vid.duration;
+    if (Number.isFinite(d) && d > 0) vid.currentTime = (seek.value / 1000) * d;
+    paintSeek();
+  });
+  seek.addEventListener("change", () => { player.seeking = false; });
+  for (const ev of ["play", "playing", "pause", "ended"]) vid.addEventListener(ev, () => {
+    const on = !vid.paused;
+    player.el.classList.toggle("playing", on);
+    $("pl-play").setAttribute("aria-label", on ? "Wstrzymaj" : "Odtwórz");
+    if (player.cur) status(on ? `Odtwarzanie: ${byId[player.cur.sector].name}, płyta ${pl(player.cur.relTh, 1)} m` : "Wstrzymano");
+  });
+  vid.addEventListener("waiting", () => status("Wczytywanie…"));
+  vid.addEventListener("timeupdate", () => {
+    paintSeek();
+    // a "waiting" stall (loop restart, slow disk) is not always followed by "playing"
+    if (!vid.paused && player.cur && $("pl-status").textContent === "Wczytywanie…") status(`Odtwarzanie: ${byId[player.cur.sector].name}, płyta ${pl(player.cur.relTh, 1)} m`);
+  });
+  vid.addEventListener("loadedmetadata", paintSeek);
+  vid.addEventListener("error", () => { if (player.cur) status(`Nie udało się wczytać filmu ${player.cur.file}`); });
+  vid.addEventListener("click", () => $("pl-play").click());
+  // a hidden player (closed, minimised) never plays on in the background
+  new MutationObserver(() => { if (player.el.classList.contains("is-hidden")) vid.pause(); })
+    .observe(player.el, { attributes: true, attributeFilter: ["class"] });
 }
 
 function recompute() { compute(); renderAll(); }
@@ -662,42 +974,126 @@ function stepFlight(dt) {
   }
 }
 
-// ---------- live Kasprowy Wierch (IMGW) ----------
+// ---------- live Kasprowy Wierch (IMGW) and offline mode ----------
+// sw.js answers the IMGW request from its cache when the network is gone and marks it
+// with X-Avalauncher-Cache, so a cached reading is never painted as live.
+// "Symuluj awarię łączności" blocks every live request inside the app; the map, the
+// library, the flight plan and the 2024/25 archive keep running from the cache.
+const LIVE_URL = "https://danepubliczne.imgw.pl/api/data/synop/station/kasprowywierch";
+const LIVE_KEY = "avalauncher.kasprowy";
+const SIM_KEY = "avalauncher.simOffline";
 let liveState = null;
 let warnedOffline = false;
+let simOffline = false;
+try { simOffline = sessionStorage.getItem(SIM_KEY) === "1"; } catch {}
+const liveFetch = (url, init) => (simOffline || !navigator.onLine
+  ? Promise.reject(new TypeError(simOffline ? "Symulowana awaria łączności" : "Brak sieci"))
+  : fetch(url, init));
+
+/** When IMGW measured it: data_pomiaru + godzina_pomiaru are UTC. */
+function readingAt(d) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d?.data_pomiaru ?? "");
+  const t = m ? Date.UTC(+m[1], +m[2] - 1, +m[3], +d.godzina_pomiaru) : NaN;
+  return Number.isFinite(t) ? t : null;
+}
+function ago(ms) {
+  const min = Math.max(0, Math.round(ms / 60000));
+  return min < 60 ? `${Math.max(1, min)} min temu` : `${Math.round(min / 60)} h temu`;
+}
+function cachedReading() {
+  try { return JSON.parse(localStorage.getItem(LIVE_KEY)); } catch { return null; }
+}
+const readingAge = (c) => (c?.d ? ago(Date.now() - (readingAt(c.d) ?? c.at)) : null);
+const num = (v, k = 0) => (v == null || v === "" || !Number.isFinite(+v) ? "—" : pl(+v, k));
+const fmtReading = (d) => `${num(d.temperatura, 1)} °C · ${num(d.predkosc_wiatru)} m/s`;
+
 async function live() {
-  const key = "avalauncher.kasprowy";
   try {
-    const d = await (await fetch("https://danepubliczne.imgw.pl/api/data/synop/station/kasprowywierch", { cache: "no-store" })).json();
-    try { localStorage.setItem(key, JSON.stringify({ d, at: Date.now() })); } catch {}
-    liveState = { ok: true, d };
-  } catch {
-    let c = null;
-    try { c = JSON.parse(localStorage.getItem(key)); } catch {}
-    liveState = { ok: false, c };
-    if (!warnedOffline) {
-      warnedOffline = true;
-      xp.balloon({ title: "Stacja IMGW: brak łączności", text: c ? "Pokazuję ostatni zapisany odczyt z Kasprowego Wierchu." : "Brak zapisanego odczytu. Scenariusz demo działa dalej offline.", icon: "i-network", anchor: "#tray-net" });
+    const r = await liveFetch(LIVE_URL, { cache: "no-store" });
+    if (!r.ok) throw new Error(`IMGW ${r.status}`);
+    const d = await r.json();
+    const cachedAt = r.headers.get("x-avalauncher-cache");
+    if (cachedAt) { // the network is down and sw.js answered with the last reading it kept
+      const mine = cachedReading();
+      const c = (readingAt(mine?.d) ?? 0) >= (readingAt(d) ?? 0) ? mine : { d, at: Number(cachedAt) || Date.now() };
+      return goOffline(c);
     }
+    try { localStorage.setItem(LIVE_KEY, JSON.stringify({ d, at: Date.now() })); } catch {}
+    liveState = { ok: true, d };
+    warnedOffline = false;
+  } catch {
+    return goOffline(cachedReading());
   }
   paintLive();
 }
-function liveText() {
-  if (!liveState) return "łączę…";
-  if (liveState.ok) { const d = liveState.d; return `${d.temperatura} °C · ${d.predkosc_wiatru} m/s · ${d.godzina_pomiaru}:00`; }
+function goOffline(c) {
+  liveState = { ok: false, c };
+  if (!warnedOffline) { warnedOffline = true; offlineBalloon(); }
+  paintLive();
+}
+function offlineBalloon() {
+  const age = readingAge(liveState?.c ?? cachedReading());
+  const lib = scenarios?.count ? `biblioteka ${scenarios.count.toLocaleString("pl-PL")} symulacji` : "biblioteka scenariuszy";
+  xp.balloon({
+    title: "Brak łączności — pracuję na danych z pamięci podręcznej",
+    text: `${age ? `Ostatni odczyt IMGW: ${age}.` : "Brak zapisanego odczytu IMGW."} Mapa, ${lib} i plan przelotu działają dalej.${simOffline ? " To symulacja awarii: wyłączysz ją w menu Plik albo w zasobniku." : ""}`,
+    icon: "i-network", anchor: "#tray-net", timeout: 9000,
+  });
+}
+/** Live reading as text; short = the compact form for the data-sources panel. */
+function liveText(short = false) {
+  if (!liveState) return simOffline ? "niedostępne" : "łączę…";
+  if (liveState.ok) {
+    const d = liveState.d, t = readingAt(d);
+    return `${fmtReading(d)} · ${t ? new Date(t).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" }) : `${d.godzina_pomiaru}:00 UTC`}`;
+  }
   const c = liveState.c;
-  return c?.d ? `brak łączności, odczyt sprzed ${Math.max(1, Math.round((Date.now() - c.at) / 3600000))} h: ${c.d.temperatura} °C · ${c.d.predkosc_wiatru} m/s` : "brak łączności";
+  const why = simOffline ? "niedostępne" : "brak łączności";
+  if (!c?.d) return `${why} · brak zapisanego odczytu`;
+  return short ? `${why} · ostatni odczyt ${readingAge(c)}` : `${why}, ostatni odczyt ${readingAge(c)}: ${fmtReading(c.d)}`;
 }
 function paintLive() {
   const text = liveText();
   const ok = liveState?.ok;
-  xp.setTray("net", { state: !liveState ? "none" : ok ? "ok" : "off", title: `Stacja IMGW Kasprowy Wierch: ${text}${ok ? " (na żywo, poza scenariuszem demo)" : ""}` });
+  const down = simOffline || !navigator.onLine;
+  xp.setTray("net", {
+    state: down ? "down" : !liveState ? "none" : ok ? "ok" : "off",
+    title: `Stacja IMGW Kasprowy Wierch: ${text}${ok ? " (na żywo, poza scenariuszem demo)" : ""}`,
+  });
+  document.querySelectorAll(".sim-offline").forEach((b) => {
+    b.classList.toggle("checked", simOffline);
+    b.setAttribute("aria-checked", String(simOffline));
+    if (b.classList.contains("sm-item")) b.lastChild.textContent = simOffline ? "Przywróć łączność" : "Symuluj awarię łączności";
+  });
+  const flag = document.getElementById("offline-flag");
+  if (flag) flag.hidden = !(down || (liveState && !ok));
   const el = document.getElementById("live");
   if (!el) return;
-  el.textContent = text;
-  el.className = liveState && !ok ? "warn" : "";
-  el.title = ok ? "Odczyt na żywo, poza scenariuszem demo" : "";
+  el.textContent = liveText(true);
+  el.className = liveState && !ok || simOffline ? "warn" : "";
+  el.title = ok ? "Odczyt na żywo, poza scenariuszem demo" : `${text}. Dane na żywo niedostępne; teren, szlaki, biblioteka i plan przelotu działają z pamięci podręcznej.`;
 }
+function setSimOffline(on) {
+  simOffline = on;
+  try { on ? sessionStorage.setItem(SIM_KEY, "1") : sessionStorage.removeItem(SIM_KEY); } catch {}
+  warnedOffline = false;
+  xp.clearBalloons(); // only on a click: at page load the day announcement must not be wiped
+  if (on) live(); // takes the offline path at once: no request leaves the app
+  else {
+    liveState = null;
+    paintLive();
+    xp.balloon({ title: "Łączność przywrócona", text: "Pobieram świeży odczyt z Kasprowego Wierchu (IMGW).", icon: "i-network", anchor: "#tray-net" });
+    live();
+  }
+}
+addEventListener("online", () => { warnedOffline = false; live(); });
+addEventListener("offline", () => live());
+
+// Tray network icon: left or right click opens a small XP menu above it.
+const trayMenu = $("tray-net-menu");
+let trayMenuWasOpen = false;
+$("tray-net").addEventListener("pointerdown", () => { trayMenuWasOpen = trayMenu.classList.contains("open"); });
+$("tray-net").addEventListener("contextmenu", (e) => { e.preventDefault(); trayMenu.classList.add("open"); });
 
 // ---------- shell actions ----------
 const dlg = (o) => xp.msgbox({ near: xp.windowRect("w-map"), ...o });
@@ -709,6 +1105,8 @@ xp.registerActions({
   layout: () => xp.layout(true),
   "max-map": () => xp.toggleMax("w-map"),
   "lib-heat": toggleHeat,
+  player: () => openPlayer(),
+  "player-sel": () => openPlayer(R.flagOf[state.selected] ? state.selected : R.flags[0]?.sector ?? null),
   "library-page": () => window.open("biblioteka.html", "_blank", "noopener"),
   "show-desktop": () => xp.showDesktop(),
   logoff: () => xp.logoff(),
@@ -716,27 +1114,35 @@ xp.registerActions({
     title: "O projekcie Avalauncher", icon: "i-logo",
     html: `<h3>Avalauncher</h3><p>Cyfrowy bliźniak góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć.</p>
       <p>Drony mierzą śnieg nad szlakami, a każdy pomiar porównujemy z policzonymi z góry scenariuszami lawin. Gdy wiedza się starzeje, bo dron nie mógł polecieć, ekran mówi to wprost i planuje przelot.</p>
-      <p><b>Brak flagi nie oznacza, że jest bezpiecznie. Decyzję podejmuje prognosta.</b><br>Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny.<br>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Źródło: IMGW-PIB</p>
+      <p><b>Brak flagi to nie zielone światło. Decyzję podejmuje prognosta.</b><br>Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny.<br>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Źródło: IMGW-PIB${SAT ? `<br>Satelita: ${SAT.credit}` : ""}</p>
+      <p class="about-links"><a href="projekt.html" target="_blank" rel="noopener">Strona projektu: jak to działa, wyniki, dane i licencje</a><br>
+        <a href="biblioteka.html" target="_blank" rel="noopener">Biblioteka scenariuszy${scenarios?.count ? ` (${scenarios.count.toLocaleString("pl-PL")} symulacji AvaFrame)` : ""}</a></p>
       <p>HackYeah 2026 · Defence</p>`,
   }),
   zones: () => dlg({
     title: "Moje strefy startowe", icon: "i-sectors",
-    html: `<p>${factParts()[0]}</p><p><b>${Object.keys(R.day.sectors).length}</b> z nich leży nad szlakami. Na mapie mają brązowe tło, a te z flagą: kreskowanie lub mgłę niewiedzy.</p>`,
+    html: `<p>${factParts()[0]}</p>${libraryReach().reach ? `<p>Z <b>${libraryReach().reach}</b> z nich lawina w symulacjach AvaFrame dochodzi do szlaku.</p>` : ""}<p>Na mapie strefy mają brązowe tło, a te z flagą: kreskowanie lub mgłę niewiedzy.</p>`,
   }),
   trails: () => {
-    const by = {};
-    for (const t of trails) by[t.color] = (by[t.color] ?? 0) + 1;
-    const list = Object.entries(by).map(([c, n]) => `<span style="display:inline-block;width:16px;height:6px;margin:0 6px 1px 0;background:${TRAIL[c] ?? TRAIL.red};outline:1px solid #888"></span>${COLOR_PL[c] ?? c}: ${n}`).join("<br>");
-    dlg({ title: "Szlaki", icon: "i-trail", html: `<p><b>${trails.length}</b> ${plural(trails.length, "odcinek", "odcinki", "odcinków")} szlaków na mapie, w ich prawdziwych kolorach.</p><p>${list}</p><p>Szlaki: © współtwórcy OpenStreetMap</p>` });
+    const colors = [...new Set(trails.map((t) => t.color))];
+    const list = colors.map((c) => `<span style="display:inline-block;width:16px;height:6px;margin:0 6px 1px 0;background:${TRAIL[c] ?? TRAIL.red};outline:1px solid #888"></span>${COLOR_PL[c] ?? c}`).join("<br>");
+    dlg({ title: "Szlaki", icon: "i-trail", html: `<p>Szlaki na mapie w ich prawdziwych kolorach.</p><p>${list}</p><p>Szlaki: © współtwórcy OpenStreetMap</p>` });
   },
-  library: () => dlg({ title: "Biblioteka scenariuszy", icon: "i-library", html: factParts().map((p) => `<p>${p}</p>`).join("") }),
+  library: () => dlg({
+    title: "Biblioteka scenariuszy", icon: "i-library",
+    html: factParts().map((p) => `<p>${p}</p>`).join("") + `<p><a href="biblioteka.html" target="_blank" rel="noopener">Otwórz przeglądarkę biblioteki scenariuszy</a></p>`,
+  }),
+  "sat-snow": toggleSat,
+  "project-page": () => window.open("projekt.html", "_blank", "noopener"),
   shutdown: () => xp.shutdown({
     question: "Czy na pewno chcesz wyłączyć lawiny?",
     onOff: "Lawin nie da się wyłączyć. Da się sprawdzić, gdzie polecieć, żeby się dowiedzieć.",
     onStandby: "Śnieg nie przechodzi w stan wstrzymania. Bez pomiaru mgła niewiedzy gęstnieje.",
   }),
   "tray-drone": () => { const [, t] = flightStatus(); xp.balloon({ title: "Przelot drona", text: `${cap(t)}. ${DAYS.days[state.day].label}.`, icon: "i-drone" }); },
-  "tray-net": () => xp.balloon({ title: "Stacja IMGW Kasprowy Wierch", text: liveText() + (liveState?.ok ? " (na żywo, poza scenariuszem demo)" : ""), icon: "i-network", anchor: "#tray-net" }),
+  "tray-net": () => { if (!trayMenuWasOpen) trayMenu.classList.add("open"); trayMenuWasOpen = false; },
+  "net-status": () => xp.balloon({ title: "Stacja IMGW Kasprowy Wierch", text: liveText() + (liveState?.ok ? " (na żywo, poza scenariuszem demo)" : ""), icon: "i-network", anchor: "#tray-net" }),
+  "sim-offline": () => setSimOffline(!simOffline),
 });
 
 // ---------- window "Kasprowy Wierch — zima 2024/25 (IMGW)" ----------
@@ -909,6 +1315,9 @@ function frame(now) {
   const dt = Math.min(64, now - last); last = now;
   state.dash = (state.dash + dt * 0.03 * view.dpr) % 1000;
   stepFlight(dt);
+  if (state.whatIf && !document.getElementById("flag-dialog")) state.whatIf = null; // dialog closed or replaced
+  syncWhatIf();
+  if (player.cur && !player.video.paused) paintSeek();
   const k = 1 - Math.exp(-dt / 260); // exponential ease toward targets
   for (const s of sectors) state.fog[s.index] += (fogTarget(s) - state.fog[s.index]) * k;
   draw();
@@ -925,3 +1334,5 @@ requestAnimationFrame(frame);
 announceDay();
 xp.ready();
 loadLibraryCells();
+// Offline mode: once sw.js is active, let it pull the 3D films in, so the player works without a network too.
+navigator.serviceWorker?.ready.then((r) => setTimeout(() => r.active?.postMessage({ type: "warm-media" }), 4000)).catch(() => {});

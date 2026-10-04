@@ -33,8 +33,10 @@ for (const el of desktop.querySelectorAll(".window:not(.dialog)")) {
   });
   taskButtons.appendChild(btn);
   const startMin = el.dataset.start === "min"; // lives on the taskbar until opened
-  if (startMin) { btn.classList.add("min"); el.classList.add("is-hidden"); }
-  wins.set(id, { el, btn, min: startMin, closed: false, max: false, prev: null });
+  const startClosed = el.dataset.start === "closed"; // not on the taskbar until something opens it
+  if (startMin || startClosed) { btn.classList.add("min"); el.classList.add("is-hidden"); }
+  if (startClosed) btn.hidden = true;
+  wins.set(id, { el, btn, min: startMin || startClosed, closed: startClosed, max: false, prev: null });
   wireWindow(el, id);
 }
 
@@ -159,7 +161,7 @@ export function layout(force = false) {
   };
   if (dw < 980) { // narrow screens: cascade
     const w = dw - 2 * m;
-    ["w-map", "w-sit", "w-sec", "w-plan", "w-imgw"].forEach((id, i) => set(id, m, m + i * 34, w, Math.min(dh - 2 * m - i * 34, 640)));
+    ["w-map", "w-sit", "w-sec", "w-plan", "w-imgw", "w-player"].forEach((id, i) => set(id, m, m + i * 34, w, Math.min(dh - 2 * m - i * 34, 640)));
   } else {
     const strip = 70; // leaves the desktop note visible under the map
     const mapH = dh - m - strip;
@@ -173,6 +175,7 @@ export function layout(force = false) {
     set("w-sec", rx, 2 * m + h1, rw, h2);
     set("w-plan", rx, 3 * m + h1 + h2, rw, h3);
     set("w-imgw", rx, 2 * m + h1, rw, h2 + h3 + m); // opens over the two lower panels, never over the map
+    set("w-player", rx, 2 * m + h1, rw, h2 + h3 + m); // same slot as the IMGW chart: the map stays visible beside the film
   }
   if (force) userMoved = false;
 }
@@ -252,7 +255,7 @@ export function setTray(name, { state, title }) {
   el.title = title;
   el.setAttribute("aria-label", title);
   const badge = el.querySelector(".badge use");
-  if (badge) badge.setAttribute("href", state === "ok" ? "#i-badge-ok" : "#i-badge-warn");
+  if (badge) badge.setAttribute("href", state === "ok" ? "#i-badge-ok" : state === "down" ? "#i-badge-off" : "#i-badge-warn");
 }
 
 // ---------- balloons ----------
@@ -320,10 +323,10 @@ function makeDialog({ id, title, icon, body, className = "" }) {
 }
 
 /** XP message box. buttons: [{ label, value, default }]. Resolves with the value (null on close). */
-export function msgbox({ id, title, icon = "i-info", html, buttons = [{ label: "OK", value: true, default: true }], near }) {
+export function msgbox({ id, title, icon = "i-info", html, buttons = [{ label: "OK", value: true, default: true }], near, className = "" }) {
   return new Promise((resolve) => {
     const el = makeDialog({
-      id, title, icon,
+      id, title, icon, className,
       body: `<div class="msg">${svg(icon)}<div class="msg-text">${html}</div></div>
         <div class="buttons">${buttons.map((b, i) => `<button data-i="${i}" class="${b.default ? "default" : ""}">${esc(b.label)}</button>`).join("")}</div>`,
     });
