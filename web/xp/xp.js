@@ -268,6 +268,8 @@ export function balloon(opts) {
   if (!current && !balloonsHeld) nextBalloon();
 }
 export function clearBalloons() { queue.length = 0; if (current) current.dismiss(true); }
+/** True once the start balloons are released and none is shown or waiting (app.js times its hints by it). */
+export function balloonsIdle() { return !balloonsHeld && !current && !queue.length; }
 function nextBalloon() {
   const o = queue.shift();
   if (!o) { current = null; return; }

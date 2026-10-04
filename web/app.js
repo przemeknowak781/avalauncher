@@ -79,6 +79,10 @@ const state = {
   dash: 0,
 };
 let R = null; // computed result for the current state
+// First-run hints that lead to the 3D avalanche player (once per page load; ?nohints keeps screenshots clean).
+const HINTS = !new URLSearchParams(location.search).has("nohints");
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hint = { map: null, pulse: false, gone: false, done3d: false };
 
 function effectiveDay() {
   const d = DAYS.days[state.day];
@@ -415,6 +419,11 @@ function drawBadges() {
     const [x, y] = px(s.centroid);
     const color = f.kind === "nie_wiem" ? UNKNOWN : HAZARD;
     const r = (state.selected === s.id ? 14 : 12) * dpr;
+    if (hint.pulse && f.sector === hintSector()) { // first-run hint: a gentle ring until the slope is opened
+      const t = REDUCED ? 0.35 : (performance.now() % 1600) / 1600;
+      g.save(); g.globalAlpha = 0.65 * (1 - t); g.strokeStyle = color; g.lineWidth = 3 * dpr;
+      g.beginPath(); g.arc(x, y, r + (3 + 11 * t) * dpr, 0, 7); g.stroke(); g.restore();
+    }
     g.save();
     g.shadowColor = "rgba(40,24,8,0.45)"; g.shadowBlur = 8 * dpr; g.shadowOffsetY = 3 * dpr;
     g.fillStyle = color; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
@@ -642,6 +651,7 @@ function select(id, { toggle = true, explain = true } = {}) {
 }
 
 function explainFlag(f) {
+  if (hint.map || hint.pulse) endMapHint(); // the first click on a slope retires the map hint
   const s = byId[f.sector], st = R.day.sectors[f.sector];
   const unknown = f.kind === "nie_wiem";
   const analogs = f.analogs ? `<p>${f.analogs_hitting} z ${f.analogs} podobnych scenariuszy dochodzi do szlaku.${f.envelope?.length ? " Ich zasięg jest zaznaczony na mapie na pomarańczowo." : ""}</p>` : "";
@@ -713,6 +723,15 @@ function wireWhatIf(el, sector) {
     el.querySelector(".buttons .default")?.click(); // close the dialog like OK: it would cover the player
     openPlayer(w.sector, w.th, w.frict); // the map then shows the library run of the film being played
   });
+  if (HINTS && !hint.done3d) { // pulsing button + a small tip under it, until the 3D player is opened once
+    const b = el.querySelector("#wi-3d"), tip = document.createElement("span");
+    tip.className = "hint-tip";
+    tip.textContent = "Zobacz lawinę w 3D (symulacja AvaFrame)";
+    tip.title = "Kliknij, żeby ukryć wskazówkę";
+    tip.addEventListener("click", () => { hint.done3d = true; tip.remove(); b.classList.remove("hint-pulse"); });
+    b.classList.add("hint-pulse");
+    b.after(tip);
+  }
   update();
 }
 
@@ -794,6 +813,8 @@ function playlist() {
 }
 
 function openPlayer(sector = null, th = null, frict = null) {
+  hint.done3d = true; // found: no more 3D hints
+  if (hint.map || hint.pulse) endMapHint();
   if (!VIDEOS.length) {
     dlg({ title: "Odtwarzacz 3D — scenariusz AvaFrame", icon: "i-player", html: "<p>W tej kopii demo nie ma filmów 3D (web/media/3d/).</p>" });
     return;
@@ -889,6 +910,49 @@ if (player.el) {
   // a hidden player (closed, minimised) never plays on in the background
   new MutationObserver(() => { if (player.el.classList.contains("is-hidden")) vid.pause(); })
     .observe(player.el, { attributes: true, attributeFilter: ["class"] });
+}
+
+// ---------- first-run hints: "zobacz lawinę w 3D" ----------
+// After the day balloons, a yellow balloon inside the map points at the first flagged slope that has a 3D film
+// and its badge pulses; the flag window then pulses "Pokaż lawinę w 3D" (wireWhatIf). Clicking a slope,
+// opening the player by any route or closing the balloon ends it.
+const HERO_3D = sectors.find((s) => s.name === "Sucha Dolina NE")?.id ?? null; // the desktop icon "Lawina w 3D"
+const hintSector = () => (R.flags.find((f) => hasVideo(f.sector)) ?? R.flags[0])?.sector ?? null;
+
+function showMapHint() {
+  if (hint.map || hint.gone || hint.done3d || !hintSector()) return;
+  const el = document.createElement("div");
+  el.className = "balloon map-hint";
+  el.setAttribute("role", "status");
+  el.innerHTML = `<div class="b-head"><svg aria-hidden="true"><use href="#i-player"/></svg><span>Kliknij ten stok, żeby zobaczyć lawinę w 3D</span></div>
+    <button class="b-close" aria-label="Zamknij wskazówkę"></button><p>W oknie stoku: „Pokaż lawinę w 3D” (symulacja AvaFrame).</p>`;
+  el.addEventListener("click", endMapHint);
+  canvas.parentElement.appendChild(el); // inside the map window: it moves, hides and stacks with the map
+  hint.map = el; hint.pulse = true;
+  placeMapHint();
+  requestAnimationFrame(() => el.classList.add("show"));
+}
+function endMapHint() {
+  hint.gone = true; hint.pulse = false;
+  const el = hint.map;
+  hint.map = null;
+  if (el) { el.classList.remove("show"); setTimeout(() => el.remove(), 260); }
+}
+/** Keeps the balloon's tail on the badge (map resized, window moved, day switched). */
+function placeMapHint() {
+  const el = hint.map, id = hintSector();
+  if (!el || !view.cw) return;
+  const [x, y] = id ? px(byId[id].centroid).map((v) => v / view.dpr) : [-1, -1];
+  const cw = view.cw / view.dpr, ch = view.ch / view.dpr;
+  el.hidden = !(x > 0 && y > 0 && x < cw && y < ch);
+  if (el.hidden) return;
+  const w = el.offsetWidth, h = el.offsetHeight, r = 13, gap = 19; // badge radius; tail 16 px + 3 px air
+  const left = Math.max(6, Math.min(cw - w - 6, x - 30));
+  const up = y - r - gap - h >= 6; // no room above the badge: below it, tail up
+  el.style.left = `${Math.round(left)}px`;
+  el.style.top = `${Math.round(up ? y - r - gap - h : y + r + gap)}px`;
+  el.style.setProperty("--tail", `${Math.round(w - (x - left))}px`);
+  el.classList.toggle("tail-up", !up);
 }
 
 function recompute() { compute(); renderAll(); }
@@ -1150,6 +1214,7 @@ xp.registerActions({
   "max-map": () => xp.toggleMax("w-map"),
   "lib-heat": toggleHeat,
   player: () => openPlayer(),
+  "player-3d": () => openPlayer(HERO_3D && hasVideo(HERO_3D) ? HERO_3D : null), // desktop icon / start menu "Lawina w 3D"
   "player-sel": () => openPlayer(R.flagOf[state.selected] ? state.selected : R.flags[0]?.sector ?? null),
   "library-page": () => window.open("biblioteka.html", "_blank", "noopener"),
   "show-desktop": () => xp.showDesktop(),
@@ -1363,6 +1428,7 @@ function frame(now) {
   stepFlight(dt);
   if (state.whatIf && !document.getElementById("flag-dialog")) state.whatIf = null; // dialog closed or replaced
   syncWhatIf();
+  if (hint.map) placeMapHint();
   if (player.cur && !player.video.paused) paintSeek();
   const k = 1 - Math.exp(-dt / 260); // exponential ease toward targets
   for (const s of sectors) state.fog[s.index] += (fogTarget(s) - state.fog[s.index]) * k;
@@ -1379,6 +1445,9 @@ setInterval(live, 10 * 60 * 1000);
 requestAnimationFrame(frame);
 announceDay();
 xp.ready();
+if (HINTS) { // the map hint waits until the day balloons (and the login screen) are gone
+  const wait = setInterval(() => { if (xp.balloonsIdle()) { clearInterval(wait); setTimeout(showMapHint, 300); } }, 400);
+}
 loadLibraryCells();
 // Offline mode: once sw.js is active, let it pull the 3D films in, so the player works without a network too.
 navigator.serviceWorker?.ready.then((r) => setTimeout(() => r.active?.postMessage({ type: "warm-media" }), 4000)).catch(() => {});
