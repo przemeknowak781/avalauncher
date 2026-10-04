@@ -1,0 +1,22 @@
+{
+ "avaPopeletzbach": {
+  "file": "s6_p1.jpg",
+  "m_per_px_rendered": 3.9439
+ },
+ "avaKleinerOetscherbach": {
+  "file": "s6_p2.jpg",
+  "m_per_px_rendered": 3.4468
+ },
+ "avaEiskar": {
+  "file": "s6_p3.jpg",
+  "m_per_px_rendered": 4.9693
+ },
+ "avaFilisur1": {
+  "file": "s6_p4.jpg",
+  "m_per_px_rendered": 0.8325
+ },
+ "avaFilisur2": {
+  "file": "s6_p5.jpg",
+  "m_per_px_rendered": 1.1715
+ }
+}

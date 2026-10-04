@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920">
+<title>Avalauncher: deck</title>
+<style>
+@font-face { font-family: "Archivo"; src: url("Archivo-var.ttf") format("truetype"); font-weight: 100 900; font-stretch: 62% 125%; font-display: block; }
+@page { size: 1920px 1080px; margin: 0; }
+:root {
+  --paper: #f4efe4; --paper2: #ebe4d4; --ink: #1d1b17; --ink2: #5a5244;
+  --hazard: #e8590c; --hazard-t: #a63b00; --unknown: #5b3fd1; --route: #d6007e;
+  --luna: #0831d9; --muted: #8f877a;
+  --xp-title: "Trebuchet MS", Tahoma, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; background: #2f64c9; }
+body { font-family: "Archivo", sans-serif; color: var(--ink); font-size: 30px; line-height: 1.3; }
+.slide { position: relative; width: 1920px; height: 1080px; overflow: hidden; break-inside: avoid;
+  background: linear-gradient(180deg, #5a93ea 0%, #3d78dd 55%, #3169d2 100%); }
+.slide:not(:last-child) { break-after: page; page-break-after: always; }
+
+/* ---------- XP cues: one window, one taskbar ---------- */
+.win { position: absolute; left: 14px; right: 14px; top: 12px; bottom: 44px; display: flex; flex-direction: column;
+  background: var(--paper); border: 3px solid var(--luna); border-top: 0; border-radius: 9px 9px 0 0;
+  box-shadow: 3px 5px 16px rgba(0, 20, 60, 0.40); }
+.tbar { flex: none; height: 40px; margin: 0 -3px; padding: 0 7px 0 12px; display: flex; align-items: center; gap: 10px;
+  border-radius: 9px 9px 0 0;
+  background: linear-gradient(180deg, #0058ee 0%, #3593ff 4%, #288eff 6%, #127dff 8%, #036ffc 10%, #0262ee 14%, #0057e5 20%, #0054e3 24%, #0055eb 56%, #005bf5 66%, #026afe 76%, #0062ef 86%, #0052d6 92%, #0040ab 94%, #003092 100%); }
+.tbar img { width: 24px; height: 24px; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.3)); }
+.tbar .tt { flex: 1; font: 700 20px/1 var(--xp-title); color: #fff; text-shadow: 1px 1px 0 #0f1089; letter-spacing: 0.2px; white-space: nowrap; }
+.tbtns { display: flex; gap: 3px; }
+.tbtns i { width: 29px; height: 29px; border: 1px solid #fff; border-radius: 4px; position: relative;
+  background: radial-gradient(circle at 90% 90%, #0054e9 0%, #2263d5 55%, #4479e4 70%, #a3bbec 90%, #fff 100%) no-repeat;
+  box-shadow: inset 0 -1px 2px 1px #4646ff; }
+.tbtns i::after { content: ""; position: absolute; inset: 0; background: center / 15px 15px no-repeat; }
+.tbtns .mn::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Crect x='2' y='8' width='6' height='2.2' fill='white'/%3E%3C/svg%3E"); }
+.tbtns .mx::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Crect x='2' y='2' width='8' height='8' fill='none' stroke='white' stroke-width='1.4'/%3E%3Crect x='2' y='2' width='8' height='2.4' fill='white'/%3E%3C/svg%3E"); }
+.tbtns .cl { margin-left: 3px; background: radial-gradient(circle at 90% 90%, #cc4600 0%, #dc6527 55%, #cd7546 70%, #ffccb2 90%, #fff 100%) no-repeat; box-shadow: inset 0 -1px 2px 1px #da4600; }
+.tbtns .cl::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 2.5 L9.5 9.5 M9.5 2.5 L2.5 9.5' stroke='white' stroke-width='2'/%3E%3C/svg%3E"); }
+.task { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; display: flex; align-items: stretch;
+  background: linear-gradient(180deg, #1f2f86 0, #3165c4 3%, #3682e5 6%, #4490e6 10%, #3883e5 12%, #2b71e0 15%, #2663da 18%, #235bd6 20%, #2258d5 23%, #2157d6 38%, #245ddb 54%, #2562df 86%, #245fdc 89%, #2158d4 92%, #1d4ec0 95%, #1941a5 98%); }
+.start { display: flex; align-items: center; gap: 7px; padding: 0 24px 0 11px; border-radius: 0 13px 13px 0;
+  background: linear-gradient(180deg, #3c8e3c 0%, #5bbd5b 6%, #4aa84a 12%, #3c973c 30%, #3a9a3a 60%, #3fa63f 85%, #2f7f2f 100%);
+  box-shadow: inset -2px -2px 4px rgba(0, 60, 0, 0.5), inset 2px 2px 3px rgba(255, 255, 255, 0.45), 2px 0 3px rgba(0, 0, 0, 0.35);
+  font: italic 700 20px/1 var(--xp-title); color: #fff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); }
+.start img { width: 22px; height: 22px; filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.6)); }
+.task .gap { flex: 1; }
+.tray { display: flex; align-items: center; padding: 0 18px; color: #fff; font: 16px/1 Tahoma, "Segoe UI", sans-serif; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+  background: linear-gradient(180deg, #0c59b9 1%, #139ee9 6%, #18b5f2 10%, #139beb 14%, #1290e8 19%, #0d8dea 63%, #0d9ff1 81%, #0f9eed 88%, #119be9 91%, #1392e2 94%, #137ed7 97%, #095bc9 100%);
+  border-left: 1px solid #1042af; box-shadow: inset 1px 0 1px #18bbff; }
+
+/* ---------- content: clean paper ---------- */
+.c { position: relative; flex: 1; min-height: 0; padding: 40px 66px 26px; display: flex; flex-direction: column; }
+h1 { margin: 0 0 26px; font-size: 56px; line-height: 1.1; font-weight: 760; font-stretch: 106%; letter-spacing: -0.006em; text-wrap: balance; max-width: 1760px; }
+.narrow h1 { max-width: 1420px; }
+p { margin: 0; }
+.foot { margin-top: auto; padding-top: 14px; font-size: 21px; line-height: 1.35; color: var(--ink2); font-stretch: 94%; }
+.cap { font-size: 28px; color: var(--ink2); margin-top: 12px; line-height: 1.3; }
+.shot { display: block; border: 1px solid #b9b09e; box-shadow: 0 3px 10px rgba(29, 27, 23, 0.14); }
+b, strong { font-weight: 720; }
+.nb { white-space: nowrap; }
+
+/* legend */
+.legend { display: flex; flex-wrap: wrap; gap: 10px 36px; font-size: 28px; color: var(--ink); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 12px; }
+.sw { width: 30px; height: 20px; border-radius: 3px; display: inline-block; flex: none; }
+.sw.hz { background: repeating-linear-gradient(135deg, var(--hazard) 0 4px, #f7c9a8 4px 8px); border: 2px solid var(--hazard); }
+.sw.uk { background: rgba(91, 63, 209, 0.12); border: 3px solid var(--unknown); }
+.sw.rt { height: 0; border-top: 4px dashed var(--route); border-radius: 0; width: 38px; }
+
+/* evidence ladder marker (slides 6-8) */
+.ladder { position: absolute; top: 36px; right: 56px; width: 310px; font-size: 23px; line-height: 1.2; color: var(--ink2); }
+.ladder .lt { font-weight: 700; font-size: 19px; letter-spacing: 0.04em; color: var(--ink2); margin-bottom: 8px; }
+.ladder ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ladder li { display: flex; align-items: center; gap: 10px; padding: 4px 10px; border: 1.5px solid #cfc6b4; border-radius: 6px; }
+.ladder li::before { content: attr(data-n); width: 24px; height: 24px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 15px; font-weight: 750; background: var(--paper2); color: var(--ink2); }
+.ladder li.on { background: var(--ink); border-color: var(--ink); color: var(--paper); font-weight: 650; }
+.ladder li.on::before { background: var(--paper); color: var(--ink); }
+.ladder li.logic { border-style: dashed; color: var(--muted); }
+.ladder li.logic.on { background: #e3ddd0; color: var(--ink2); border-color: var(--muted); }
+.ladder li.logic.on::before { background: #fff; color: var(--ink2); }
+
+/* big numbers */
+.big { display: flex; flex-direction: column; }
+.big b { font-size: 124px; line-height: 0.95; font-weight: 800; font-stretch: 116%; letter-spacing: -0.02em; }
+.big span { font-size: 32px; color: var(--ink2); margin-top: 6px; }
+
+/* ---------- slide 1 ---------- */
+.s1 .grid { display: grid; grid-template-columns: 512px 1fr; gap: 84px; flex: 1; min-height: 0; position: relative; z-index: 1; }
+.s1 figure { margin: 0; position: relative; height: 908px; align-self: start; }
+.s1 figure img { height: 100%; width: auto; display: block; border: 1px solid #b9b09e; }
+.scalebar { position: absolute; left: 14px; bottom: 14px; padding: 6px 12px 6px 10px; background: rgba(244, 239, 228, 0.92); font-size: 24px; font-weight: 650; display: flex; align-items: center; gap: 10px; border-radius: 3px; }
+.scalebar i { display: block; height: 7px; background: var(--ink); }
+.s1 .right { display: flex; flex-direction: column; padding-top: 6px; }
+.s1 .nums { display: grid; gap: 34px; margin: 10px 0 30px; }
+.s1 .iou { font-size: 31px; margin-bottom: 28px; }
+.s1 .legend { flex-direction: column; align-items: flex-start; gap: 12px; font-size: 27px; }
+.s1 .foot { font-size: 20px; }
+.bliss { position: absolute; left: 0; right: 0; bottom: 0; height: 360px; z-index: 0; pointer-events: none; }
+
+/* ---------- slide 2 ---------- */
+.s2 .row { display: grid; grid-template-columns: 1040px 1fr; gap: 56px; align-items: start; }
+.s2 .row img { width: 1040px; height: auto; }
+.s2 .alts { display: grid; gap: 26px; font-size: 30px; line-height: 1.28; padding-top: 4px; }
+.s2 .alts div { padding-top: 18px; border-top: 2px solid #d4cbb8; }
+.s2 .alts div:first-child { border-top: 0; padding-top: 0; }
+.s2 .alts .ours { border-top: 4px solid var(--ink); font-size: 34px; }
+
+/* ---------- slide 3 ---------- */
+.s3 .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; }
+.s3 .step h2 { margin: 0 0 16px; display: flex; gap: 16px; align-items: flex-start; font-size: 29px; line-height: 1.22; font-weight: 650; min-height: 74px; }
+.s3 .step h2 em { font-style: normal; flex: none; width: 58px; height: 58px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-size: 34px; font-weight: 800; margin-top: -4px; }
+.s3 .step img { width: 100%; height: auto; }
+.s3 .step img + img { margin-top: 10px; }
+.s3 .below { display: flex; justify-content: space-between; align-items: center; margin-top: 26px; gap: 30px; }
+.s3 .below .cap { margin: 0; font-size: 28px; }
+
+/* ---------- slide 4 ---------- */
+.s4 .imgw { font-size: 30px; margin: -6px 0 24px; }
+.s4 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; }
+.s4 .pair img { width: 100%; height: auto; }
+.s4 .pair .cap { font-size: 28px; color: var(--ink); font-weight: 650; }
+.s4 .legend { margin-top: 18px; }
+
+/* ---------- slide 5 ---------- */
+.s5 .row { display: grid; grid-template-columns: 470px 400px 1fr; gap: 52px; align-items: start; }
+.s5 .sat img { width: 470px; height: 470px; display: block; }
+.s5 .sat .cap { font-size: 28px; }
+.s5 .tiles { display: grid; gap: 14px; }
+.s5 .tiles .h { font-size: 28px; color: var(--ink2); }
+.s5 .tile { padding: 12px 18px; border: 2px solid #d4cbb8; border-radius: 8px; background: #fbf8f1; }
+.s5 .tile b { display: block; font-size: 40px; font-stretch: 112%; font-weight: 800; line-height: 1.05; }
+.s5 .tile span { font-size: 28px; }
+.s5 .note { font-size: 28px; line-height: 1.3; color: var(--ink2); margin-top: 4px; }
+.s5 .fails { display: grid; gap: 30px; }
+.s5 .fail { display: grid; grid-template-columns: 70px 1fr; gap: 20px; align-items: start; }
+.s5 .fail svg { width: 64px; height: 64px; }
+.s5 .fail b { display: block; font-size: 30px; }
+.s5 .fail span { font-size: 28px; color: var(--ink2); line-height: 1.28; display: block; }
+.s5 .def { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; margin-top: 34px; padding-top: 22px; border-top: 4px solid var(--ink); }
+.s5 .def div { font-size: 28px; line-height: 1.25; color: var(--ink2); }
+.s5 .def b { display: block; font-size: 36px; color: var(--ink); font-stretch: 108%; font-weight: 780; }
+
+/* ---------- slide 6 ---------- */
+.s6 h1 { margin-bottom: 18px; }
+.s6 .legend { flex-direction: column; align-items: flex-start; gap: 6px; font-size: 28px; margin-top: 14px; }
+.ln { display: inline-block; width: 40px; height: 0; flex: none; }
+.ln.obs { border-top: 4px dashed var(--ink); }
+.ln.loo { border-top: 9px solid rgba(59, 16, 0, 0.6); }
+.sw.hatch { background: repeating-linear-gradient(135deg, var(--ink) 0 2px, transparent 2px 7px); border: 2px solid var(--ink); }
+.sw.fit { background: linear-gradient(90deg, #ffd6aa, #e8590c, #5a1a00); }
+.s6 .row { display: grid; grid-template-columns: 1322px 1fr; gap: 44px; align-items: start; }
+.s6 .evs { display: grid; grid-template-columns: repeat(5, 250px); gap: 18px; }
+.s6 .ev { margin: 0; }
+.s6 .ev .nm { font-size: 28px; font-weight: 720; font-stretch: 80%; line-height: 1.15; white-space: nowrap; }
+.s6 .ev .cty { font-size: 28px; color: var(--ink2); line-height: 1.2; margin-bottom: 8px; }
+.s6 .ev .pi { position: relative; height: 344px; display: flex; justify-content: center; background: var(--paper2); border: 1px solid #b9b09e; }
+.s6 .ev .pi img { height: 100%; max-width: 100%; object-fit: cover; display: block; }
+.s6 .ev .sb { position: absolute; right: 4px; bottom: 4px; padding: 3px 8px; background: rgba(244, 239, 228, 0.92); font-size: 22px; font-weight: 650; display: flex; align-items: center; gap: 8px; border-radius: 3px; }
+.s6 .ev .sb.l { right: auto; left: 4px; }
+.s6 .ev .sb i { display: block; height: 6px; background: var(--ink); }
+.s6 .ev .rs { margin-top: 8px; }
+.s6 .ev .rs b { display: block; font-size: 38px; line-height: 1.05; font-weight: 800; font-stretch: 108%; }
+.s6 .ev .rs span { font-size: 28px; color: var(--ink2); }
+.s6 .big b { font-size: 124px; }
+.s6 .big span { font-size: 30px; color: var(--ink); line-height: 1.25; }
+.s6 .more { margin-top: 10px; font-size: 28px; color: var(--ink2); line-height: 1.28; }
+.bar { margin-top: 16px; padding: 12px 0; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); font-size: 28px; font-weight: 620; line-height: 1.25; }
+.s6 .foot, .s7 .foot { font-size: 19px; }
+
+/* ---------- slide 7 ---------- */
+.s7 .stats { display: grid; grid-template-columns: 250px 330px 380px 1fr; gap: 36px; align-items: end; margin-bottom: 20px; }
+.s7 .stat b { white-space: nowrap; display: block; font-size: 76px; line-height: 1; font-weight: 800; font-stretch: 112%; letter-spacing: -0.015em; }
+.s7 .stat span { font-size: 28px; color: var(--ink2); line-height: 1.22; display: block; margin-top: 6px; }
+.s7 .stat.txt { font-size: 28px; line-height: 1.3; padding-bottom: 4px; font-weight: 600; }
+.s7 .row { display: grid; grid-template-columns: 1240px 1fr; gap: 46px; align-items: start; }
+.s7 .row img { width: 1240px; height: auto; display: block; }
+.s7 .lab { font-size: 28px; font-weight: 650; margin-bottom: 8px; }
+.s7 .tiles7 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 28px; font-weight: 650; margin-bottom: 6px; color: var(--ink2); }
+.s7 .side { display: grid; gap: 22px; padding-top: 84px; }
+.s7 .side .legend { flex-direction: column; align-items: flex-start; gap: 10px; font-size: 28px; }
+.s7 .chain { font-size: 28px; line-height: 1.3; padding-top: 16px; border-top: 2px solid var(--ink); }
+.s7 .chain div + div { margin-top: 8px; }
+
+/* ---------- slide 8 ---------- */
+.s8 table { width: 100%; border-collapse: collapse; font-size: 28px; line-height: 1.22; }
+.s8 th { text-align: left; font-size: 24px; font-weight: 650; color: var(--ink2); padding: 0 18px 8px 0; border-bottom: 3px solid var(--ink); }
+.s8 td { padding: 8px 18px 8px 0; border-bottom: 1px solid #cfc6b4; vertical-align: top; }
+.s8 td.res { font-weight: 760; font-stretch: 106%; }
+.s8 tr.logic td { color: var(--muted); border-bottom: 2px dashed #b9b09e; }
+.s8 tr.logic td.res { color: var(--ink2); }
+.s8 .rl { font-size: 28px; margin: 10px 0 12px; color: var(--ink2); }
+.s8 .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 34px; font-size: 21px; line-height: 1.32; color: var(--ink2); }
+.s8 .cols b { display: block; font-size: 18px; letter-spacing: 0.05em; color: var(--ink); margin-bottom: 3px; }
+.s8 .verdict { text-wrap: balance; margin-top: 18px; padding-top: 12px; border-top: 4px solid var(--ink); font-size: 30px; font-weight: 720; line-height: 1.25; }
+.s8 .not { font-size: 30px; margin-top: 6px; }
+.s8 .foot { font-size: 18px; padding-top: 8px; }
+
+/* ---------- slide 9 ---------- */
+.s9 .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.s9 .veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(244, 239, 228, 0.93) 0%, rgba(244, 239, 228, 0.72) 30%, rgba(244, 239, 228, 0.72) 75%, rgba(244, 239, 228, 0.93) 100%); }
+.s9 .c > *:not(.bg):not(.veil) { position: relative; }
+.s9 .tl { display: grid; grid-template-columns: 1fr 60px 1fr 60px 1fr; align-items: stretch; margin-top: 90px; }
+.s9 .tl .arr { align-self: center; }
+.s9 .st { background: var(--paper); border: 3px solid var(--ink); border-radius: 12px; padding: 26px 28px; min-height: 230px; box-shadow: 0 6px 22px rgba(29, 27, 23, 0.18); }
+.s9 .st em { font-style: normal; display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 36px; font-weight: 800; margin-bottom: 16px; }
+.s9 .st b { display: block; font-size: 36px; line-height: 1.18; font-stretch: 104%; }
+.s9 .st span { display: block; font-size: 28px; color: var(--ink2); margin-top: 8px; }
+.s9 .arr { width: 60px; height: 40px; }
+.s9 .todo { margin-top: 44px; font-size: 28px; color: var(--ink2); }
+
+/* ---------- slide 10 ---------- */
+.s10 .row { display: grid; grid-template-columns: 1fr 560px; gap: 60px; align-items: start; }
+.s10 .links { display: grid; gap: 6px; margin-bottom: 22px; }
+.s10 .links div { font-size: 34px; font-weight: 700; font-stretch: 104%; }
+.s10 .links span { font-weight: 450; color: var(--ink2); font-size: 28px; margin-right: 10px; }
+.s10 .kv { display: grid; grid-template-columns: 160px 1fr; gap: 12px 22px; font-size: 28px; line-height: 1.3; }
+.s10 .kv dt { font-weight: 720; }
+.s10 .kv dd { margin: 0; }
+.s10 .kv dd.small { font-size: 22px; color: var(--ink2); line-height: 1.34; }
+.s10 .ph { color: var(--ink2); font-style: italic; }
+.s10 figure { margin: 0; }
+.s10 figure img { width: 560px; height: auto; opacity: 0.85; }
+.s10 figure figcaption { font-size: 28px; line-height: 1.25; color: var(--ink2); margin-top: 8px; }
+.s10 .slogan { margin-top: auto; padding-top: 18px; border-top: 4px solid var(--ink); font-size: 40px; font-weight: 780; font-stretch: 106%; line-height: 1.2; }
+.s10 .foot { margin-top: 10px; padding-top: 0; }
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<section class="slide s1" data-label="Popeletzbach, 7.04.2009" data-bare="1">
+  <div class="c">
+    <svg class="bliss" viewBox="0 0 1886 360" preserveAspectRatio="none" aria-hidden="true">
+      <defs><linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fa850" stop-opacity="0.16"/><stop offset="1" stop-color="#7fa850" stop-opacity="0.04"/></linearGradient></defs>
+      <path d="M0 360 L0 250 C 260 150, 620 92, 980 120 C 1300 146, 1560 210, 1886 168 L1886 360 Z" fill="url(#hill)"/>
+      <path d="M0 360 L0 300 C 420 236, 900 226, 1300 262 C 1560 286, 1740 270, 1886 250 L1886 360 Z" fill="#7fa850" fill-opacity="0.06"/>
+    </svg>
+    <div class="grid">
+      <figure>
+        <img src="img/s1_popeletzbach.jpg" alt="Popeletzbach: ślad prawdziwej lawiny i ślad z fizyki">
+        <div class="scalebar"><i style="width:205px"></i>500 m</div>
+      </figure>
+      <div class="right">
+        <h1>Ta lawina zeszła naprawdę. Fizyka z ustawieniami dobranymi na innych lawinach pomyliła się o 25&nbsp;m na 1775&nbsp;m.</h1>
+        <div class="nums">
+          <div class="big"><b>1775 m</b><span>tyle przejechała prawdziwa lawina</span></div>
+          <div class="big"><b>25 m</b><span>tyle się pomyliliśmy, jeden szkolny basen</span></div>
+        </div>
+        <p class="iou">Wspólna część obrysów 0,70: na 10 kratek 7 wspólnych</p>
+        <div class="legend">
+          <span><i class="ln obs"></i>przerywana: prawdziwa lawina, ślad zmierzony w terenie</span>
+          <span><i class="ln loo"></i>ciemna gruba: nasza fizyka, bez podglądania tej lawiny</span>
+        </div>
+        <p class="foot">Popeletzbach, Tyrol Wschodni (Austria), mokra lawina, 7.04.2009. Test bez podglądania: ustawienia dobrane na 4 innych lawinach. Najlepszy z 5 testów, wszystkie na slajdzie 6. Przykładowa kalibracja, nie dla Tatr.<br>Obrys: OpenNHM/AvaFrameData (F. Perzl, BFW), CC BY 4.0 · Teren: Land Tirol, CC BY 4.0 AT · Model: AvaFrame com1DFA</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="slide s2" data-label="Teza">
+  <div class="c">
+    <h1>Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z 1566 lawinami policzonymi z góry.</h1>
+    <div class="row">
+      <div>
+        <img class="shot" src="img/s2_hero_s22.jpg" alt="Lawina z biblioteki: Sucha Dolina NE zalewa żółty szlak">
+        <p class="cap">Jedna z 1566: Sucha Dolina NE, płyta 2,0 m. Ten stok zapali się w demo.</p>
+      </div>
+      <div class="alts">
+        <div><b>Reguła »co najmniej 30 cm w 3 dni«</b> mówi kiedy, ale nie który stok.</div>
+        <div><b>Wielkie biblioteki lawin</b> (Bühler i in. 2022) nie mówią, gdzie wiedza się zestarzała.</div>
+        <div class="ours"><b>Avalauncher mówi jedno i drugie.</b></div>
+      </div>
+    </div>
+    <p class="foot">Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Lawina: symulacja AvaFrame, śnieg syntetyczny</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide s3" data-label="Trzy kroki dyżurnego">
+  <div class="c">
+    <h1>Dyżurny robi trzy kroki: otwiera mapę, klika stok i ustawia czas lotu.</h1>
+    <div class="steps">
+      <div class="step">
+        <h2><em>1</em>Mapa: świecą stoki, które mogą zagrozić szlakowi</h2>
+        <img class="shot" src="img/s3_krok1.jpg" alt="Mapa dnia 12.01.2025 z dwoma zapalonymi stokami">
+      </div>
+      <div class="step">
+        <h2><em>2</em>Klik w stok: dokąd dochodzą podobne lawiny</h2>
+        <img class="shot" src="img/s3_krok2.jpg" alt="Karta stoku Sucha Dolina NE">
+      </div>
+      <div class="step">
+        <h2><em>3</em>Czas lotu 20 min: trasa drona</h2>
+        <img class="shot" src="img/s3_krok3_mapa.jpg" alt="Magentowa trasa drona na mapie">
+        <img class="shot" src="img/s3_krok3_suwak.jpg" alt="Suwak czasu lotu ustawiony na 20 minut">
+      </div>
+    </div>
+    <div class="below">
+      <div class="legend">
+        <span><i class="sw hz"></i>może zagrozić szlakowi</span>
+        <span><i class="sw uk"></i>nie wiem</span>
+        <span><i class="sw rt"></i>trasa drona</span>
+      </div>
+      <p class="cap">Laptop i przeglądarka, bez kont i integracji</p>
+    </div>
+    <p class="foot">Pogoda: IMGW-PIB (prawdziwa) · Grubość płyty i loty drona: syntetyczne · Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide s4" data-label="Nie wiem">
+  <div class="c">
+    <h1>Gdy wiedza się starzeje, Avalauncher mówi to wprost: „nie wiem”. I pokazuje, gdzie polecieć, żeby się dowiedzieć.</h1>
+    <p class="imgw">Kasprowy Wierch, 11–13.01.2025: <b>+34 cm w 3 dni, 72 h zamieci, pokrywa 51 → 85 cm</b> (IMGW-PIB, dane prawdziwe)</p>
+    <div class="pair">
+      <div>
+        <img class="shot" src="img/s4_dzien2.jpg" alt="13.01.2025: fioletowe flagi nie wiem i plan przelotu">
+        <p class="cap">13.01.2025: zamieć, bez lotu</p>
+      </div>
+      <div>
+        <img class="shot" src="img/s4_po_przelocie.jpg" alt="Ta sama mapa po przelocie 20 min">
+        <p class="cap">Po przelocie 20 min</p>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="sw hz"></i>może zagrozić szlakowi</span>
+      <span><i class="sw uk"></i>nie wiem</span>
+      <span><i class="sw rt"></i>trasa drona</span>
+    </div>
+    <p class="foot">Pogoda: IMGW-PIB (prawdziwa) · Grubość płyty i loty drona: syntetyczne · Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide s5" data-label="Odporność">
+  <div class="c">
+    <h1>Bez lotu, bez satelity i bez sieci Avalauncher działa dalej, a decyzję zostawia człowiekowi.</h1>
+    <div class="row">
+      <div class="sat">
+        <img class="shot" src="img/s5_sentinel.jpg" alt="Sentinel-2, barwy naturalne, 16.01.2025">
+        <p class="cap">Sentinel-2, barwy naturalne: pierwszy czysty obraz 16.01, trzy dni po zamieci</p>
+      </div>
+      <div class="tiles">
+        <div class="h">W dniach zamieci satelita:</div>
+        <div class="tile"><b>11.01</b><span>chmury nad 100% terenu</span></div>
+        <div class="tile"><b>12.01</b><span>brak przelotu</span></div>
+        <div class="tile"><b>13.01</b><span>chmury nad 86%</span></div>
+        <p class="note">Satelita pokazuje, gdzie leży śnieg, ale nie ile go jest. Grubość płyty musi zmierzyć dron.</p>
+      </div>
+      <div class="fails">
+        <div class="fail">
+          <svg viewBox="0 0 64 64" fill="none" stroke="#1d1b17" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><circle cx="14" cy="14" r="8"/><circle cx="50" cy="14" r="8"/><circle cx="14" cy="50" r="8"/><circle cx="50" cy="50" r="8"/><path d="M20 20 L44 44 M44 20 L20 44"/><rect x="25" y="25" width="14" height="14" rx="3" fill="#f4efe4"/><path d="M6 58 L58 6" stroke="#5b3fd1" stroke-width="4"/></svg>
+          <div><b>Brak lotu</b><span>flaga „nie wiem” i plan lotu</span></div>
+        </div>
+        <div class="fail">
+          <svg viewBox="0 0 64 64" fill="none" stroke="#1d1b17" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="10" y="14" width="44" height="28" rx="3"/><path d="M4 48 H60 L56 52 H8 Z"/><path d="M24 30 C 28 25, 36 25, 40 30 M28 35 C 30 33, 34 33, 36 35"/><path d="M6 58 L58 6" stroke="#5b3fd1" stroke-width="4"/></svg>
+          <div><b>Brak sieci</b><span>1566 lawin na laptopie (30,4 min, 0 nieudanych, jeden DGX Spark)</span></div>
+        </div>
+        <div class="fail">
+          <svg viewBox="0 0 64 64" fill="none" stroke="#1d1b17" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="32" cy="34" r="22"/><path d="M32 20 V34 L42 40"/><path d="M26 6 H38"/></svg>
+          <div><b>Brak świeżego odczytu IMGW</b><span>ostatni zapisany odczyt i jego wiek</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="def">
+      <div><b>Zapobiega</b>wskazuje stoki, zanim ktoś wejdzie na szlak</div>
+      <div><b>Zmniejsza skutki</b>dron leci tam, gdzie wiedza jest najsłabsza</div>
+      <div><b>Działa przy braku danych</b>bez lotu, bez satelity, bez sieci</div>
+    </div>
+    <p class="foot">Zawiera zmodyfikowane dane Copernicus Sentinel (2025) · Sentinel-2 L2A przez Element84 Earth Search (AWS Open Data)</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide s6 narrow" data-label="Sprawdzian na 5 lawinach">
+  <div class="c">
+    <div class="ladder"><div class="lt">DRABINA DOWODÓW</div><ol><li data-n="1" class="on">prawdziwe lawiny</li><li data-n="2">stoki spoza nauki</li><li data-n="3">komunikaty TOPR</li><li data-n="4" class="logic">test logiki</li></ol></div>
+    <h1>Sprawdziliśmy fizykę na 5 prawdziwych lawinach z Austrii i Szwajcarii, za każdym razem bez podglądania: typowa pomyłka 92&nbsp;m, najgorsza 350&nbsp;m.</h1>
+    <div class="row">
+      <div class="evs">
+        <figure class="ev"><div class="nm">Popeletzbach</div><div class="cty">Austria</div><div class="pi"><img src="img/s6_p1.jpg" alt="Popeletzbach"><div class="sb"><i style="width:78px"></i>500 m</div></div><div class="rs"><b>+25 m</b><span>IoU 0,70</span></div></figure>
+        <figure class="ev"><div class="nm">Kleiner Ötscherbach</div><div class="cty">Austria</div><div class="pi"><img src="img/s6_p2.jpg" alt="Kleiner Ötscherbach"><div class="sb"><i style="width:89px"></i>500 m</div></div><div class="rs"><b>+350 m</b><span>IoU 0,70</span></div></figure>
+        <figure class="ev"><div class="nm">Eiskar</div><div class="cty">Austria</div><div class="pi"><img src="img/s6_p3.jpg" alt="Eiskar"><div class="sb l"><i style="width:62px"></i>500 m</div></div><div class="rs"><b>−227 m</b><span>osad 45%</span></div></figure>
+        <figure class="ev"><div class="nm">Filisur 1</div><div class="cty">Szwajcaria</div><div class="pi"><img src="img/s6_p4.jpg" alt="Filisur 1"><div class="sb"><i style="width:74px"></i>100 m</div></div><div class="rs"><b>+77 m</b><span>osad 94%</span></div></figure>
+        <figure class="ev"><div class="nm">Filisur 2</div><div class="cty">Szwajcaria</div><div class="pi"><img src="img/s6_p5.jpg" alt="Filisur 2"><div class="sb"><i style="width:52px"></i>100 m</div></div><div class="rs"><b>+92 m</b><span>osad 50%</span></div></figure>
+      </div>
+      <div class="side6">
+        <div class="big"><b>92 m</b><span>typowa pomyłka, krócej niż boisko piłkarskie</span></div>
+        <p class="more">średnio 154&nbsp;m<br>najgorzej +350&nbsp;m<br>w 4 z 5 prób to samo ustawienie</p>
+        <div class="legend">
+          <span><i class="ln obs"></i>prawdziwa lawina</span>
+          <span><i class="ln loo"></i>test bez podglądania</span>
+          <span><i class="sw hatch"></i>odryw</span>
+        </div>
+      </div>
+    </div>
+    <p class="bar">Dopasowanie do jednej lawiny to jeszcze nie sprawdzian. Sprawdzianem jest lawina, której nie użyliśmy do dobierania ustawień.</p>
+    <p class="foot">Sprawdzone na prawdziwych lawinach z Austrii i Szwajcarii. Przykładowa kalibracja, nie dla Tatr. Model bez lasu i bez porywania śniegu, grubość odrywu zmierzona tylko na Eiskar. Dane zdarzeń: OpenNHM/AvaFrameData 1.0, CC BY 4.0 (F. Perzl, BFW; WLV; SLF Davos) · Teren: Land Tirol 5 m, CC BY 4.0 AT; BEV ALS DTM 1 m, CC BY 4.0; © swisstopo swissALTI3D 2 m (2019) [licencja do potwierdzenia przed pokazem] · Model: AvaFrame com1DFA 2.1</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide s7 narrow" data-label="Szybka kopia fizyki">
+  <div class="c">
+    <div class="ladder"><div class="lt">DRABINA DOWODÓW</div><ol><li data-n="1">prawdziwe lawiny</li><li data-n="2" class="on">stoki spoza nauki</li><li data-n="3">komunikaty TOPR</li><li data-n="4" class="logic">test logiki</li></ol></div>
+    <h1>Szybką kopię fizyki sprawdziliśmy na stokach Tatr, których nigdy nie widziała: zgodność obrysów 0,81, ok. 4500 razy szybciej.</h1>
+    <div class="stats">
+      <div class="stat"><b>0,81</b><span>na 10 kratek 8 wspólnych z fizyką</span></div>
+      <div class="stat"><b>2,3 ms</b><span>zamiast 10,43 s, szybciej niż mrugnięcie oka</span></div>
+      <div class="stat"><b>ok. 4500×</b><span>szybciej</span></div>
+      <div class="stat txt">3 stoki, których sieć nie widziała. Z nauki wyjęliśmy też 10 sąsiednich stoków, żeby nie mogła ściągać.</div>
+    </div>
+    <div class="row">
+      <div>
+        <p class="lab">Sucha Dolina NE: 0,72, najsłabszy z 3 stoków testowych, pokazujemy go uczciwie</p>
+        <div class="tiles7"><span>AvaFrame (fizyka)</span><span>szybka kopia (U-Net)</span><span>różnica zasięgu</span></div>
+        <img src="img/s7_surogat.jpg" alt="Sucha Dolina NE: AvaFrame, szybka kopia i różnica zasięgu">
+      </div>
+      <div class="side">
+        <div class="legend">
+          <span><i class="sw" style="background:#f99148"></i>zasięg w obu</span>
+          <span><i class="sw" style="background:#1f5fd1"></i>tylko AvaFrame</span>
+          <span><i class="sw" style="background:#5a1a00"></i>tylko szybka kopia</span>
+        </div>
+        <div class="chain">
+          <div><b>prawdziwe lawiny ↔ fizyka</b><br>slajdy 1 i 6</div>
+          <div><b>fizyka ↔ szybka kopia</b><br>ten slajd</div>
+        </div>
+      </div>
+    </div>
+    <p class="foot">2,3 ms na karcie graficznej zamiast 10,43 s na jednym rdzeniu procesora. Dowód koncepcji: kopia przybliża AvaFrame, nie zastępuje go. Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Grubość płyty: scenariusze, nie pomiar</p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide s8 narrow" data-label="Drabina dowodów">
+  <div class="c">
+    <div class="ladder"><div class="lt">DRABINA DOWODÓW</div><ol><li data-n="1" class="on">prawdziwe lawiny</li><li data-n="2" class="on">stoki spoza nauki</li><li data-n="3" class="on">komunikaty TOPR</li><li data-n="4" class="logic on">test logiki</li></ol></div>
+    <h1>Najmocniejsze dowody to porównania z prawdziwymi lawinami. Test na wymyślonym śniegu podpisujemy uczciwie: to test logiki.</h1>
+    <table>
+      <colgroup><col style="width:39%"><col style="width:26%"><col></colgroup>
+      <thead><tr><th>Z czym porównaliśmy</th><th>Wynik</th><th>Co to sprawdza</th></tr></thead>
+      <tbody>
+        <tr><td>5 prawdziwych lawin z Austrii i Szwajcarii, test bez podglądania</td><td class="res">typowa pomyłka 92 m</td><td>czy fizyka trafia w rzeczywistość</td></tr>
+        <tr><td>3 stoki Tatr, których sieć nie widziała</td><td class="res">0,81</td><td>czy szybka kopia nie ściąga (sędzią jest fizyka)</td></tr>
+        <tr><td>komunikaty TOPR z zimy 2024/25, cytowane w prasie</td><td class="res">przy „trójce”: 1 trafienie, 1 pominięcie, 1 doba spóźnienia</td><td>zdrowy rozsądek uproszczonej reguły, nie walidacja</td></tr>
+        <tr class="logic"><td>wymyślony śnieg na prawdziwej pogodzie</td><td class="res">29 wobec 16</td><td>test logiki: czy program dobrze liczy</td></tr>
+      </tbody>
+    </table>
+    <p class="rl">Sprawdziliśmy też RL: 19,9% wobec 20,2% spadku niepewności (1000 poranków). Remis, więc zostaje prosty plan.</p>
+    <div class="cols">
+      <div><b>PRAWDZIWE</b>teren GUGiK NMT · szlaki OpenStreetMap · pogoda IMGW-PIB Kasprowy Wierch, zima 2024/25 · zdjęcia Sentinel-2 · 5 lawin do porównania (OpenNHM/AvaFrameData) · stopnie TOPR z prasy</div>
+      <div><b>PRZYBLIŻONE</b>fizyka AvaFrame (bez lasu i porywania śniegu) · szybka kopia fizyki · kalendarz zagrożenia (uproszczona reguła)</div>
+      <div><b>SYMULOWANE LUB ZAŁOŻONE</b>grubość płyty na stokach · loty i odczyty drona · „prawda” w teście logiki · kierunek wiatru (W–SW) · śnieg w filmach 3D</div>
+    </div>
+    <p class="verdict">Fizyka: sprawdzona na prawdziwych lawinach · Plan lotu: sprawdzony testem logiki · Prognoza dla Tatr: jeszcze niesprawdzona</p>
+    <p class="not">Avalauncher nie jest zwalidowaną prognozą dla Tatr.</p>
+    <p class="foot">Stopnie z komunikatów TOPR cytowanych w prasie (PAP przez opoka.org.pl, rmf24.pl, dziennik.pl i in., źródła w docs/12), bez logo i bez współpracy z TOPR.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide s9" data-label="Pilot">
+  <div class="c">
+    <img class="bg" src="img/s9_mapa.jpg" alt="">
+    <div class="veil"></div>
+    <h1>Pierwszy krok to pilot z jedną służbą lawinową na jednym szlaku i sprawdzian na jej własnych lawinach.</h1>
+    <div class="tl">
+      <div class="st"><em>1</em><b>Sprawdzian na lawinach z Tatr</b><span>ta sama fizyka, bez podglądania, jak w Austrii i Szwajcarii</span></div>
+      <svg class="arr" viewBox="0 0 60 40" aria-hidden="true"><path d="M8 20 H46 M36 9 L49 20 L36 31" fill="none" stroke="#1d1b17" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="st"><em>2</em><b>Prawdziwe loty nad jednym szlakiem</b><span>dron mierzy płytę, ekran porównuje z biblioteką</span></div>
+      <svg class="arr" viewBox="0 0 60 40" aria-hidden="true"><path d="M8 20 H46 M36 9 L49 20 L36 31" fill="none" stroke="#1d1b17" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="st"><em>3</em><b>Kolejny masyw</b><span>nowe stoki liczy szybka kopia fizyki</span></div>
+    </div>
+    <p class="todo">Do sprawdzenia: zgody na loty nad parkiem narodowym</p>
+    <p class="foot">Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Śnieg na stokach: scenariusz syntetyczny</p>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide s10" data-label="Zespół, AI, licencje">
+  <div class="c">
+    <h1>Zbudowaliśmy to w jedną noc z otwartych danych i z pomocą AI, a każde źródło jest podpisane.</h1>
+    <div class="row">
+      <div>
+        <div class="links">
+          <div><span>Demo</span>przemeknowak781.github.io/avalauncher</div>
+          <div><span>Kod</span>github.com/przemeknowak781/avalauncher</div>
+        </div>
+        <dl class="kv">
+          <dt>Zespół</dt><dd class="ph">[do uzupełnienia: imiona i role]</dd>
+          <dt>AI</dt><dd>Claude Code (Claude Opus 5.5) pisał kod, teksty i wizualizacje, a zakres i tezę ustalili ludzie.</dd>
+          <dt>Dane</dt><dd class="small">GUGiK (teren, ortofotomapa) · © współtwórcy OpenStreetMap (ODbL) · IMGW-PIB (dane przetworzone) · zmodyfikowane dane Copernicus Sentinel (2025) przez Element84 Earth Search (AWS Open Data) · OpenNHM/AvaFrameData 1.0 (CC BY 4.0, DOI 10.5281/zenodo.20701552) · Land Tirol (CC BY 4.0 AT) · BEV ALS DTM 1 m (CC BY 4.0) · © swisstopo swissALTI3D 2 m [licencja do potwierdzenia przed pokazem] · stopnie TOPR z komunikatów cytowanych w prasie</dd>
+          <dt>Programy</dt><dd class="small">AvaFrame (EUPL-1.2), pełna lista w docs/10_ai_i_licencje.md · nasz kod: MIT</dd>
+        </dl>
+      </div>
+      <figure>
+        <img class="shot" src="img/s10_3d.jpg" alt="Sucha Dolina NE w 3D, symulacja AvaFrame">
+        <figcaption>Sucha Dolina NE w 3D: symulacja AvaFrame na terenie GUGiK, śnieg syntetyczny</figcaption>
+      </figure>
+    </div>
+    <p class="slogan">Drony mierzą śnieg. Avalauncher wskazuje stoki, które mogą zagrozić szlakom.</p>
+  </div>
+</section>
+
+<script>
+// Wraps each slide's content in the quiet XP chrome: one Luna window + a slim taskbar with the slide number.
+const slides = [...document.querySelectorAll("section.slide")];
+slides.forEach((s, i) => {
+  const bare = s.dataset.bare === "1";
+  const title = bare ? s.dataset.label : `${s.dataset.label} — Avalauncher`;
+  const body = s.innerHTML;
+  const icon = bare ? "" : `<img src="img/icon.svg" alt="">`;
+  s.innerHTML = `<div class="win"><div class="tbar">${icon}<span class="tt">${title}</span>` +
+    `<span class="tbtns"><i class="mn"></i><i class="mx"></i><i class="cl"></i></span></div>${body}</div>` +
+    `<div class="task"><span class="start">${icon}${bare ? "start" : "avalauncher"}</span><span class="gap"></span>` +
+    `<span class="tray">${i + 1}/${slides.length}</span></div>`;
+});
+</script>
+</body>
+</html>
