@@ -15,7 +15,14 @@ if ("IntersectionObserver" in window && links.size) {
     for (const e of entries) {
       if (!e.isIntersecting) continue;
       for (const a of links.values()) a.removeAttribute("aria-current");
-      links.get(e.target.id)?.setAttribute("aria-current", "true");
+      const a = links.get(e.target.id);
+      if (!a) continue;
+      a.setAttribute("aria-current", "true");
+      // On a phone the menubar scrolls sideways: keep the current item in view.
+      const nav = a.parentElement;
+      if (a.offsetLeft < nav.scrollLeft || a.offsetLeft + a.offsetWidth > nav.scrollLeft + nav.clientWidth) {
+        nav.scrollTo({ left: a.offsetLeft - 8, behavior: "smooth" });
+      }
     }
   }, { rootMargin: "-45% 0px -50% 0px" });
   for (const id of links.keys()) {

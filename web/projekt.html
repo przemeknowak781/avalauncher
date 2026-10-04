@@ -45,14 +45,33 @@
         <path d="M12 3 L21 7.5 L12 12 L3 7.5 Z"/><path d="M3 12 L12 16.5 L21 12"/><path d="M3 16.5 L12 21 L21 16.5"/>
       </g>
     </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+      <path d="M3 21 H21 M6 17 V11 M11 17 V5 M16 17 V9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-film" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M10 9 L15 12 L10 15 Z" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M7 12.5 L10.5 16 L17 8.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24">
+      <path d="M6 2.5 H14 L19 7.5 V21.5 H6 Z M14 2.5 V7.5 H19 M9 12 H16 M9 15.5 H16 M9 19 H13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+    </symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24">
       <path d="M5 12 H18 M13 7 L18 12 L13 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
   </svg>
 
   <header class="topbar">
-    <div class="wrap">
-      <a class="brand" href="#top" aria-label="Avalauncher, początek strony"><svg aria-hidden="true"><use href="#logo"/></svg>Avalauncher</a>
+    <div class="title-bar">
+      <a class="brand" href="#top" aria-label="Avalauncher, początek strony"><img class="title-icon" src="xp/icon.svg" alt=""><span class="title-text">O projekcie — Avalauncher</span></a>
+      <span class="title-controls">
+        <span class="tb tb-min" aria-hidden="true"></span><span class="tb tb-max" aria-hidden="true"></span><a class="tb tb-close" href="index.html" title="Zamknij i otwórz aplikację" aria-label="Zamknij i otwórz aplikację"></a>
+      </span>
+    </div>
+    <div class="menubar">
       <nav class="topnav" aria-label="Sekcje">
         <a href="#jak">Jak to działa</a>
         <a href="#wyniki">Wyniki</a>
@@ -94,9 +113,11 @@
     </section>
 
     <!-- ================= HOW IT WORKS ================= -->
-    <section class="block alt" id="jak">
+    <section class="block" id="jak">
       <div class="wrap">
-        <h2>Jak to działa</h2>
+        <div class="xpw">
+        <div class="xpw-title"><svg class="title-icon" aria-hidden="true"><use href="#i-map"/></svg><h2>Jak to działa</h2></div>
+        <div class="xpw-body">
         <p class="lead">Trzy kroki, które dyżurny służby lawinowej widzi rano na jednym ekranie. Scenariusze są policzone z góry, więc odpowiedź jest natychmiastowa i nie potrzebuje sieci.</p>
 
         <ol class="flow">
@@ -207,13 +228,17 @@
           <svg viewBox="0 0 120 34" aria-hidden="true"><path stroke-dasharray="6 5" d="M114 4 C 114 30, 10 30, 8 8" fill="none" stroke="#d6007e" stroke-width="2.4" stroke-linecap="round" marker-end="url(#head-route)"/></svg>
           <p><b>Pętla.</b> Plan przelotu wraca do kroku 1: następny przelot mierzy tam, gdzie wiedza zestarzała się najbardziej, i mgła niewiedzy znika z mapy.</p>
         </div>
+        </div>
+        </div>
       </div>
     </section>
 
     <!-- ================= RESULTS ================= -->
     <section class="block" id="wyniki">
       <div class="wrap">
-        <h2>Wyniki tej nocy</h2>
+        <div class="xpw">
+        <div class="xpw-title"><svg class="title-icon" aria-hidden="true"><use href="#i-chart"/></svg><h2>Wyniki tej nocy</h2></div>
+        <div class="xpw-body">
         <p class="lead">Pomiary z nocy 3/4.10.2026. Każda liczba ma plik, z którego pochodzi, i zastrzeżenie, które ją ogranicza.</p>
 
         <ul class="results">
@@ -295,13 +320,17 @@
                alt="Plansza: 5 prawdziwych lawin z Austrii i Szwajcarii. W każdym panelu obrys obserwowanej lawiny lub osadu (linia przerywana), przebieg z testu bez tego zdarzenia (ciemna linia) i najlepszy przebieg w próbie (pomarańczowa plama). Test bez podglądania: Popeletzbach +25 m, Kleiner Ötscherbach +350 m, Eiskar −227 m, Filisur 1 +77 m, Filisur 2 +92 m."></a>
           <figcaption><b>AvaFrame wobec obrysów 5 prawdziwych lawin.</b> Duża liczba i ciemna linia: test bez podglądania. Pomarańczowa plama i „najlepszy przebieg”: dopasowanie w próbie, nie walidacja. Model bez lasu i bez porywania śniegu. Dane zdarzeń: OpenNHM/AvaFrameData 1.0 (F. Perzl, BFW; WLV; SLF Davos), CC BY 4.0. Teren: Land Tirol – data.tirol.gv.at (CC BY 4.0 AT), BEV ALS DTM 1&nbsp;m (CC BY 4.0), © swisstopo swissALTI3D.</figcaption>
         </figure>
+        </div>
+        </div>
       </div>
     </section>
 
     <!-- ================= MEDIA ================= -->
-    <section class="block alt" id="filmy">
+    <section class="block" id="filmy">
       <div class="wrap">
-        <h2>Filmy z symulacji</h2>
+        <div class="xpw">
+        <div class="xpw-title"><svg class="title-icon" aria-hidden="true"><use href="#i-film"/></svg><h2>Filmy z symulacji</h2></div>
+        <div class="xpw-body">
         <p class="lead">Krótkie filmy bez dźwięku. Lawiny policzył AvaFrame na terenie GUGiK NMT. Śnieg na ortofotomapie jest syntetyczny.</p>
         <div class="media">
           <figure>
@@ -329,13 +358,17 @@
             <figcaption><b>Surogat przy zmianie grubości płyty</b>Sieć zastępcza (po lewej) i najbliższy przebieg AvaFrame (po prawej) na stoku spoza treningu. Czas na kadrze zmierzono w trybie filmu; w wynikach podajemy 2,3&nbsp;ms na mapę. Dowód koncepcji.</figcaption>
           </figure>
         </div>
+        </div>
+        </div>
       </div>
     </section>
 
     <!-- ================= REAL VS SIMULATED ================= -->
     <section class="block" id="prawda">
       <div class="wrap">
-        <h2>Prawdziwe a symulowane</h2>
+        <div class="xpw">
+        <div class="xpw-title"><svg class="title-icon" aria-hidden="true"><use href="#i-check"/></svg><h2>Prawdziwe a symulowane</h2></div>
+        <div class="xpw-body">
         <p class="lead">Mówimy wprost, co pochodzi z prawdziwych źródeł, co policzyliśmy, a co wygenerowaliśmy.</p>
         <div class="table-wrap">
           <table class="stack">
@@ -355,13 +388,17 @@
           </table>
         </div>
         <p class="disclaimer"><b>Czym Avalauncher nie jest.</b> Nie jest zwalidowaną prognozą zagrożenia i nie służy do samodzielnego ostrzegania. Brak flagi nie oznacza braku zagrożenia. Stopień zagrożenia i zamknięcia szlaków ustala prognosta, a Avalauncher wskazuje mu, gdzie patrzeć.</p>
+        </div>
+        </div>
       </div>
     </section>
 
     <!-- ================= SOURCES ================= -->
-    <section class="block alt" id="dane">
+    <section class="block" id="dane">
       <div class="wrap">
-        <h2>Dane i licencje</h2>
+        <div class="xpw">
+        <div class="xpw-title"><svg class="title-icon" aria-hidden="true"><use href="#i-doc"/></svg><h2>Dane i licencje</h2></div>
+        <div class="xpw-body">
         <p class="lead">Wszystkie zasoby zewnętrzne zachowują własne licencje. Nasz kod jest na licencji MIT.</p>
         <div class="table-wrap">
           <table class="stack sources">
@@ -386,6 +423,8 @@
           <p><b>Użycie AI.</b> Kod, teksty i wizualizacje powstały z dużym udziałem Claude Code (model Claude Opus 5.5). Problem, zakres, tezę, scenariusz demo i świat wizualny wybrali ludzie. Za treść zgłoszenia odpowiada zespół.</p>
           <a class="btn" href="https://github.com/przemeknowak781/avalauncher/blob/main/docs/10_ai_i_licencje.md">Pełna lista: docs/10<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
         </div>
+        </div>
+        </div>
       </div>
     </section>
   </main>
@@ -401,6 +440,10 @@
       <p>Teren i ortofotomapa: GUGiK. Szlaki: © <a href="https://www.openstreetmap.org/copyright">współtwórcy OpenStreetMap</a> (ODbL). Symulacje: AvaFrame com1DFA (EUPL-1.2). Lawiny do kalibracji: OpenNHM/AvaFrameData (CC BY 4.0); teren: Land Tirol – data.tirol.gv.at (CC BY 4.0 AT), BEV ALS DTM (CC BY 4.0), © swisstopo swissALTI3D. Satelita: zawiera zmodyfikowane dane Copernicus Sentinel (2025), Sentinel-2 L2A przez Element84 Earth Search (AWS Open Data). Czcionka: Archivo (OFL). Nasz kod: MIT.</p>
       <p>Pogoda: Źródłem pochodzenia danych jest Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy. Dane zostały przetworzone.</p>
       <p>Avalauncher · HackYeah 2026, zadanie Defence. Grubość płyty, przeloty i odczyty drona są syntetyczne.</p>
+    </div>
+    <div class="taskbar">
+      <a class="start-btn" href="index.html" title="Otwórz aplikację"><img src="xp/icon.svg" alt=""><span>start</span></a>
+      <span class="tray" aria-hidden="true"><img src="xp/icon.svg" alt=""></span>
     </div>
   </footer>
 
