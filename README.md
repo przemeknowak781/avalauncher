@@ -2,7 +2,7 @@
 
 **Prototyp cyfrowego bliźniaka góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć.**
 
-Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z ponad 1500 policzonymi z góry scenariuszami lawin i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom. Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.
+Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z tysiącami scenariuszy lawin policzonych z góry, których uczy się sieć neuronowa i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom. Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.
 
 HackYeah 2026, zadanie Defence (odporność). Zespół: Przemysław Nowak, Łukasz Janiec, Cezary Pastor.
 

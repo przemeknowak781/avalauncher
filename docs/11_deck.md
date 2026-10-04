@@ -28,7 +28,7 @@ Scenariusz 10 slajdów. Wszystkie liczby pochodzą z [docs/12_wyniki.md](12_wyni
 ## 1. Narracja w 5 zdaniach
 
 1. Siódmego kwietnia 2009 w Austrii zeszła prawdziwa lawina, a fizyka z ustawieniami dobranymi na innych lawinach policzyła jej zasięg z pomyłką 25 m na 1775 m, czyli o jeden szkolny basen.
-2. Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z 1566 lawinami, które ten sam program policzył z góry na prawdziwym terenie Tatr, i wskazuje dyżurnemu służby lawinowej stoki, które mogą zagrozić szlakom.
+2. Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z tysiącami lawin policzonych z góry na prawdziwym terenie Tatr (w jedną noc policzyliśmy 1566, uczy się ich sieć neuronowa), i wskazuje dyżurnemu służby lawinowej stoki, które mogą zagrozić szlakom.
 3. Gdy wiedza się starzeje, bo zamieć trzyma drona na ziemi, a satelita nie widzi przez chmury, Avalauncher mówi to wprost flagą „nie wiem”, planuje, gdzie polecieć, żeby się dowiedzieć, i działa dalej bez internetu.
 4. Nie porównujemy się sami ze sobą: fizykę sprawdziliśmy na 5 prawdziwych lawinach z Austrii i Szwajcarii, za każdym razem bez podglądania (typowa pomyłka zasięgu 92 m, najgorsza 350 m), a szybką kopię fizyki na stokach Tatr, których nigdy nie widziała (zgodność obrysów 0,81).
 5. Mówimy wprost, co jest symulowane, czyli śnieg na stokach, loty drona i test logiki 29 wobec 16, dlatego zaczynamy od pilota z jedną służbą lawinową na jednym szlaku i od sprawdzianu na jej własnych lawinach.
@@ -71,7 +71,7 @@ Na slajdach 6–8 w rogu stoi mały znacznik drabiny dowodów w czterech stopnia
 
 ### Slajd 2. Teza
 
-**Nagłówek:** Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z 1566 lawinami policzonymi z góry.
+**Nagłówek:** Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z tysiącami lawin policzonych z góry.
 
 **Co mówię:** Tym samym programem, AvaFrame, policzyliśmy z góry 1566 lawin na prawdziwym terenie Tatr. Nad Halą Gąsienicową 48 z 58 stromych stoków może zrzucić lawinę na szlak. Dyżurny nie obejrzy wszystkich. Dlatego dron mierzy śnieg, a Avalauncher od razu szuka odpowiedzi wśród gotowych lawin, jak w tabliczce mnożenia. Reguła „30 centymetrów w 3 dni” mówi kiedy, ale nie mówi, który stok.
 
