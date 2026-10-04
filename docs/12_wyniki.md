@@ -70,6 +70,19 @@ Wobec reguły „suma nowego śniegu z 3 dni ≥ 30 cm”: przeoczenia 0 wobec 1
 | **11–13.01.2025** (poranki demo 12 i 13.01) | +34 cm | 72 h | 51 → 85 cm |
 | 6–8.04.2025 | +30 cm | 72 h | 65 → 95 cm |
 
+## Satelita w dniach zamieci (Sentinel-2)
+
+**W dniach zamieci satelita nie widział naszego terenu: 11.01.2025 chmury nad 100% obszaru, 12.01 brak przelotu, 13.01 chmury nad 86%. Pierwszy czysty obraz jest z 16.01, trzy dni po epizodzie.** Źródło: [web/data/sentinel_snow.json](../web/data/sentinel_snow.json), plansza `filmy/satelita/porownanie.png`, skrypty `tools/satellite/`.
+
+| Co | Wartość |
+| --- | --- |
+| Scena | S2A_34UDV_20250116, 16.01.2025, 09:56 UTC; Copernicus Sentinel-2 L2A (Element84 Earth Search, AWS Open Data) |
+| Chmury nad obszarem 16.01 | 0,0% |
+| Śnieg (NDSI > 0,4) | 98,7% komórek; 1300–1500 m 91,2%, 1500–1700 m 99,5%, powyżej 1700 m 100% |
+| Sprawdzenie założonego wiatru W–SW | nie rozstrzyga: na grzbietach powyżej 1800 m odsłonięte najwyżej 0,8% komórek w 7 czystych scenach 16.01–25.02.2025 |
+
+Zastrzeżenie: satelita pokazuje, gdzie leży śnieg, a nie jego grubość ani warstwy.
+
 ## Sprzęt: pomiary na naszych zadaniach
 
 | Zadanie | Laptop i5-1245U | DGX Spark GB10 | Shadow RTX A4500 |
