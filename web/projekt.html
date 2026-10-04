@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Avalauncher: o projekcie</title>
-  <meta name="description" content="Cyfrowy bliźniak góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć. HackYeah 2026, zadanie Defence.">
+  <meta name="description" content="Prototyp cyfrowego bliźniaka góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć. HackYeah 2026, zadanie Defence.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cpath d=%27M2 27 L12 9 L17 17 L21 12 L30 27 Z%27 fill=%27%23fff%27 stroke=%27%231d3f7a%27 stroke-width=%272%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2727%27 cy=%276%27 r=%274%27 fill=%27%23d6007e%27/%3E%3C/svg%3E">
   <link rel="preload" href="vendor/fonts/Archivo-var.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="projekt.css">
@@ -70,8 +70,9 @@
     <section class="hero">
       <div class="wrap">
         <div class="hero-text">
-          <h1>Cyfrowy bliźniak góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć.</h1>
-          <p class="thesis"><strong>Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z ponad 1500 policzonymi z góry scenariuszami lawin i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom.</strong> Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.</p>
+          <h1>Prototyp cyfrowego bliźniaka góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć.</h1>
+          <p class="thesis"><strong>Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z tysiącami scenariuszy lawin, których uczy się sieć neuronowa, i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom.</strong> Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.</p>
+          <p class="thesis-note" style="margin:.6em 0 0;font-size:.95em;opacity:.85">W jedną noc policzyliśmy fizyką 1566 lawin. Sieć neuronowa uczy się ich i rysuje zasięg ok. 4500× szybciej, a planer lotu drona przećwiczył 10,4 mln symulowanych poranków (RL). Docelowo scenariuszy będą tysiące.</p>
           <div class="cta">
             <a class="btn primary" href="index.html"><svg aria-hidden="true"><use href="#i-map"/></svg>Otwórz demo</a>
             <a class="btn storm" href="index.html?day=2"><svg aria-hidden="true"><use href="#i-snow"/></svg>Otwórz demo: śnieżyca</a>
@@ -83,9 +84,9 @@
           <img src="media/landing/hero_koncepcja_1280.jpg"
                srcset="media/landing/hero_koncepcja_1280.jpg 1280w, media/landing/hero_koncepcja_2400.jpg 2400w"
                sizes="(max-width: 1100px) 100vw, 58vw" width="2400" height="1350" fetchpriority="high"
-               alt="Teren Hali Gąsienicowej w 3D: dwa stoki zakreskowane na pomarańczowo jako mogące zagrozić szlakowi, sektory pod białą mgłą z fioletowym obrysem jako „nie wiem” i magentowa trasa przelotu drona z bazy przy Murowańcu.">
+               alt="Teren Hali Gąsienicowej w 3D w dniu 2 demo: Sucha Dolina NE i Beskid NE zakreskowane na pomarańczowo jako mogące zagrozić szlakowi, sektory Liliowe E, Sucha Dolina E, Mały Kościelec W i Kościelec W pod białą mgłą z fioletowym obrysem jako „nie wiem” i magentowa trasa przelotu drona z bazy przy Murowańcu.">
           <figcaption>
-            <b>Dzień 2, 13.01.2025, 7:00: śnieżyca, przelot odwołany.</b> Wynik silnika demo na 1566 symulacjach AvaFrame, teren GUGiK NMT, stan śniegu syntetyczny.<br>
+            <b>Dzień 2, 13.01.2025, 7:00: zamieć, przelot odwołany.</b> Wynik silnika demo na 1566 symulacjach AvaFrame, ten sam co po kliknięciu „Otwórz demo: śnieżyca”. Teren GUGiK NMT, stan śniegu syntetyczny.<br>
             <span class="key"><i class="k-haz"></i>może zagrozić szlakowi</span><span class="key"><i class="k-unk"></i>nie wiem</span><span class="key"><i class="k-route"></i>plan przelotu</span>
           </figcaption>
         </figure>
@@ -219,10 +220,10 @@
           <li class="result">
             <div>
               <div class="figure-num">1566</div>
-              <div class="figure-unit">symulacji AvaFrame w 30,4&nbsp;min</div>
+              <div class="figure-unit">lawin policzonych w jedną noc (30,4&nbsp;min); docelowo tysiące</div>
             </div>
             <div>
-              <p class="claim">Biblioteka scenariuszy policzona fizycznym solverem AvaFrame com1DFA na prawdziwym terenie GUGiK, na 12 rdzeniach DGX Spark: 58 stref startowych × 9 grubości płyty (0,4–2,0&nbsp;m) × 3 kalibracje tarcia, 0 nieudanych przebiegów. 48 z 58 stref dochodzi do szlaku.</p>
+              <p class="claim">Biblioteka scenariuszy policzona fizycznym solverem AvaFrame com1DFA na prawdziwym terenie GUGiK, na 12 rdzeniach DGX Spark: 58 stref startowych × 9 grubości płyty (0,4–2,0&nbsp;m) × 3 kalibracje tarcia, 0 nieudanych przebiegów. 48 z 58 stref dochodzi do szlaku. Na tych przebiegach uczy się sieć neuronowa (niżej), dzięki której biblioteka może rosnąć do tysięcy scenariuszy.</p>
               <p class="caveat"><b>Zastrzeżenie:</b> standardowe kalibracje tarcia z AvaFrame, bez kalibracji dla Tatr. Strefy startowe wyznaczone z terenu regułą nachylenia i wysokości, bez inwentarza służby.</p>
               <p class="src">Źródło: <a href="data/scenarios.json">data/scenarios.json</a></p>
             </div>
@@ -230,13 +231,13 @@
 
           <li class="result">
             <div>
-              <div class="figure-num">IoU 0,727</div>
-              <div class="figure-unit">na prawdziwej lawinie, błąd zasięgu +20&nbsp;m</div>
+              <div class="figure-num">92&nbsp;m</div>
+              <div class="figure-unit">mediana błędu zasięgu na 5 prawdziwych lawinach, test bez podglądania</div>
             </div>
             <div>
-              <p class="claim">Fizykę AvaFrame sprawdziliśmy na 5 prawdziwych lawinach z Austrii i Szwajcarii (OpenNHM/AvaFrameData), 234 symulacje. W teście bez podglądania (ustawienie tarcia wybrane na czterech lawinach, sprawdzone na piątej) typowa pomyłka zasięgu to 92&nbsp;m (mediana; średnio 154&nbsp;m, najgorzej +350&nbsp;m). Na lawinie Popeletzbach (Tyrol Wschodni, 7.04.2009) pomyłka wynosi 25&nbsp;m na 1775&nbsp;m.</p>
-              <p class="caveat"><b>Zastrzeżenie:</b> grubość odrywu zmierzono tylko na jednej lawinie (Eiskar, 2,7&nbsp;m); na pozostałych przyjęto 1,2&nbsp;m. Symulacje bez lasu i porywania śniegu. To przykładowa kalibracja na zdarzeniach z Austrii i Szwajcarii; dla Tatr potrzebne są lokalne obserwacje.</p>
-              <p class="src">Źródło: <a href="data/calibration.json">data/calibration.json</a> · dane zdarzenia OpenNHM/AvaFrameData, <a href="https://doi.org/10.5281/zenodo.20701552">DOI 10.5281/zenodo.20701552</a></p>
+              <p class="claim">Na 5 prawdziwych lawinach z Austrii i Szwajcarii (OpenNHM/AvaFrameData, 234 symulacje AvaFrame), test bez podglądania: mediana błędu zasięgu 92&nbsp;m, średnio 154&nbsp;m, najgorzej +350&nbsp;m; Popeletzbach +25&nbsp;m, IoU 0,70. Ustawienie tarcia wybieramy na czterech lawinach i sprawdzamy na piątej, po kolei na każdej.</p>
+              <p class="caveat"><b>Zastrzeżenie:</b> grubość odrywu zmierzono tylko na jednej lawinie (Eiskar, 2,7&nbsp;m); na pozostałych przyjęto 1,2&nbsp;m. Model bez lasu i bez porywania śniegu. Podejrzewamy, że stąd część błędu, ale wariant z lasem i porywaniem z danych zdarzeń (parametry domyślne, niestrojone) go nie zmniejszył: średnio 153,7&nbsp;m, mediana 124&nbsp;m. Dopasowanie na tym samym zdarzeniu (Popeletzbach, 21 przebiegów, w próbie, nie walidacja): IoU 0,727, +20&nbsp;m. To przykładowa kalibracja na zdarzeniach z Austrii i Szwajcarii; dla Tatr potrzebne są lokalne obserwacje.</p>
+              <p class="src">Źródło: <a href="data/calibration.json">data/calibration.json</a> · dane zdarzeń OpenNHM/AvaFrameData, <a href="https://doi.org/10.5281/zenodo.20701552">DOI 10.5281/zenodo.20701552</a></p>
             </div>
           </li>
 
@@ -252,17 +253,6 @@
             </div>
           </li>
 
-          <li class="result">
-            <div>
-              <div class="figure-num">0 <span class="vs">wobec</span> 121</div>
-              <div class="figure-unit">przeoczeń: Avalauncher wobec reguły „nowy śnieg z 3 dni ≥ 30&nbsp;cm”</div>
-            </div>
-            <div>
-              <p class="claim">Na 30 prawdziwych porankach IMGW silnik nie przeoczył żadnego stoku, który zagrażał szlakowi, i nie dał fałszywego alarmu „zagrożenie” (0 wobec 25 dla reguły).</p>
-              <p class="caveat"><b>Zastrzeżenie:</b> ceną jest 549 flag „nie wiem”, z czego 505 w poranki z odwołanym przelotem. Błąd modelu zmienia prawdę tylko w 44 przypadkach, więc 0/0 to słaby dowód. Grubość płyty, prawda i przeloty są syntetyczne: to test logiki.</p>
-              <p class="src">Źródło: <a href="data/proof.json">data/proof.json</a></p>
-            </div>
-          </li>
 
           <li class="result">
             <div>
@@ -272,6 +262,17 @@
             <div>
               <p class="claim">Przy tym samym czasie lotu 20&nbsp;min plan Avalaunchera wyjaśnia więcej niewiadomych niż patrol wzdłuż szlaku. Zagrażające stoki oflagowane po przelocie: 29 wobec 16. Spadek niepewności decyzji: −23% wobec −7%.</p>
               <p class="caveat"><b>Zastrzeżenie:</b> pogoda prawdziwa (IMGW-PIB Kasprowy Wierch, 23.12.2024–21.01.2025, kierunek wiatru założony), ale grubość płyty, prawda i przeloty są syntetyczne. To test logiki, nie walidacja na prawdziwych lawinach.</p>
+              <p class="src">Źródło: <a href="data/proof.json">data/proof.json</a></p>
+            </div>
+          </li>
+          <li class="result">
+            <div>
+              <div class="figure-num">0 <span class="vs">wobec</span> 121</div>
+              <div class="figure-unit">przeoczeń w teście logiki: Avalauncher wobec reguły „nowy śnieg z 3 dni ≥ 30&nbsp;cm”</div>
+            </div>
+            <div>
+              <p class="claim">W teście logiki na 30 porankach z prawdziwą pogodą IMGW i syntetycznym stanem stoków silnik nie przeoczył żadnego syntetycznie groźnego stoku i nie dał fałszywego alarmu „zagrożenie” (0 wobec 25 dla reguły).</p>
+              <p class="caveat"><b>Zastrzeżenie:</b> ceną jest 549 flag „nie wiem”, z czego 505 w poranki z odwołanym przelotem. Błąd modelu zmienia prawdę tylko w 44 przypadkach, więc 0/0 to słaby dowód. Grubość płyty, prawda i przeloty są syntetyczne: to test logiki.</p>
               <p class="src">Źródło: <a href="data/proof.json">data/proof.json</a></p>
             </div>
           </li>
@@ -290,9 +291,9 @@
         </ul>
 
         <figure class="results-fig">
-          <a href="media/landing/kalibracja_popeletzbach.jpg" title="Otwórz planszę w pełnym rozmiarze"><img src="media/landing/kalibracja_popeletzbach.jpg" width="1600" height="900" loading="lazy"
-               alt="Plansza kalibracji: cztery przebiegi AvaFrame na terenie Popeletzbach z obrysem obserwowanej lawiny; najlepszy ma IoU 0,73 i zasięg o 20 m dłuższy od obserwowanego. Obok siatka IoU dla kalibracji tarcia i grubości odrywu."></a>
-          <figcaption><b>AvaFrame wobec obrysu prawdziwej lawiny.</b> Popeletzbach, 7.04.2009. Linia przerywana: obserwowany zasięg. Dane zdarzenia: OpenNHM/AvaFrameData 1.0 (F. Perzl, BFW), CC BY 4.0. Teren: Land Tirol – data.tirol.gv.at, CC BY 4.0 AT.</figcaption>
+          <a href="media/landing/kalibracja_5_lawin.jpg" title="Otwórz planszę w pełnym rozmiarze"><img src="media/landing/kalibracja_5_lawin.jpg" width="1600" height="816" loading="lazy"
+               alt="Plansza: 5 prawdziwych lawin z Austrii i Szwajcarii. W każdym panelu obrys obserwowanej lawiny lub osadu (linia przerywana), przebieg z testu bez tego zdarzenia (ciemna linia) i najlepszy przebieg w próbie (pomarańczowa plama). Test bez podglądania: Popeletzbach +25 m, Kleiner Ötscherbach +350 m, Eiskar −227 m, Filisur 1 +77 m, Filisur 2 +92 m."></a>
+          <figcaption><b>AvaFrame wobec obrysów 5 prawdziwych lawin.</b> Duża liczba i ciemna linia: test bez podglądania. Pomarańczowa plama i „najlepszy przebieg”: dopasowanie w próbie, nie walidacja. Model bez lasu i bez porywania śniegu. Dane zdarzeń: OpenNHM/AvaFrameData 1.0 (F. Perzl, BFW; WLV; SLF Davos), CC BY 4.0. Teren: Land Tirol – data.tirol.gv.at (CC BY 4.0 AT), BEV ALS DTM 1&nbsp;m (CC BY 4.0), © swisstopo swissALTI3D.</figcaption>
         </figure>
       </div>
     </section>
@@ -307,7 +308,7 @@
             <video controls muted playsinline preload="none" width="1280" height="720" poster="media/landing/koncepcja_orbit.jpg">
               <source src="media/landing/koncepcja_orbit.mp4" type="video/mp4">
             </video>
-            <figcaption><b>Co wiemy, czego nie wiemy i dokąd polecieć</b>Dzień 2, śnieżyca: stoki, które mogą zagrozić szlakom, sektory „nie wiem” i plan przelotu. Wynik silnika demo, stan śniegu syntetyczny.</figcaption>
+            <figcaption><b>Co wiemy, czego nie wiemy i dokąd polecieć</b>Dzień 2, zamieć: stoki, które mogą zagrozić szlakom, sektory „nie wiem” i plan przelotu, tak jak na ekranie demo. Wynik silnika demo, stan śniegu syntetyczny.</figcaption>
           </figure>
           <figure>
             <video controls muted playsinline preload="none" width="1280" height="720" poster="media/landing/mapa_zasiegow_orbit.jpg">
@@ -325,7 +326,7 @@
             <video controls muted playsinline preload="none" width="1280" height="720" poster="media/landing/surogat_suwak.jpg">
               <source src="media/landing/surogat_suwak.mp4" type="video/mp4">
             </video>
-            <figcaption><b>Surogat przy zmianie grubości płyty</b>Sieć zastępcza (po lewej) i najbliższy przebieg AvaFrame (po prawej) na stoku spoza treningu. Dowód koncepcji.</figcaption>
+            <figcaption><b>Surogat przy zmianie grubości płyty</b>Sieć zastępcza (po lewej) i najbliższy przebieg AvaFrame (po prawej) na stoku spoza treningu. Czas na kadrze zmierzono w trybie filmu; w wynikach podajemy 2,3&nbsp;ms na mapę. Dowód koncepcji.</figcaption>
           </figure>
         </div>
       </div>
@@ -340,11 +341,12 @@
           <table class="stack">
             <thead><tr><th scope="col">Element</th><th scope="col">Stan</th><th scope="col">Szczegóły</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Teren</th><td class="kind"><span class="tag real">prawdziwy</span></td><td>GUGiK NMT, wycinek 4×4&nbsp;km: Hala Gąsienicowa, Kasprowy Wierch, Kościelec, Świnica, Zawrat</td></tr>
+              <tr><th scope="row">Teren</th><td class="kind"><span class="tag real">prawdziwy</span></td><td>GUGiK NMT, wycinek: Hala Gąsienicowa, Kasprowy Wierch, Kościelec, Świnica, Zawrat</td></tr>
               <tr><th scope="row">Szlaki</th><td class="kind"><span class="tag real">prawdziwe</span></td><td>OpenStreetMap, w ich prawdziwych kolorach</td></tr>
-              <tr><th scope="row">Pogoda</th><td class="kind"><span class="tag real">prawdziwa</span></td><td>IMGW-PIB Kasprowy Wierch, zima 2024/25 (dobowe archiwum). Poranki demo 12 i 13.01.2025 leżą w prawdziwym epizodzie: +34&nbsp;cm nowego śniegu w 3 dni, 72&nbsp;h zamieci, pokrywa 51 → 85&nbsp;cm. Kierunek wiatru założony, bo brak go w archiwum</td></tr>
+              <tr><th scope="row">Pogoda</th><td class="kind"><span class="tag real">prawdziwa</span></td><td>IMGW-PIB Kasprowy Wierch, zima 2024/25 (dobowe archiwum). Poranki demo 12 i 13.01.2025 leżą w prawdziwym epizodzie: +34&nbsp;cm nowego śniegu w 3 dni, 72&nbsp;h zamieci w dobach 11–13.01, pokrywa 51 → 85&nbsp;cm. Kierunek wiatru założony, bo brak go w archiwum</td></tr>
+              <tr><th scope="row">Satelita</th><td class="kind"><span class="tag real">prawdziwy</span></td><td>Copernicus Sentinel-2 L2A (Element84 Earth Search, AWS Open Data): pokrywa śnieżna 16.01.2025; w dniach zamieci chmury albo brak przelotu</td></tr>
               <tr><th scope="row">Biblioteka scenariuszy</th><td class="kind"><span class="tag calc">policzona</span></td><td>Fizyczny solver AvaFrame com1DFA na prawdziwym terenie, standardowe kalibracje tarcia, bez kalibracji dla Tatr</td></tr>
-              <tr><th scope="row">Kalibracja</th><td class="kind"><span class="tag calc">prawdziwe zdarzenie</span></td><td>Przykładowa, na 5 prawdziwych lawinach z Austrii i Szwajcarii (OpenNHM/AvaFrameData)</td></tr>
+              <tr><th scope="row">Kalibracja</th><td class="kind"><span class="tag calc">prawdziwe zdarzenie</span></td><td>Przykładowa: 5 prawdziwych lawin z Austrii i Szwajcarii (OpenNHM/AvaFrameData), test bez podglądania; nie dla Tatr</td></tr>
               <tr><th scope="row">Strefy startowe</th><td class="kind"><span class="tag calc">wyznaczone</span></td><td>Z prawdziwego terenu prostą regułą nachylenia i wysokości, bez inwentarza służby</td></tr>
               <tr><th scope="row">Grubość płyty, przeloty i odczyty drona</th><td class="kind"><span class="tag synth">syntetyczne</span></td><td>Wygenerowane naszymi skryptami</td></tr>
               <tr><th scope="row">30 poranków dowodu</th><td class="kind"><span class="tag mixed">mieszane</span></td><td>Prawdziwa pogoda, syntetyczny stan stoków i błąd modelu</td></tr>
@@ -369,8 +371,11 @@
               <tr><th scope="row">GUGiK, ortofotomapa</th><td>Tekstura terenu w filmach 3D</td><td>bez opłat, z podaniem źródła</td></tr>
               <tr><th scope="row">OpenStreetMap</th><td>Szlaki turystyczne z nazwami i kolorami</td><td><a href="https://www.openstreetmap.org/copyright">ODbL 1.0</a></td></tr>
               <tr><th scope="row">IMGW-PIB, dane publiczne</th><td>Pogoda poranków demo i dowodu, stacja Kasprowy Wierch</td><td>z podaniem źródła i informacją o przetworzeniu</td></tr>
-              <tr><th scope="row">OpenNHM / AvaFrameData 1.0, zdarzenie Popeletzbach (F. Perzl, BFW)</th><td>Kalibracja AvaFrame na prawdziwej lawinie</td><td><a href="https://doi.org/10.5281/zenodo.20701552">CC BY 4.0</a></td></tr>
+              <tr><th scope="row">OpenNHM / AvaFrameData 1.0: 5 zdarzeń (Popeletzbach, Kleiner Ötscherbach, Eiskar, Filisur 1 i 2; dane F. Perzl, BFW; WLV; SLF Davos)</th><td>Kalibracja i test bez podglądania AvaFrame na prawdziwych lawinach</td><td><a href="https://doi.org/10.5281/zenodo.20701552">CC BY 4.0</a></td></tr>
               <tr><th scope="row">Land Tirol, model terenu 5&nbsp;m</th><td>Teren dla symulacji Popeletzbach</td><td>CC BY 4.0 AT</td></tr>
+              <tr><th scope="row">BEV, ALS DTM 1&nbsp;m (Austria)</th><td>Teren dla symulacji Kleiner Ötscherbach i Eiskar</td><td>CC BY 4.0</td></tr>
+              <tr><th scope="row">swisstopo, swissALTI3D 2&nbsp;m</th><td>Teren dla symulacji Filisur 1 i 2</td><td>© swisstopo, z podaniem źródła (warunki licencji potwierdzamy)</td></tr>
+              <tr><th scope="row">Copernicus Sentinel-2 L2A (Element84 Earth Search, AWS Open Data)</th><td>Pokrywa śnieżna 16.01.2025, chmury w dniach zamieci</td><td>Zawiera zmodyfikowane dane Copernicus Sentinel (2025)</td></tr>
               <tr><th scope="row">AvaFrame 2.1, moduł com1DFA</th><td>Symulacje lawin, biblioteka scenariuszy, dane do uczenia surogatu</td><td>EUPL-1.2</td></tr>
               <tr><th scope="row">Archivo (Omnibus-Type)</th><td>Czcionka</td><td>SIL OFL 1.1</td></tr>
               <tr><th scope="row">Kod Avalaunchera</th><td>Silnik, ekran demo, skrypty</td><td>MIT</td></tr>
@@ -393,7 +398,7 @@
         <a href="biblioteka.html">Biblioteka scenariuszy</a>
         <a href="https://github.com/przemeknowak781/avalauncher">Kod na GitHubie</a>
       </nav>
-      <p>Teren i ortofotomapa: GUGiK. Szlaki: © <a href="https://www.openstreetmap.org/copyright">współtwórcy OpenStreetMap</a> (ODbL). Symulacje: AvaFrame com1DFA (EUPL-1.2). Lawina Popeletzbach: OpenNHM/AvaFrameData (CC BY 4.0), teren Land Tirol – data.tirol.gv.at (CC BY 4.0 AT). Czcionka: Archivo (OFL). Nasz kod: MIT.</p>
+      <p>Teren i ortofotomapa: GUGiK. Szlaki: © <a href="https://www.openstreetmap.org/copyright">współtwórcy OpenStreetMap</a> (ODbL). Symulacje: AvaFrame com1DFA (EUPL-1.2). Lawiny do kalibracji: OpenNHM/AvaFrameData (CC BY 4.0); teren: Land Tirol – data.tirol.gv.at (CC BY 4.0 AT), BEV ALS DTM (CC BY 4.0), © swisstopo swissALTI3D. Satelita: zawiera zmodyfikowane dane Copernicus Sentinel (2025), Sentinel-2 L2A przez Element84 Earth Search (AWS Open Data). Czcionka: Archivo (OFL). Nasz kod: MIT.</p>
       <p>Pogoda: Źródłem pochodzenia danych jest Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy. Dane zostały przetworzone.</p>
       <p>Avalauncher · HackYeah 2026, zadanie Defence. Grubość płyty, przeloty i odczyty drona są syntetyczne.</p>
     </div>
