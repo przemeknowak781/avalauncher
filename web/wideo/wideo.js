@@ -1,6 +1,8 @@
 // AvaKomunikator: rekwizyt filmu demo (docs/15_wideo.md, sekcje 1, 2 i 4). Postać fikcyjna, komunikator wymyślony.
 // Stan: ?stan=dzwoni|rozmowa|owca|udostepnianie (alias: ekran)|film|koniec, albo window.setStan(nazwa) przy nagraniu.
 // Opcje: &t=<s> (czas filmu na starcie stanu), &napisy=1 (napisy w pasie), &tts=1 (dopisek o syntezatorze na planszy).
+// &render=1: bez zegara ściennego; nagrywarka (tools/wideo/nagraj_komunikator.mjs) woła await setTime(t) przed każdą klatką,
+// a strona rysuje stan dokładnie w chwili t (animacje CSS zatrzymane i ustawione na czas, kamerka i film przewinięte).
 "use strict";
 (function () {
   const Q = new URLSearchParams(location.search);
@@ -17,7 +19,9 @@
 
   let Z = [];          // zdarzenia z cues.json
   let stan = "dzwoni", t0 = performance.now(), filmStart = 0;
-  const lt = () => (performance.now() - t0) / 1000;
+  const RENDER = Q.get("render") === "1";
+  let renderT = 0;
+  const lt = () => (RENDER ? renderT : (performance.now() - t0) / 1000);
   const ft = () => filmStart + lt();
 
   // ---------- losowość z ziarnem (powtarzalne nagrania) ----------
@@ -289,27 +293,43 @@
   });
   const widoczne = () => [$("#cam-duza"), $("#cam-mala")].filter((c) => c && c.offsetParent !== null);
 
-  let camBusy = false, camLast = -1e9, mouth = 0, mouthNext = 0, blinkNext = 2.5, blinkEnd = 0, glanceNext = 5, glanceUntil = 0;
+  let camBusy = false, camLast = -1e9;
   let pierwszaKlatka = false;
+  // usta, mrugnięcia i zerknięcia Halnego jako czysta funkcja czasu lokalnego (harmonogram z ziarnem, liczony raz):
+  // ta sama chwila wygląda tak samo niezależnie od tego, ile klatek narysowano wcześniej
+  const H = (() => {
+    seed = 7;
+    const usta = [{ t: 0, m: 1 }], mrug = [], zerk = [];
+    for (let t = 0; t < 400;) { t += 0.09 + rnd() * 0.05; let m; do { m = 1 + Math.floor(rnd() * 3); } while (m === usta[usta.length - 1].m); usta.push({ t, m }); }
+    for (let t = 2.5; t < 400; t += 3 + rnd() * 2) mrug.push(t);
+    for (let t = 5; t < 400; t += 6 + rnd() * 3) zerk.push(t);
+    return { usta, mrug, zerk };
+  })();
+  const ostatni = (arr, t, key) => { let a = 0, b = arr.length - 1, r = -1; while (a <= b) { const m = (a + b) >> 1; if ((key ? arr[m][key] : arr[m]) <= t) { r = m; a = m + 1; } else b = m - 1; } return r; };
   function camParams() {
     const f = ft(), c = cueAt(f);
     const now = lt();
-    if (c.mowi) { if (now >= mouthNext) { let m; do { m = 1 + Math.floor(rnd() * 3); } while (m === mouth); mouth = m; mouthNext = now + 0.09 + rnd() * 0.05; } }
-    else mouth = 0;
-    if (now >= blinkNext) { blinkEnd = now + 0.13; blinkNext = now + 3 + rnd() * 2; }
+    const mouth = c.mowi ? H.usta[Math.max(0, ostatni(H.usta, now, "t"))].m : 0;
+    const ib = ostatni(H.mrug, now), blink = ib >= 0 && now < H.mrug[ib] + 0.13;
     let glance = 0;
     if (c.halny === "wyrzut") {
-      if (now >= glanceNext && now > glanceUntil) { glanceUntil = now + 1.1; glanceNext = now + 6 + rnd() * 3; }
-      if (now < glanceUntil) glance = 1;
+      const ig = ostatni(H.zerk, now);
+      if (ig >= 0 && now < H.zerk[ig] + 1.1) glance = 1;
       if (c.spojrzenie != null && f - c.spojrzenie < 0 && f - c.spojrzenie > -1.6) glance = 1;
     }
-    return { f, staszek: c.staszek, staszekT: f - c.staszekOd, halny: c.halny, halnyT: f - c.halnyOd, mouth, blink: now < blinkEnd, glance, piksele: c.piksele };
+    return { f, staszek: c.staszek, staszekT: f - c.staszekOd, halny: c.halny, halnyT: f - c.halnyOd, mouth, blink, glance, piksele: c.piksele };
   }
   function camTick(nowMs) {
     if (camBusy || nowMs - camLast < 66) return;
     const cs = widoczne(); if (!cs.length) return;
     camBusy = true; camLast = nowMs;
+    camRender(cs).then(() => { camBusy = false; });
+  }
+  // jedna klatka kamerki; szum i migotanie zależą od numeru klatki (30 kl./s), więc są powtarzalne
+  function camRender(cs) {
     const p = camParams();
+    const n = Math.round(lt() * 30);
+    return new Promise((done) => {
     const img = new Image();
     const url = URL.createObjectURL(new Blob([sceneSVG(p)], { type: "image/svg+xml" }));
     img.onload = () => {
@@ -319,15 +339,16 @@
         mctx.imageSmoothingEnabled = false; mctx.drawImage(male, 0, 0, 320, 240);
       } else { mctx.imageSmoothingEnabled = true; mctx.drawImage(img, 0, 0, 320, 240); }
       mctx.globalCompositeOperation = "overlay"; mctx.globalAlpha = 0.2;
-      mctx.drawImage(szum[Math.floor(Math.random() * szum.length)], 0, 0);
+      mctx.drawImage(szum[Math.floor(hash(n + 500) * szum.length)], 0, 0);
       mctx.globalCompositeOperation = "multiply"; mctx.globalAlpha = 1; mctx.fillStyle = "#f3ecdc"; mctx.fillRect(0, 0, 320, 240);
-      mctx.globalCompositeOperation = "source-over"; mctx.globalAlpha = 0.03 + Math.random() * 0.03; mctx.fillStyle = "#000"; mctx.fillRect(0, 0, 320, 240);
+      mctx.globalCompositeOperation = "source-over"; mctx.globalAlpha = 0.03 + hash(n + 900) * 0.03; mctx.fillStyle = "#000"; mctx.fillRect(0, 0, 320, 240);
       mctx.globalAlpha = 1;
       for (const c of cs) c.getContext("2d").drawImage(master, 0, 0);
-      URL.revokeObjectURL(url); camBusy = false; pierwszaKlatka = true;
+      URL.revokeObjectURL(url); pierwszaKlatka = true; done();
     };
-    img.onerror = () => { URL.revokeObjectURL(url); camBusy = false; };
+    img.onerror = () => { URL.revokeObjectURL(url); done(); };
     img.src = url;
+    });
   }
 
   // ---------- zdarzenia z cues.json ----------
@@ -412,7 +433,7 @@
     ekran() {},
     film() {
       const v = $("#film"); v.pause(); try { v.currentTime = 0; } catch (e) {}
-      o(1.0, () => { v.play().catch(() => {}); });
+      if (!RENDER) o(1.0, () => { v.play().catch(() => {}); });
     },
     koniec() { const r = $("#rozlaczono"); r.classList.remove("znika"); o(2.4, () => r.classList.add("znika")); },
   };
@@ -424,27 +445,55 @@
     document.body.classList.remove("kursor");
     jednorazowe = []; trasa = []; czatN = -1;
     filmStart = opts.t != null ? +opts.t : START[s];
-    t0 = performance.now();
-    blinkNext = 2.5; glanceNext = 5; glanceUntil = 0; mouthNext = 0; seed = 7;
+    t0 = performance.now(); renderT = 0; pierwszyRender = true;
     INIT[s]();
     camLast = -1e9;
     return Date.now();
   }
 
-  function tick(nowMs) {
-    const t = lt(), f = ft();
-    for (const j of jednorazowe) if (!j.done && t >= j.t) { j.done = true; j.fn(); }
+  const kamerka = () => stan === "rozmowa" || stan === "ekran" || stan === "film";
+  function krok(t, f, poZdarzeniu) {
+    for (const j of jednorazowe) if (!j.done && t >= j.t) { j.done = true; j.fn(); if (poZdarzeniu) poZdarzeniu(j.t); }
     kursorTick(t);
-    if (stan === "rozmowa" || stan === "ekran" || stan === "film") {
+    if (kamerka()) {
       const c = cueAt(f);
       czat(f);
       if (stan === "rozmowa") {
         const pod = $("#podpis"); if (c.podpis) { pod.textContent = c.podpis; pod.classList.add("show"); } else pod.classList.remove("show");
         const et = $("#etykieta"); if (c.etykieta) { et.querySelector("span").textContent = c.etykieta; et.classList.add("show"); } else et.classList.remove("show");
       }
-      camTick(nowMs);
     }
     if (napisyWl && stan !== "dzwoni" && stan !== "koniec") $("#napis").textContent = cueAt(f).napis;
+  }
+
+  // &render=1: klatka w chwili t (s czasu lokalnego stanu); wywołania kolejno rosnącym t.
+  // Każda animacja/przejście CSS dostaje czas startu: chwilę zdarzenia, które ją wywołało, albo klatkę, w której się pojawiła
+  // (animacje obecne już w pierwszej klatce liczą się od 0 s). getAnimations() przelicza style, więc nowe przejścia są od razu widoczne.
+  let pierwszyRender = true;
+  async function setTime(t) {
+    renderT = t;
+    const f = ft();
+    const oznacz = (od) => { for (const a of document.getAnimations()) if (a.__t0 == null) a.__t0 = od; };
+    oznacz(pierwszyRender ? 0 : t);
+    krok(t, f, (tj) => oznacz(tj));
+    oznacz(pierwszyRender ? 0 : t);
+    for (const a of document.getAnimations()) { a.pause(); a.currentTime = Math.max(0, (t - a.__t0) * 1000); }
+    pierwszyRender = false;
+    const zadania = [];
+    if (kamerka()) { const cs = widoczne(); if (cs.length) zadania.push(camRender(cs)); }
+    if (stan === "film") {
+      const v = $("#film"), cel = clamp(t - 1.0, 0, Math.max(0, (v.duration || 0) - 0.02));
+      if (Math.abs(v.currentTime - cel) > 1e-4) zadania.push(new Promise((r) => { v.addEventListener("seeked", r, { once: true }); setTimeout(r, 3000); v.currentTime = cel; }));
+    }
+    await Promise.all(zadania);
+    await new Promise((r) => requestAnimationFrame(() => r()));
+    return t;
+  }
+
+  function tick(nowMs) {
+    const t = lt(), f = ft();
+    krok(t, f);
+    if (kamerka()) camTick(nowMs);
     if (znacznik) puls.style.background = "#ff00ff";
     else puls.style.background = (pulsN = 1 - pulsN) ? "rgba(128,128,128,0.012)" : "rgba(128,128,128,0.02)";
     if (kod) {
@@ -472,13 +521,14 @@
     Z.push({ t: 3.6, czat: "System: Rozmowa wideo ze Staszkiem (bacówka) rozpoczęta." }, { t: 28.0, czat: "System: Staszek udostępnia ekran." });
     Z.sort((a, b) => a.t - b.t);
     window.setStan = setStan;
+    if (RENDER) window.setTime = setTime;
     setStan(Q.get("stan") || "dzwoni", { t: Q.get("t"), wewn: true });
-    requestAnimationFrame(tick);
+    if (!RENDER) requestAnimationFrame(tick);
     const obrazy = $$("img").map((im) => (im.complete ? Promise.resolve() : new Promise((r) => { im.onload = im.onerror = r; })));
     await Promise.all([document.fonts.ready, ...obrazy]);
     if (stan === "film") { const v = $("#film"); if (v.readyState < 2) await new Promise((r) => { v.addEventListener("loadeddata", r, { once: true }); setTimeout(r, 6000); }); }
     const czekaj = Date.now();
-    while ((stan === "rozmowa" || stan === "ekran" || stan === "film") && !pierwszaKlatka && Date.now() - czekaj < 4000) await new Promise((r) => setTimeout(r, 50));
+    while (!RENDER && kamerka() && !pierwszaKlatka && Date.now() - czekaj < 4000) await new Promise((r) => setTimeout(r, 50));
     window.__gotowe = true;
   }
   init();

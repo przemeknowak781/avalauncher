@@ -198,3 +198,6 @@ body.kursor #kursor { display: block; }
 
 /* 2x2 px w rogu, niewidoczna zmiana co klatkę: screencast wysyła klatki także w spokojnych ujęciach */
 #puls { position: absolute; left: 0; top: 0; width: 4px; height: 4px; z-index: 99998; pointer-events: none; }
+
+/* mniej nakładek w kadrze kamerki: imię tylko w tytule okna, informacja o postaci fikcyjnej na planszy końcowej */
+.podpis, .kam-nazwa { display: none !important; }
