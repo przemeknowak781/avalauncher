@@ -11,7 +11,7 @@ Użycie było istotne. Większość kodu, tekstów i wizualizacji napisał Claud
 | Obszar | Co robił Claude | Gdzie w repo |
 | --- | --- | --- |
 | Research | Przegląd literatury, precedensów i źródeł danych, szkice raportów | `docs/01`–`docs/08`, `catalog/datasets.json` |
-| Strategia zgłoszenia | Analiza regulaminu i kryteriów, kompendium zespołu (w Claude Docs) | `docs/00_kompendium_hackyeah.md` |
+| Strategia zgłoszenia | Analiza regulaminu i kryteriów oceny | notatki zespołu (poza repo) |
 | Kod | Pobieranie i przetwarzanie terenu, pogody IMGW i szlaków, sektory, silnik flag i planu przelotu, dowód, ekran demo, skrypty AvaFrame, kalibracja na lawinie Popeletzbach, benchmarki, sieć-surogat, eksperyment RL | `tools/`, `web/`, `src/`, `.github/` |
 | Wizualizacje | Skrypty renderujące mapy, filmy 2D i 3D z wyników AvaFrame, plansze surogatu i kalibracji | `tools/avaframe/`, `tools/visuals/`, `tools/surrogate/`, `tools/calibration/`, `web/media/`, `filmy/` (poza Git) |
 | Dokumentacja | README, plan budowy, deck, skrypt pitchu, ten plik | `README.md`, `docs/09`–`docs/11` |

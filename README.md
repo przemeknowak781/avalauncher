@@ -4,7 +4,7 @@
 
 Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z ponad 1500 policzonymi z góry scenariuszami lawin i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom. Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.
 
-HackYeah 2026, zadanie Defence (odporność). Master doc zespołu: [kompendium](docs/00_kompendium_hackyeah.md).
+HackYeah 2026, zadanie Defence (odporność).
 
 ## Dwie rzeczy, które robi
 
@@ -189,7 +189,6 @@ PYTHONPATH=src python -m avalauncher compare --observation examples/synthetic_ob
 PYTHONPATH=src python -m unittest discover -s tests -v
 ```
 
-0. [Kompendium HackYeah 2026](docs/00_kompendium_hackyeah.md): master doc do zgłoszenia i pitchu.
 1. [Oryginalność i hipotezy](docs/01_oryginalnosc.md): znane precedensy i test nowości.
 2. [Pokrywa i uruchomienie](docs/02_pokrywa_i_uruchomienie.md): stan śniegu, warstwy i prawdopodobieństwo uwolnienia.
 3. [Dynamika i symulatory](docs/03_dynamika_i_symulatory.md): AvaFrame, kalibracja, MuJoCo.
