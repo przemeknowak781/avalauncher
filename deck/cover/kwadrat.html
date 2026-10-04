@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><title>Avalauncher kwadrat</title>
+<style>
+@font-face{font-family:Archivo;src:url(../../web/vendor/fonts/Archivo-var.ttf);font-weight:100 900}
+*{box-sizing:border-box;margin:0}
+html,body{width:1080px;height:1080px;overflow:hidden}
+body{position:relative;background:url(../../web/media/tapeta/tatry_1920.jpg) 38% center/cover;font-family:Archivo,sans-serif}
+.shade{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(6,22,60,.15),rgba(6,22,60,.72) 75%)}
+.win{position:absolute;left:150px;top:130px;width:780px;border:3px solid #0831d9;border-radius:12px 12px 4px 4px;overflow:hidden;
+  box-shadow:0 34px 80px rgba(0,0,0,.55);background:#ece9d8}
+.tb{height:56px;display:flex;align-items:center;gap:12px;padding:0 12px;
+  background:linear-gradient(#0997ff,#0053ee 8%,#0050ee 40%,#06f 88%,#06f 93%,#005bff 95%,#003dd7 96%,#003dd7)}
+.tb img{width:36px;height:36px}
+.tb .name{color:#fff;font:bold 30px "Trebuchet MS",sans-serif;text-shadow:1px 1px #0b2a6b}
+.tb .sp{flex:1}
+.btn{width:38px;height:38px;border:1px solid #fff;border-radius:5px;background:linear-gradient(#3c8cfe,#1f5fe8)}
+.btn.x{background:linear-gradient(#e97b5a,#c4391d)}
+.map{display:block;width:774px;height:720px;object-fit:cover}
+.task{position:absolute;left:0;right:0;bottom:0;height:64px;background:linear-gradient(#1f6ee8,#245edb 10%,#2a62e0 50%,#1d4fc4 92%,#183fa3)}
+.start{position:absolute;left:0;bottom:0;height:64px;width:150px;border-radius:0 22px 22px 0;display:grid;place-items:center;
+  background:linear-gradient(#3c9a3c,#2f8a2f 40%,#287c28 90%,#1f6a1f)}
+.start img{width:40px;height:40px}
+</style></head><body>
+<div class="shade"></div>
+<div class="win">
+  <div class="tb"><img src="../../web/xp/icon.svg" alt=""><span class="name">Avalauncher</span><span class="sp"></span>
+    <span class="btn"></span><span class="btn"></span><span class="btn x"></span></div>
+  <img class="map" src="map_crop.png" alt="">
+</div>
+<div class="task"></div><div class="start"><img src="../../web/xp/icon.svg" alt=""></div>
+</body></html>
