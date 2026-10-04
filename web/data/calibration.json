@@ -880,5 +880,397 @@
   "why_ko_fails": "bez Kleiner Ötscherbach wygrywa Voellmy μ 0,15, ξ 1000, bo przy zmierzonej grubości Eiskar wymaga małego tarcia (porywanie śniegu nie jest modelowane); na Kleiner Ötscherbach to tarcie przestrzeliwuje",
   "sentence_pl": "Na 5 prawdziwych lawinach z Austrii i Szwajcarii (234 symulacje AvaFrame) jedno wspólne ustawienie, niezmieniona kalibracja samosAT z odrywem 1,2 m, myli długość zasięgu średnio o 94 m (ustawienie dobrane na tych samych 5 zdarzeniach). W teście leave-one-out, gdzie ustawienie wybiera się bez danego zdarzenia, średni błąd to 154 m, a mediana 92 m; w 4 z 5 prób wybór pada na tę samą kalibrację samosAT. Największy błąd, +350 m, jest na Kleiner Ötscherbach. Grubość odrywu zmierzono tylko dla Eiskar; dla pozostałych przyjęto 1,2 m.",
   "not_wording": "przykładowa kalibracja na zdarzeniach z Austrii i Szwajcarii, nie dla Tatr"
+ },
+ "variants": {
+  "bez_lasu": {
+   "n_events": 5,
+   "n_runs": 234,
+   "events_by_country": {
+    "Austria": 3,
+    "Szwajcaria": 2
+   },
+   "loo_method": "leave-one-event-out: dla każdego zdarzenia wybierane jest jedno ustawienie tarcia (model + parametry), które minimalizuje średni |błąd zasięgu| na pozostałych czterech, i stosowane bez zmian do pominiętego zdarzenia",
+   "thickness_rule": "1,2 m tam, gdzie grubość odrywu jest nieznana (4 z 5 zdarzeń; środek siatki 0,4-2,0 m), zmierzone 2,7 m na Eiskar",
+   "candidates": 18,
+   "excluded_settings": [
+    "Voellmy mu=0.15 xi=8000"
+   ],
+   "mean_abs_runout_error_loo_m": 154.2,
+   "median_abs_runout_error_loo_m": 91.9,
+   "loo_same_setting_as_global": 4,
+   "best_global_setting": {
+    "setting": "samosAT",
+    "setting_pl": "samosAT (μ 0,155)",
+    "relTh": 1.2,
+    "relTh_rule": "1,2 m (nieznana), 2,7 m na Eiskar (zmierzona)",
+    "mean_abs_runout_error_m": 94.4,
+    "runout_error_m": {
+     "avaPopeletzbach": 25.2,
+     "avaKleinerOetscherbach": -51.0,
+     "avaEiskar": -227.0,
+     "avaFilisur1": 76.8,
+     "avaFilisur2": 91.9
+    },
+    "note": "wybrane na wszystkich 5 zdarzeniach (w próbie), więc to nie jest wynik walidacji"
+   },
+   "variants": {
+    "thickness_chosen_on_training_events": {
+     "mean_abs_runout_error_loo_m": 160.4,
+     "median_abs_runout_error_loo_m": 102.2,
+     "held_out": {
+      "avaPopeletzbach": {
+       "setting": "samosAT",
+       "relTh": 1.6,
+       "runout_error_m": 25.4
+      },
+      "avaKleinerOetscherbach": {
+       "setting": "Voellmy mu=0.15 xi=1000",
+       "relTh": 1.2,
+       "runout_error_m": 350.1
+      },
+      "avaEiskar": {
+       "setting": "samosAT",
+       "relTh": 2.7,
+       "runout_error_m": -227.0
+      },
+      "avaFilisur1": {
+       "setting": "samosAT",
+       "relTh": 1.6,
+       "runout_error_m": 97.4
+      },
+      "avaFilisur2": {
+       "setting": "samosAT",
+       "relTh": 1.6,
+       "runout_error_m": 102.2
+      }
+     },
+     "best_global": {
+      "setting": "samosAT",
+      "relTh": 1.6,
+      "mean_abs_runout_error_m": 92.1
+     }
+    },
+    "thickness_fitted_per_event_optimistic": {
+     "note": "grubość dopasowana także do pominiętego zdarzenia, więc test podgląda wynik; górna granica",
+     "mean_abs_runout_error_loo_m": 143.9,
+     "median_abs_runout_error_loo_m": 77.5,
+     "held_out": {
+      "avaPopeletzbach": {
+       "setting": "samosAT",
+       "relTh": 0.4,
+       "runout_error_m": 20.0
+      },
+      "avaKleinerOetscherbach": {
+       "setting": "Voellmy mu=0.15 xi=1000",
+       "relTh": 1.2,
+       "runout_error_m": 350.1
+      },
+      "avaEiskar": {
+       "setting": "samosAT",
+       "relTh": 2.7,
+       "runout_error_m": -227.0
+      },
+      "avaFilisur1": {
+       "setting": "samosAT",
+       "relTh": 0.4,
+       "runout_error_m": 44.7
+      },
+      "avaFilisur2": {
+       "setting": "samosAT",
+       "relTh": 0.6,
+       "runout_error_m": 77.5
+      }
+     }
+    }
+   },
+   "why_ko_fails": "bez Kleiner Ötscherbach wygrywa Voellmy μ 0,15, ξ 1000, bo przy zmierzonej grubości Eiskar wymaga małego tarcia (porywanie śniegu nie jest modelowane); na Kleiner Ötscherbach to tarcie przestrzeliwuje",
+   "sentence_pl": "Na 5 prawdziwych lawinach z Austrii i Szwajcarii (234 symulacje AvaFrame) jedno wspólne ustawienie, niezmieniona kalibracja samosAT z odrywem 1,2 m, myli długość zasięgu średnio o 94 m (ustawienie dobrane na tych samych 5 zdarzeniach). W teście leave-one-out, gdzie ustawienie wybiera się bez danego zdarzenia, średni błąd to 154 m, a mediana 92 m; w 4 z 5 prób wybór pada na tę samą kalibrację samosAT. Największy błąd, +350 m, jest na Kleiner Ötscherbach. Grubość odrywu zmierzono tylko dla Eiskar; dla pozostałych przyjęto 1,2 m.",
+   "not_wording": "przykładowa kalibracja na zdarzeniach z Austrii i Szwajcarii, nie dla Tatr",
+   "label_pl": "bez lasu i porywania śniegu",
+   "runout_error_loo_m": {
+    "avaPopeletzbach": 25.2,
+    "avaKleinerOetscherbach": 350.1,
+    "avaEiskar": -227.0,
+    "avaFilisur1": 76.8,
+    "avaFilisur2": 91.9
+   },
+   "within_100m": {
+    "threshold_m": 100,
+    "n": 3,
+    "of": 5,
+    "share": 0.6
+   },
+   "source": "kopia klucza summary (loo_calib.py, data/avaframe/calib_results.csv)"
+  },
+  "las_porywanie": {
+   "label_pl": "z lasem i porywaniem śniegu (z danych zdarzeń)",
+   "design_pl": "zaplanowane przed wynikami: te same 5 zdarzeń, ta sama siatka tarcia i reguła grubości co bez lasu; włączone poligony lasu/oporu i porywania, które dają dane zdarzeń (AvaFrame simType res, na Eiskar entres); żadna warstwa nie jest pochodna",
+   "params_pl": "parametry lasu i porywania domyślne (AvaFrame 2.1), niestrojone: model oporu domyślny, cResH 0,01, detrainment włączony, detK 5, forestVMin 6, forestVMax 40, forestThMin 0,6, forestThMax 10; rhoEnt 100, entEroEnergy 5000",
+   "n_runs": 234,
+   "candidates": 19,
+   "excluded_settings": [],
+   "inputs": {
+    "avaPopeletzbach": {
+     "name": "Popeletzbach",
+     "simType": "res",
+     "forest": "las z danych zdarzenia: forest20090407.shp (drzewa ≥ 10 m), 11 poligonów, kopia bez zmian",
+     "entrainment": "brak obszarów porywania w danych zdarzenia: bez porywania, jak w wariancie bez lasu",
+     "ent_th_m": null,
+     "ent_th_source": null,
+     "source": "OpenNHM/AvaFrameData 1.0 (DOI 10.5281/zenodo.20701552), avaPopeletzbach/forest20090407.shp"
+    },
+    "avaKleinerOetscherbach": {
+     "name": "Kleiner Ötscherbach",
+     "simType": "res",
+     "forest": "las z danych zdarzenia: forest20090225.shp (drzewa ≥ 10 m), 15 poligonów, kopia bez zmian",
+     "entrainment": "brak obszarów porywania w danych zdarzenia: bez porywania, jak w wariancie bez lasu",
+     "ent_th_m": null,
+     "ent_th_source": null,
+     "source": "OpenNHM/AvaFrameData 1.0 (DOI 10.5281/zenodo.20701552), avaKleinerOetscherbach/forest20090225.shp"
+    },
+    "avaEiskar": {
+     "name": "Eiskar",
+     "simType": "entres",
+     "forest": "obszary oporu z danych zdarzenia: resistanceEvent20190115.gpkg, 4 poligony, ta sama geometria w .shp",
+     "entrainment": "obszary porywania z danych zdarzenia: entrainmentEvent20190115.gpkg, 3 poligony",
+     "ent_th_m": 0.3,
+     "ent_th_source": "0,3 m to wartość domyślna AvaFrame 2.1 (entThIfMissingInShp): plik nie ma atrybutu grubości, a raport WLV jej nie podaje",
+     "source": "OpenNHM/AvaFrameData 1.0 (DOI 10.5281/zenodo.20701552), avaEiskar/resistanceEvent20190115.gpkg, entrainmentEvent20190115.gpkg"
+    },
+    "avaFilisur1": {
+     "name": "Filisur 1",
+     "simType": "res",
+     "forest": "las z danych zdarzenia: avaFilisur1_forest_area.gpkg, 14 poligonów, ta sama geometria w .shp (klasy gęsty/rzadki model domyślny nie rozróżnia)",
+     "entrainment": "brak obszarów porywania w danych zdarzenia: bez porywania, jak w wariancie bez lasu",
+     "ent_th_m": null,
+     "ent_th_source": null,
+     "source": "OpenNHM/AvaFrameData 1.0 (DOI 10.5281/zenodo.20701552), avaFilisur1/avaFilisur1_forest_area.gpkg"
+    },
+    "avaFilisur2": {
+     "name": "Filisur 2",
+     "simType": "res",
+     "forest": "las z danych zdarzenia: avaFiisur2_forest_area.gpkg (literówka w nazwie pliku zbioru), 11 stykających się poligonów scalonych w 4 rozłączne części, ta sama powierzchnia (31 205,6 m², różnica symetryczna 0 m²); AvaFrame odrzuca stykające się obiekty. To nie jest warstwa pochodna",
+     "entrainment": "brak obszarów porywania w danych zdarzenia: bez porywania, jak w wariancie bez lasu",
+     "ent_th_m": null,
+     "ent_th_source": null,
+     "source": "OpenNHM/AvaFrameData 1.0 (DOI 10.5281/zenodo.20701552), avaFilisur2/avaFiisur2_forest_area.gpkg; scalenie: tools/calibration/events/avaFilisur2/forest_las.py"
+    }
+   },
+   "loo": {
+    "avaPopeletzbach": {
+     "setting": "Voellmy mu=0.25 xi=8000",
+     "setting_pl": "Voellmy μ 0,25, ξ 8000 m/s²",
+     "frictModel": "Voellmy",
+     "mu": 0.25,
+     "xsi": 8000.0,
+     "relTh": 1.2,
+     "relTh_source": "reguła: 1,2 m (grubość nieznana)",
+     "train_mean_abs_runout_error_m": 79.7,
+     "runout_error_m": 46.5,
+     "overlap_metric": "iou",
+     "iou_or_overlap": 0.613,
+     "iou": 0.613,
+     "dep_hit": 0.803,
+     "simType": "res",
+     "simName": "rel_4254193e7b_com1_C_L_res_dfa",
+     "group": "voellmy_mu025",
+     "round1_setting": "samosAT",
+     "round1_runout_error_m": 25.2
+    },
+    "avaKleinerOetscherbach": {
+     "setting": "Voellmy mu=0.15 xi=1000",
+     "setting_pl": "Voellmy μ 0,15, ξ 1000 m/s²",
+     "frictModel": "Voellmy",
+     "mu": 0.15,
+     "xsi": 1000.0,
+     "relTh": 1.2,
+     "relTh_source": "reguła: 1,2 m (grubość nieznana)",
+     "train_mean_abs_runout_error_m": 55.3,
+     "runout_error_m": 290.1,
+     "overlap_metric": "iou",
+     "iou_or_overlap": 0.715,
+     "iou": 0.715,
+     "dep_hit": null,
+     "simType": "res",
+     "simName": "rel_4497ee4bf6_com1_C_L_res_dfa",
+     "group": "voellmy_mu015",
+     "round1_setting": "Voellmy mu=0.15 xi=1000",
+     "round1_runout_error_m": 350.1
+    },
+    "avaEiskar": {
+     "setting": "samosAT",
+     "setting_pl": "samosAT (μ 0,155)",
+     "frictModel": "samosAT",
+     "mu": 0.155,
+     "xsi": null,
+     "relTh": 2.7,
+     "relTh_source": "zmierzona 2,7 m",
+     "train_mean_abs_runout_error_m": 77.7,
+     "runout_error_m": -187.2,
+     "overlap_metric": "dep_hit",
+     "iou_or_overlap": 0.612,
+     "iou": 0.254,
+     "dep_hit": 0.612,
+     "simType": "entres",
+     "simName": "relESK1_e25d09e91f_com1_C_L_entres_dfa",
+     "group": "samosAT_th27",
+     "round1_setting": "samosAT",
+     "round1_runout_error_m": -227.0
+    },
+    "avaFilisur1": {
+     "setting": "Voellmy mu=0.25 xi=8000",
+     "setting_pl": "Voellmy μ 0,25, ξ 8000 m/s²",
+     "frictModel": "Voellmy",
+     "mu": 0.25,
+     "xsi": 8000.0,
+     "relTh": 1.2,
+     "relTh_source": "reguła: 1,2 m (grubość nieznana)",
+     "train_mean_abs_runout_error_m": 61.1,
+     "runout_error_m": 120.8,
+     "overlap_metric": "dep_hit",
+     "iou_or_overlap": 0.559,
+     "iou": 0.071,
+     "dep_hit": 0.559,
+     "simType": "res",
+     "simName": "rel_c0dde20040_com1_C_L_res_dfa",
+     "group": "voellmy_mu025",
+     "round1_setting": "samosAT",
+     "round1_runout_error_m": 76.8
+    },
+    "avaFilisur2": {
+     "setting": "Voellmy mu=0.25 xi=8000",
+     "setting_pl": "Voellmy μ 0,25, ξ 8000 m/s²",
+     "frictModel": "Voellmy",
+     "mu": 0.25,
+     "xsi": 8000.0,
+     "relTh": 1.2,
+     "relTh_source": "reguła: 1,2 m (grubość nieznana)",
+     "train_mean_abs_runout_error_m": 60.3,
+     "runout_error_m": 123.8,
+     "overlap_metric": "dep_hit",
+     "iou_or_overlap": 0.457,
+     "iou": 0.059,
+     "dep_hit": 0.457,
+     "simType": "res",
+     "simName": "rel_431e4aee3e_com1_C_L_res_dfa",
+     "group": "voellmy_mu025",
+     "round1_setting": "samosAT",
+     "round1_runout_error_m": 91.9
+    }
+   },
+   "runout_error_loo_m": {
+    "avaPopeletzbach": 46.5,
+    "avaKleinerOetscherbach": 290.1,
+    "avaEiskar": -187.2,
+    "avaFilisur1": 120.8,
+    "avaFilisur2": 123.8
+   },
+   "mean_abs_runout_error_loo_m": 153.7,
+   "median_abs_runout_error_loo_m": 123.8,
+   "within_100m": {
+    "threshold_m": 100,
+    "n": 1,
+    "of": 5,
+    "share": 0.2
+   },
+   "loo_same_setting_as_global": 3,
+   "best_global_setting": {
+    "setting": "Voellmy mu=0.25 xi=8000",
+    "setting_pl": "Voellmy μ 0,25, ξ 8000 m/s²",
+    "mean_abs_runout_error_m": 73.0,
+    "runout_error_m": {
+     "avaPopeletzbach": 46.5,
+     "avaKleinerOetscherbach": 26.8,
+     "avaEiskar": -47.2,
+     "avaFilisur1": 120.8,
+     "avaFilisur2": 123.8
+    },
+    "note": "wybrane na wszystkich 5 zdarzeniach (w próbie), więc to nie jest wynik walidacji"
+   },
+   "best_per_event": {
+    "avaPopeletzbach": {
+     "frictModel": "Voellmy",
+     "mu": 0.35,
+     "xsi": 8000.0,
+     "relTh": 1.2,
+     "relTh_source": "grid",
+     "iou": 0.739,
+     "dep_hit": 0.775,
+     "runout_error_m": 5.0,
+     "simName": "rel_318051c8b7_com1_C_L_res_dfa",
+     "group": "voellmy_mu035"
+    },
+    "avaKleinerOetscherbach": {
+     "frictModel": "Voellmy",
+     "mu": 0.25,
+     "xsi": 8000.0,
+     "relTh": 1.2,
+     "relTh_source": "grid",
+     "iou": 0.831,
+     "dep_hit": null,
+     "runout_error_m": 26.8,
+     "simName": "rel_acf40c1359_com1_C_L_res_dfa",
+     "group": "voellmy_mu025"
+    },
+    "avaEiskar": {
+     "frictModel": "Voellmy",
+     "mu": 0.15,
+     "xsi": 1000.0,
+     "relTh": 1.2,
+     "relTh_source": "grid",
+     "iou": 0.294,
+     "dep_hit": 0.602,
+     "runout_error_m": 8.7,
+     "simName": "relESK1_0cc8cd4d4f_com1_C_L_entres_dfa",
+     "group": "voellmy_mu015"
+    },
+    "avaFilisur1": {
+     "frictModel": "samosATSmall",
+     "mu": 0.22,
+     "xsi": null,
+     "relTh": 0.4,
+     "relTh_source": "grid",
+     "iou": 0.261,
+     "dep_hit": 0.925,
+     "runout_error_m": 35.7,
+     "simName": "rel_0e767cd349_com1_C_S_res_dfa",
+     "group": "samosATSmall"
+    },
+    "avaFilisur2": {
+     "frictModel": "Voellmy",
+     "mu": 0.45,
+     "xsi": 1000.0,
+     "relTh": 1.2,
+     "relTh_source": "grid",
+     "iou": 0.149,
+     "dep_hit": 0.914,
+     "runout_error_m": 63.6,
+     "simName": "rel_9b2cfb14cc_com1_C_L_res_dfa",
+     "group": "voellmy_mu045"
+    }
+   },
+   "thickness_variants": {
+    "thickness_chosen_on_training_events": {
+     "mean_abs_runout_error_loo_m": 153.7,
+     "median_abs_runout_error_loo_m": 123.8
+    },
+    "thickness_fitted_per_event_optimistic": {
+     "mean_abs_runout_error_loo_m": 153.7,
+     "median_abs_runout_error_loo_m": 123.8
+    }
+   },
+   "thickness_variants_note": "oba warianty grubości dają to samo co reguła: każdy wybór w teście to Voellmy (liczony tylko przy 1,2 m) albo Eiskar przy zmierzonych 2,7 m",
+   "caveats": [
+    "parametry lasu i porywania domyślne (AvaFrame 2.1), niestrojone: model oporu domyślny, cResH 0,01, detrainment włączony, detK 5, forestVMin 6, forestVMax 40, forestThMin 0,6, forestThMax 10; rhoEnt 100, entEroEnergy 5000",
+    "grubość odrywu zmierzono tylko na Eiskar; dla pozostałych 4 zdarzeń przyjęto 1,2 m",
+    "porywanie śniegu jest w danych tylko dla Eiskar, i to bez grubości: użyto domyślnych 0,3 m",
+    "na Kleiner Ötscherbach com1DFA usuwa w medianie 1114 cząstek na przebieg: to śnieg zatrzymany w lesie (cząstki bez masy po detrainmencie), nie lawina wychodząca poza obszar; żaden zasięg nie dotyka brzegu obszaru",
+    "teren jest nowszy niż każde zdarzenie",
+    "samosAT to kalibracja dla suchego śniegu, tu użyta też do lawin mokrych",
+    "to przykładowa kalibracja na zdarzeniach z Austrii i Szwajcarii, nie dla Tatr"
+   ],
+   "source": "data/avaframe/calib_results_las.csv (234 wiersze), calib_results_las_best.json, calib_loo_las.json; tools/calibration/run_multi_las.py, run_calib_las.py, score_multi_las.py, loo_calib_las.py",
+   "sentence_pl": "Z lasem i porywaniem śniegu z danych zdarzeń (parametry lasu i porywania domyślne, niestrojone) test leave-one-out daje średni błąd zasięgu 153,7 m (bez lasu 154,2 m) i medianę 124 m (bez lasu 92 m); w granicach 100 m mieści się 1 z 5 zdarzeń (bez lasu 3 z 5). Las poprawia dopasowanie w próbie, więc trening w 3 z 5 prób wybiera Voellmy μ 0,25, ξ 8000 m/s², a to ustawienie przestrzeliwuje oba zdarzenia Filisur o 121–124 m. To przykładowa kalibracja na zdarzeniach z Austrii i Szwajcarii, nie dla Tatr."
+  }
  }
 }
