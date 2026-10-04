@@ -374,5 +374,511 @@
    "simName": "rel_d7c95955f3_com1_C_L_null_dfa"
   }
  ],
- "note": "przykładowa kalibracja na zdarzeniu z Austrii; dla Tatr potrzebne lokalne obserwacje (TOPR)"
+ "note": "przykładowa kalibracja na zdarzeniu z Austrii; dla Tatr potrzebne lokalne obserwacje (TOPR)",
+ "events": [
+  {
+   "id": "avaPopeletzbach",
+   "name": "Popeletzbach",
+   "region": "Tyrol Wschodni",
+   "country": "Austria",
+   "date": "2009-04-07",
+   "avalanche": "mokra lawina",
+   "obs_type": "event_area",
+   "observed": "obserwowany obszar lawiny i obrys osadu",
+   "source": {
+    "event_data": "OpenNHM/AvaFrameData 1.0, avaPopeletzbach; dane zebrał Frank Perzl (BFW)",
+    "doi": "10.5281/zenodo.20701552",
+    "licence": "CC-BY-4.0"
+   },
+   "dem_used": {
+    "name": "Land Tirol, Gelaendemodell_5m_M28 (WCS gis.tirol.gv.at)",
+    "resolution_m": 5,
+    "crs": "EPSG:31287",
+    "licence": "CC BY 4.0 AT",
+    "caveat": "teren współczesny, zdarzenie z 2009 r."
+   },
+   "release_thickness": {
+    "value_m": null,
+    "source": "nieznana w danych; przebiegi na siatce 0,4-2,0 m, najlepsza dobrana"
+   },
+   "runs": 43,
+   "best_rule": "max IoU z obserwowanym obszarem",
+   "best": {
+    "frictModel": "Voellmy",
+    "mu": 0.35,
+    "xsi": 8000.0,
+    "relTh": 1.2,
+    "relTh_source": "grid",
+    "iou": 0.73,
+    "dep_hit": 0.761,
+    "dep_hit_max": null,
+    "precision": 0.778,
+    "precision_below_dep_top": null,
+    "recall": 0.922,
+    "runout_sim_m": 1790.1,
+    "runout_obs_m": 1775.0,
+    "runout_error_m": 15.1,
+    "runout_error_max_m": null,
+    "area_sim_ha": 11.7,
+    "area_obs_ha": 9.87,
+    "group": "voellmy_mu035",
+    "simName": "rel_3c9d905f5a_com1_C_L_null_dfa"
+   },
+   "global_setting": {
+    "setting": "samosAT",
+    "relTh": 1.2,
+    "runout_error_m": 25.2,
+    "iou": 0.703,
+    "dep_hit": 0.739
+   },
+   "caveats": [
+    "grubość odrywu nieznana, dobrana z siatki",
+    "samosAT to kalibracja dla suchego śniegu, tu użyta do lawiny mokrej"
+   ],
+   "published": {
+    "frictModel": "samosAT",
+    "mu": 0.155,
+    "relTh": 0.6,
+    "iou": 0.727,
+    "runout_error_m": 20.0,
+    "dep_hit": 0.63,
+    "note": "wynik opublikowany wcześniej (klucz best); ponowiony w tej siatce identycznie"
+   }
+  },
+  {
+   "id": "avaKleinerOetscherbach",
+   "name": "Kleiner Ötscherbach",
+   "region": "Dolna Austria (masyw Ötscher)",
+   "country": "Austria",
+   "date": "2009-02-25",
+   "avalanche": "sucha lawina płynąca (mała chmura pyłowa)",
+   "obs_type": "event_area",
+   "observed": "obserwowany obszar lawiny",
+   "source": {
+    "event_data": "OpenNHM/AvaFrameData 1.0, avaKleinerOetscherbach; dane zebrał Frank Perzl (BFW), częściowo wg Funder (2014), BOKU Wien",
+    "doi": "10.5281/zenodo.20701552",
+    "licence": "CC-BY-4.0"
+   },
+   "dem_used": {
+    "name": "BEV ALS DTM Österreich 1 m (stan na 15.09.2025), uśrednione do 5 m",
+    "resolution_m": 5,
+    "crs": "EPSG:31287",
+    "licence": "CC BY 4.0",
+    "caveat": "teren z 2025 r., zdarzenie z 2009 r."
+   },
+   "release_thickness": {
+    "value_m": null,
+    "source": "nieznana w danych; przebiegi na siatce 0,4-2,0 m, najlepsza dobrana"
+   },
+   "runs": 43,
+   "best_rule": "max IoU z obserwowanym obszarem",
+   "best": {
+    "frictModel": "Voellmy",
+    "mu": 0.25,
+    "xsi": 4000.0,
+    "relTh": 1.2,
+    "relTh_source": "grid",
+    "iou": 0.831,
+    "dep_hit": null,
+    "dep_hit_max": null,
+    "precision": 0.849,
+    "precision_below_dep_top": null,
+    "recall": 0.974,
+    "runout_sim_m": 1146.7,
+    "runout_obs_m": 1196.3,
+    "runout_error_m": -49.6,
+    "runout_error_max_m": null,
+    "area_sim_ha": 29.34,
+    "area_obs_ha": 25.58,
+    "group": "voellmy_mu025",
+    "simName": "rel_0ff274558d_com1_C_L_null_dfa"
+   },
+   "global_setting": {
+    "setting": "samosAT",
+    "relTh": 1.2,
+    "runout_error_m": -51.0,
+    "iou": 0.782,
+    "dep_hit": null
+   },
+   "caveats": [
+    "grubość odrywu nieznana, dobrana z siatki",
+    "bez lasu"
+   ]
+  },
+  {
+   "id": "avaEiskar",
+   "name": "Eiskar",
+   "region": "Ramsau am Dachstein, Styria",
+   "country": "Austria",
+   "date": "2019-01-15",
+   "avalanche": "sucha lawina płynąca z dużą chmurą pyłową, silne porywanie śniegu",
+   "obs_type": "deposit_only",
+   "observed": "tylko obrys osadu części płynącej (skan laserowy z drona); tor lawiny nie jest zmapowany",
+   "source": {
+    "event_data": "OpenNHM/AvaFrameData 1.0, avaEiskar; WLV (austriacka służba przeciwlawinowa); odryw i grubość ze skanu laserowego z drona (Hartl Consulting)",
+    "doi": "10.5281/zenodo.20701552",
+    "licence": "CC-BY-4.0"
+   },
+   "dem_used": {
+    "name": "BEV ALS DTM 1 m (stan na 15.09.2024), uśrednione do 5 m",
+    "resolution_m": 5,
+    "crs": "EPSG:31287",
+    "licence": "CC BY 4.0",
+    "caveat": "teren z 2024 r., zdarzenie z 2019 r."
+   },
+   "release_thickness": {
+    "value_m": 2.7,
+    "source": "zmierzona (skan laserowy z drona, odryw ESK_1)"
+   },
+   "runs": 62,
+   "best_rule": "najmniejszy |błąd zasięgu| wśród przebiegów pokrywających co najmniej 50% osadu",
+   "best": {
+    "frictModel": "Voellmy",
+    "mu": 0.15,
+    "xsi": 2000.0,
+    "relTh": 2.7,
+    "relTh_source": "measured (ESK_1 laser scan)",
+    "iou": 0.264,
+    "dep_hit": 0.639,
+    "dep_hit_max": 0.415,
+    "precision": 0.31,
+    "precision_below_dep_top": 0.805,
+    "recall": 0.639,
+    "runout_sim_m": 2274.6,
+    "runout_obs_m": 2287.2,
+    "runout_error_m": -12.6,
+    "runout_error_max_m": -386.2,
+    "area_sim_ha": 28.45,
+    "area_obs_ha": 13.81,
+    "group": "voellmy_th27_mu015",
+    "simName": "relESK1_2e60894253_com1_C_L_null_dfa"
+   },
+   "global_setting": {
+    "setting": "samosAT",
+    "relTh": 2.7,
+    "runout_error_m": -227.0,
+    "iou": 0.202,
+    "dep_hit": 0.447
+   },
+   "caveats": [
+    "porywanie śniegu nie jest modelowane, a było istotne: rodzina samosAT staje 227-572 m za krótko",
+    "IoU liczone z samym osadem jest niskie z założenia; miarą jest pokrycie osadu i zasięg",
+    "względem obrysu Max (część płynąca + pył) najlepszy przebieg jest 386 m za krótki"
+   ]
+  },
+  {
+   "id": "avaFilisur1",
+   "name": "Filisur 1",
+   "region": "Filisur, Gryzonia",
+   "country": "Szwajcaria",
+   "date": "2012-02-23",
+   "avalanche": "mokra lawina zatrzymana przez las",
+   "obs_type": "deposit_only",
+   "observed": "tylko obrys osadu",
+   "source": {
+    "event_data": "OpenNHM/AvaFrameData 1.0, avaFilisur1; dane SLF Davos; opis wg Feistl i in. (2014), Journal of Glaciology 60(219)",
+    "doi": "10.5281/zenodo.20701552",
+    "licence": "CC-BY-4.0"
+   },
+   "dem_used": {
+    "name": "swisstopo swissALTI3D 2 m (rocznik 2019), uśrednione do 5 m",
+    "resolution_m": 5,
+    "crs": "EPSG:2056",
+    "licence": "© swisstopo, open government data (wolne użycie z podaniem źródła); do potwierdzenia przed pokazem",
+    "caveat": "teren z 2019 r., zdarzenie z 2012 r."
+   },
+   "release_thickness": {
+    "value_m": null,
+    "source": "nieznana w danych; przebiegi na siatce 0,4-2,0 m, najlepsza dobrana"
+   },
+   "runs": 43,
+   "best_rule": "najmniejszy |błąd zasięgu| wśród przebiegów pokrywających co najmniej 50% osadu",
+   "best": {
+    "frictModel": "samosATSmall",
+    "mu": 0.22,
+    "xsi": null,
+    "relTh": 0.4,
+    "relTh_source": "grid",
+    "iou": 0.238,
+    "dep_hit": 0.935,
+    "dep_hit_max": null,
+    "precision": 0.242,
+    "precision_below_dep_top": 0.486,
+    "recall": 0.935,
+    "runout_sim_m": 306.3,
+    "runout_obs_m": 266.2,
+    "runout_error_m": 40.2,
+    "runout_error_max_m": null,
+    "area_sim_ha": 0.9,
+    "area_obs_ha": 0.23,
+    "group": "samosATSmall",
+    "simName": "rel_ecace87b85_com1_C_S_null_dfa"
+   },
+   "global_setting": {
+    "setting": "samosAT",
+    "relTh": 1.2,
+    "runout_error_m": 76.8,
+    "iou": 0.146,
+    "dep_hit": 0.935
+   },
+   "caveats": [
+    "grubość odrywu nieznana, dobrana z siatki",
+    "lawinę zatrzymał las, a przebiegi są bez lasu: wszystkie 43 przestrzeliwują o +40 do +205 m",
+    "samosAT to kalibracja dla suchego śniegu, tu użyta do lawiny mokrej"
+   ]
+  },
+  {
+   "id": "avaFilisur2",
+   "name": "Filisur 2",
+   "region": "Filisur, Gryzonia",
+   "country": "Szwajcaria",
+   "date": "2012-02-23",
+   "avalanche": "mokra lawina zatrzymana na skraju lasu",
+   "obs_type": "deposit_only",
+   "observed": "tylko obrys osadu",
+   "source": {
+    "event_data": "OpenNHM/AvaFrameData 1.0, avaFilisur2; dane SLF Davos; opis wg Feistl i in. (2014), Journal of Glaciology 60(219)",
+    "doi": "10.5281/zenodo.20701552",
+    "licence": "CC-BY-4.0"
+   },
+   "dem_used": {
+    "name": "swisstopo swissALTI3D 2 m (rocznik 2019), uśrednione do 5 m",
+    "resolution_m": 5,
+    "crs": "EPSG:2056",
+    "licence": "© swisstopo, open government data (wolne użycie z podaniem źródła); do potwierdzenia przed pokazem",
+    "caveat": "teren z 2019 r., zdarzenie z 2012 r."
+   },
+   "release_thickness": {
+    "value_m": null,
+    "source": "nieznana w danych; przebiegi na siatce 0,4-2,0 m, najlepsza dobrana"
+   },
+   "runs": 43,
+   "best_rule": "najmniejszy |błąd zasięgu| wśród przebiegów pokrywających co najmniej 50% osadu",
+   "best": {
+    "frictModel": "Voellmy",
+    "mu": 0.45,
+    "xsi": 1000.0,
+    "relTh": 1.2,
+    "relTh_source": "grid",
+    "iou": 0.129,
+    "dep_hit": 0.788,
+    "dep_hit_max": null,
+    "precision": 0.133,
+    "precision_below_dep_top": 0.225,
+    "recall": 0.788,
+    "runout_sim_m": 399.7,
+    "runout_obs_m": 332.6,
+    "runout_error_m": 67.0,
+    "runout_error_max_m": null,
+    "area_sim_ha": 2.23,
+    "area_obs_ha": 0.38,
+    "group": "voellmy_mu045",
+    "simName": "rel_1965811356_com1_C_L_null_dfa"
+   },
+   "global_setting": {
+    "setting": "samosAT",
+    "relTh": 1.2,
+    "runout_error_m": 91.9,
+    "iou": 0.076,
+    "dep_hit": 0.497
+   },
+   "caveats": [
+    "grubość odrywu nieznana, dobrana z siatki",
+    "lawinę zatrzymał skraj lasu, a przebiegi są bez lasu: wszystkie 43 przestrzeliwują o +67 do +191 m",
+    "samosAT to kalibracja dla suchego śniegu, tu użyta do lawiny mokrej"
+   ]
+  }
+ ],
+ "loo": {
+  "avaPopeletzbach": {
+   "setting": "samosAT",
+   "setting_pl": "samosAT (μ 0,155)",
+   "frictModel": "samosAT",
+   "mu": 0.155,
+   "xsi": null,
+   "relTh": 1.2,
+   "relTh_source": "reguła: 1,2 m (grubość nieznana)",
+   "train_mean_abs_runout_error_m": 111.7,
+   "runout_error_m": 25.2,
+   "iou_or_overlap": 0.703,
+   "overlap_metric": "iou",
+   "iou": 0.703,
+   "dep_hit": 0.739,
+   "simName": "rel_5d30c7049e_com1_C_L_null_dfa",
+   "group": "samosAT"
+  },
+  "avaKleinerOetscherbach": {
+   "setting": "Voellmy mu=0.15 xi=1000",
+   "setting_pl": "Voellmy μ 0,15, ξ 1000 m/s²",
+   "frictModel": "Voellmy",
+   "mu": 0.15,
+   "xsi": 1000.0,
+   "relTh": 1.2,
+   "relTh_source": "reguła: 1,2 m (grubość nieznana)",
+   "train_mean_abs_runout_error_m": 68.1,
+   "runout_error_m": 350.1,
+   "iou_or_overlap": 0.699,
+   "overlap_metric": "iou",
+   "iou": 0.699,
+   "dep_hit": null,
+   "simName": "rel_d704e5ed23_com1_C_L_null_dfa",
+   "group": "voellmy_mu015"
+  },
+  "avaEiskar": {
+   "setting": "samosAT",
+   "setting_pl": "samosAT (μ 0,155)",
+   "frictModel": "samosAT",
+   "mu": 0.155,
+   "xsi": null,
+   "relTh": 2.7,
+   "relTh_source": "zmierzona 2,7 m",
+   "train_mean_abs_runout_error_m": 61.2,
+   "runout_error_m": -227.0,
+   "iou_or_overlap": 0.447,
+   "overlap_metric": "dep_hit",
+   "iou": 0.202,
+   "dep_hit": 0.447,
+   "simName": "relESK1_f38fca0981_com1_C_L_null_dfa",
+   "group": "samosAT_th27"
+  },
+  "avaFilisur1": {
+   "setting": "samosAT",
+   "setting_pl": "samosAT (μ 0,155)",
+   "frictModel": "samosAT",
+   "mu": 0.155,
+   "xsi": null,
+   "relTh": 1.2,
+   "relTh_source": "reguła: 1,2 m (grubość nieznana)",
+   "train_mean_abs_runout_error_m": 98.8,
+   "runout_error_m": 76.8,
+   "iou_or_overlap": 0.935,
+   "overlap_metric": "dep_hit",
+   "iou": 0.146,
+   "dep_hit": 0.935,
+   "simName": "rel_4871fce56c_com1_C_L_null_dfa",
+   "group": "samosAT"
+  },
+  "avaFilisur2": {
+   "setting": "samosAT",
+   "setting_pl": "samosAT (μ 0,155)",
+   "frictModel": "samosAT",
+   "mu": 0.155,
+   "xsi": null,
+   "relTh": 1.2,
+   "relTh_source": "reguła: 1,2 m (grubość nieznana)",
+   "train_mean_abs_runout_error_m": 95.0,
+   "runout_error_m": 91.9,
+   "iou_or_overlap": 0.497,
+   "overlap_metric": "dep_hit",
+   "iou": 0.076,
+   "dep_hit": 0.497,
+   "simName": "rel_421dbcf41f_com1_C_L_null_dfa",
+   "group": "samosAT"
+  }
+ },
+ "summary": {
+  "n_events": 5,
+  "n_runs": 234,
+  "events_by_country": {
+   "Austria": 3,
+   "Szwajcaria": 2
+  },
+  "loo_method": "leave-one-event-out: dla każdego zdarzenia wybierane jest jedno ustawienie tarcia (model + parametry), które minimalizuje średni |błąd zasięgu| na pozostałych czterech, i stosowane bez zmian do pominiętego zdarzenia",
+  "thickness_rule": "1,2 m tam, gdzie grubość odrywu jest nieznana (4 z 5 zdarzeń; środek siatki 0,4-2,0 m), zmierzone 2,7 m na Eiskar",
+  "candidates": 18,
+  "excluded_settings": [
+   "Voellmy mu=0.15 xi=8000"
+  ],
+  "mean_abs_runout_error_loo_m": 154.2,
+  "median_abs_runout_error_loo_m": 91.9,
+  "loo_same_setting_as_global": 4,
+  "best_global_setting": {
+   "setting": "samosAT",
+   "setting_pl": "samosAT (μ 0,155)",
+   "relTh": 1.2,
+   "relTh_rule": "1,2 m (nieznana), 2,7 m na Eiskar (zmierzona)",
+   "mean_abs_runout_error_m": 94.4,
+   "runout_error_m": {
+    "avaPopeletzbach": 25.2,
+    "avaKleinerOetscherbach": -51.0,
+    "avaEiskar": -227.0,
+    "avaFilisur1": 76.8,
+    "avaFilisur2": 91.9
+   },
+   "note": "wybrane na wszystkich 5 zdarzeniach (w próbie), więc to nie jest wynik walidacji"
+  },
+  "variants": {
+   "thickness_chosen_on_training_events": {
+    "mean_abs_runout_error_loo_m": 160.4,
+    "median_abs_runout_error_loo_m": 102.2,
+    "held_out": {
+     "avaPopeletzbach": {
+      "setting": "samosAT",
+      "relTh": 1.6,
+      "runout_error_m": 25.4
+     },
+     "avaKleinerOetscherbach": {
+      "setting": "Voellmy mu=0.15 xi=1000",
+      "relTh": 1.2,
+      "runout_error_m": 350.1
+     },
+     "avaEiskar": {
+      "setting": "samosAT",
+      "relTh": 2.7,
+      "runout_error_m": -227.0
+     },
+     "avaFilisur1": {
+      "setting": "samosAT",
+      "relTh": 1.6,
+      "runout_error_m": 97.4
+     },
+     "avaFilisur2": {
+      "setting": "samosAT",
+      "relTh": 1.6,
+      "runout_error_m": 102.2
+     }
+    },
+    "best_global": {
+     "setting": "samosAT",
+     "relTh": 1.6,
+     "mean_abs_runout_error_m": 92.1
+    }
+   },
+   "thickness_fitted_per_event_optimistic": {
+    "note": "grubość dopasowana także do pominiętego zdarzenia, więc test podgląda wynik; górna granica",
+    "mean_abs_runout_error_loo_m": 143.9,
+    "median_abs_runout_error_loo_m": 77.5,
+    "held_out": {
+     "avaPopeletzbach": {
+      "setting": "samosAT",
+      "relTh": 0.4,
+      "runout_error_m": 20.0
+     },
+     "avaKleinerOetscherbach": {
+      "setting": "Voellmy mu=0.15 xi=1000",
+      "relTh": 1.2,
+      "runout_error_m": 350.1
+     },
+     "avaEiskar": {
+      "setting": "samosAT",
+      "relTh": 2.7,
+      "runout_error_m": -227.0
+     },
+     "avaFilisur1": {
+      "setting": "samosAT",
+      "relTh": 0.4,
+      "runout_error_m": 44.7
+     },
+     "avaFilisur2": {
+      "setting": "samosAT",
+      "relTh": 0.6,
+      "runout_error_m": 77.5
+     }
+    }
+   }
+  },
+  "why_ko_fails": "bez Kleiner Ötscherbach wygrywa Voellmy μ 0,15, ξ 1000, bo przy zmierzonej grubości Eiskar wymaga małego tarcia (porywanie śniegu nie jest modelowane); na Kleiner Ötscherbach to tarcie przestrzeliwuje",
+  "sentence_pl": "Na 5 prawdziwych lawinach z Austrii i Szwajcarii (234 symulacje AvaFrame) jedno wspólne ustawienie, niezmieniona kalibracja samosAT z odrywem 1,2 m, myli długość zasięgu średnio o 94 m (ustawienie dobrane na tych samych 5 zdarzeniach). W teście leave-one-out, gdzie ustawienie wybiera się bez danego zdarzenia, średni błąd to 154 m, a mediana 92 m; w 4 z 5 prób wybór pada na tę samą kalibrację samosAT. Największy błąd, +350 m, jest na Kleiner Ötscherbach. Grubość odrywu zmierzono tylko dla Eiskar; dla pozostałych przyjęto 1,2 m.",
+  "not_wording": "przykładowa kalibracja na zdarzeniach z Austrii i Szwajcarii, nie dla Tatr"
+ }
 }

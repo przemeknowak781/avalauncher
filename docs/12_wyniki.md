@@ -2,9 +2,31 @@
 
 Jedno źródło prawdy dla liczb. Każda liczba ma plik, z którego pochodzi. Stan na 4.10.2026, ok. 02:00.
 
-## Kalibracja na prawdziwej lawinie
+## Kalibracja na prawdziwych lawinach
 
-**Model AvaFrame skalibrowany na obserwowanym zdarzeniu trafia zasięg z IoU 0,73 i błędem długości zasięgu 20 m.** Źródło: [web/data/calibration.json](../web/data/calibration.json), plansza `filmy/kalibracja/porownanie.png`, skrypty `tools/calibration/`.
+**Na 5 prawdziwych lawinach z Austrii i Szwajcarii (234 symulacje AvaFrame) jedno wspólne ustawienie, niezmieniona kalibracja samosAT z odrywem 1,2 m, myli długość zasięgu średnio o 94 m. W teście leave-one-out (ustawienie wybrane bez danego zdarzenia) średni błąd to 154 m, mediana 92 m. Najlepsze dopasowanie pojedynczego zdarzenia: Kleiner Ötscherbach, IoU 0,83, zasięg 50 m za krótki.** Źródło: [web/data/calibration.json](../web/data/calibration.json) (klucze `events`, `loo`, `summary`), `data/avaframe/calib_results.csv` (234 wiersze), plansza `filmy/kalibracja/5_lawin.png`, skrypty `tools/calibration/run_multi.py`, `score_multi.py`, `loo_calib.py`, `board_multi.py`.
+
+Wszystkie dane zdarzeń: OpenNHM/AvaFrameData 1.0, DOI [10.5281/zenodo.20701552](https://doi.org/10.5281/zenodo.20701552), CC-BY-4.0. Model: AvaFrame com1DFA 2.1, siatka 5 m, bez lasu i porywania śniegu, 43 przebiegi na zdarzenie (samosATSmall / samosATMedium / samosAT × odryw 0,4–2,0 m co 0,2 m oraz Voellmy μ 0,15–0,45 × ξ 1000–8000 przy 1,2 m), na Eiskar dodatkowo 19 przebiegów przy zmierzonych 2,7 m. 0 nieudanych, 0 zatrzymanych na limicie czasu.
+
+| Zdarzenie | Gdzie, kiedy | Lawina / obserwacja | Teren | Odryw | Najlepszy przebieg | Zasięg | IoU / osad | Test bez zdarzenia: ustawienie | Zasięg | IoU / osad |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Popeletzbach | Tyrol Wschodni, Austria, 7.04.2009 | mokra; obszar lawiny i osad | Land Tirol 5 m, CC BY 4.0 AT | nieznany | Voellmy μ 0,35, ξ 8000, 1,2 m | +15 m | IoU 0,730 | samosAT, 1,2 m | +25 m | IoU 0,70 |
+| Kleiner Ötscherbach | Dolna Austria, 25.02.2009 | sucha płynąca; obszar lawiny | BEV ALS DTM 1 m (2025), CC BY 4.0 | nieznany | Voellmy μ 0,25, ξ 4000, 1,2 m | −50 m | IoU 0,831 | Voellmy μ 0,15, ξ 1000, 1,2 m | +350 m | IoU 0,70 |
+| Eiskar | Ramsau am Dachstein, Styria, Austria, 15.01.2019 | sucha z chmurą pyłową, silne porywanie; tylko osad części płynącej | BEV ALS DTM 1 m (2024), CC BY 4.0 | **zmierzony 2,7 m** (skan z drona) | Voellmy μ 0,15, ξ 2000, 2,7 m | −13 m | osad 64% | samosAT, 2,7 m | −227 m | osad 45% |
+| Filisur 1 | Gryzonia, Szwajcaria, 23.02.2012 | mokra, zatrzymana przez las; tylko osad | swisstopo swissALTI3D 2 m (2019) | nieznany | samosATSmall (μ 0,22), 0,4 m | +40 m | osad 94% | samosAT, 1,2 m | +77 m | osad 94% |
+| Filisur 2 | Gryzonia, Szwajcaria, 23.02.2012 | mokra, zatrzymana na skraju lasu; tylko osad | swisstopo swissALTI3D 2 m (2019) | nieznany | Voellmy μ 0,45, ξ 1000, 1,2 m | +67 m | osad 79% | samosAT, 1,2 m | +92 m | osad 50% |
+
+Jak wybrano „najlepszy przebieg”: dla zdarzeń z obszarem lawiny (Popeletzbach, Kleiner Ötscherbach) największe IoU; dla zdarzeń z samym osadem (Eiskar, Filisur) najmniejszy błąd zasięgu wśród przebiegów, które pokrywają co najmniej 50% osadu. IoU liczone z samym osadem jest niskie z założenia, więc tam miarą jest pokrycie osadu i zasięg. Zasięg = największa odległość pozioma od najwyższego punktu odrywu; plus znaczy za daleko. Na Popeletzbach Voellmy μ 0,35, ξ 8000 wyprzedza opublikowany samosAT 0,6 m tylko o 0,003 IoU, a ξ 8000 to krawędź siatki, więc cytujemy dalej opublikowany wynik (IoU 0,727, +20 m, niżej).
+
+**Jedno ustawienie dla wszystkich 5 (w próbie):** samosAT (μ 0,155), odryw 1,2 m tam, gdzie grubość jest nieznana, 2,7 m na Eiskar. Błędy zasięgu: +25 m, −51 m, −227 m, +77 m, +92 m; średnio 94 m. Wybrane spośród 18 ustawień na tych samych zdarzeniach, więc to nie jest walidacja.
+
+**Leave-one-out (walidacja):** dla każdego zdarzenia wybieramy jedno ustawienie tarcia, które ma najmniejszy średni błąd zasięgu na pozostałych czterech, i stosujemy je bez zmian do pominiętego. Grubość odrywu z reguły, nie dopasowana: 1,2 m (środek siatki) tam, gdzie jest nieznana, zmierzone 2,7 m na Eiskar. Kandydatów 18 (Voellmy μ 0,15, ξ 8000 odpada, bo na Kleiner Ötscherbach dotknął brzegu obszaru). Wynik: **średni błąd zasięgu 154 m, mediana 92 m**; w 4 z 5 prób wybór to ta sama kalibracja samosAT. Największy błąd, +350 m na Kleiner Ötscherbach: bez niego wygrywa Voellmy μ 0,15, ξ 1000, bo Eiskar przy zmierzonej grubości wymaga małego tarcia (porywanie śniegu nie jest modelowane), a na Kleiner Ötscherbach to tarcie przestrzeliwuje. Warianty: grubość wybierana razem z tarciem na czterech zdarzeniach daje 160 m (mediana 102 m); grubość dopasowana do każdego zdarzenia, także pominiętego (optymistycznie, test podgląda wynik), daje 144 m.
+
+Zastrzeżenia: grubość odrywu zmierzono tylko na Eiskar; dla pozostałych 4 zdarzeń jest nieznana i w „najlepszym przebiegu” dobrana z siatki. 4 z 5 najlepszych przebiegów leży na krawędzi siatki (Popeletzbach ξ 8000, Eiskar μ 0,15, Filisur 1 odryw 0,4 m, Filisur 2 μ 0,45 i ξ 1000); tylko Kleiner Ötscherbach ma optimum wewnątrz. Na Filisur 1 i 2 każdy z 43 przebiegów przestrzeliwuje (o +40 do +205 m i +67 do +191 m), bo lawiny zatrzymał las, a przebiegi są bez lasu: dla tych zdarzeń nie ma kalibracji tarcia. Na Eiskar rodzina samosAT staje 227–572 m za krótko, a względem obrysu Max (część płynąca + pył) najlepszy przebieg jest 386 m za krótki. Teren jest nowszy niż każde zdarzenie. samosAT to kalibracja dla suchego śniegu, tu użyta też do lawin mokrych. Licencję swisstopo dla terenu Filisur trzeba potwierdzić przed pokazem. To przykładowa kalibracja na zdarzeniach z Austrii i Szwajcarii; dla Tatr potrzebne są lokalne obserwacje (TOPR).
+
+### Popeletzbach: opublikowany wynik (bez zmian)
+
+**Model AvaFrame skalibrowany na obserwowanym zdarzeniu trafia zasięg z IoU 0,73 i błędem długości zasięgu 20 m.** Źródło: [web/data/calibration.json](../web/data/calibration.json) (klucze `best`, `table`), plansza `filmy/kalibracja/porownanie.png`, skrypty `tools/calibration/`. W siatce 234 przebiegów ten sam przebieg (samosAT, 0,6 m) wychodzi identycznie: IoU 0,727, +20 m.
 
 | Co | Wartość |
 | --- | --- |
@@ -20,7 +42,7 @@ Jedno źródło prawdy dla liczb. Każda liczba ma plik, z którego pochodzi. St
 | Długość zasięgu: symulacja / obserwacja | 1795 m / 1775 m, **błąd +20 m** |
 | Drugie i trzecie miejsce | samosATMedium 0,6 m (IoU 0,724), Voellmy μ 0,35, ξ 4000, 1,1 m (IoU 0,718, błąd −20 m) |
 
-Zastrzeżenia: grubość odrywu nie była w danych, więc to założenie z siatki 0,6–1,6 m, a najlepszy wynik leży na jej dolnej krawędzi. samosAT to kalibracja dla suchego śniegu, tu użyta do lawiny mokrej. To przykładowa kalibracja na zdarzeniu z Austrii; dla Tatr potrzebne są lokalne obserwacje (TOPR).
+Zastrzeżenia: grubość odrywu nie była w danych, więc to założenie z siatki 0,6–1,6 m, a najlepszy wynik leży na jej dolnej krawędzi. W szerszej siatce 0,4–2,0 m odryw 0,4 m daje IoU 0,720, więc dla samosAT 0,6 m nie jest już krawędzią. samosAT to kalibracja dla suchego śniegu, tu użyta do lawiny mokrej. To przykładowa kalibracja na zdarzeniu z Austrii; dla Tatr potrzebne są lokalne obserwacje (TOPR).
 
 ## Sieć zastępcza (surogat) AvaFrame
 
@@ -111,4 +133,24 @@ Trening: REINFORCE, 10,4 mln epizodów w 6 min na GPU DGX Spark. Środowisko wo�
 
 **Na prawdziwej zimie 2024/25 ryzyko zapala się w połowie stycznia i na początku kwietnia; 12.01 ryzyko ≥ 0,5 ma 9 sektorów, 13.01 już 12, wszystkie na stokach NE/E/N.** Źródło: [web/data/release_calendar.json](../web/data/release_calendar.json) (58 sektorów × 181 dni), `filmy/kiedy/kalendarz.png`, skrypty `tools/when/`.
 
-Model: obciążenie nowym śniegiem z 3 dni i nawiewanie (godziny zamieci) → prawdopodobieństwo uwolnienia × udział analogów z biblioteki, które dochodzą do szlaku. Zastrzeżenia: IMGW nie podaje kierunku wiatru dla tej zimy, przyjęto W–SW i to decyduje, które stoki się zapalają; składnik mokrych lawin nie przekracza progu tej zimy; archiwum stopni zagrożenia TOPR nie jest dostępne, więc brak porównania. Heurystyka PoC, docelowo SNOWPACK.
+Model: obciążenie nowym śniegiem z 3 dni i nawiewanie (godziny zamieci) → prawdopodobieństwo uwolnienia × udział analogów z biblioteki, które dochodzą do szlaku. Zastrzeżenia: IMGW nie podaje kierunku wiatru dla tej zimy, przyjęto W–SW i to decyduje, które stoki się zapalają; składnik mokrych lawin nie przekracza progu tej zimy; archiwum lawiny.topr.pl nie jest dostępne, porównanie z komunikatami cytowanymi w prasie poniżej. Heurystyka PoC, docelowo SNOWPACK.
+
+## Porównanie z komunikatami TOPR (zima 2024/25)
+
+**Oficjalny stopień rośnie 12–13.01.2025 (1 → 2 → 3, „najwyższy dotąd w sezonie”) w te same dni, w które kalendarz zapala 9, potem 12 sektorów; 15–16.03 i 6.04 TOPR ma „trójkę”, a kalendarz jest ciemny.** Źródło: [web/data/topr_compare.json](../web/data/topr_compare.json); stopnie z komunikatów TOPR cytowanych w prasie, kalendarz z `release_calendar.json` (próg 0,5).
+
+| Data | Stopień TOPR | Kalendarz: sektory ≥ 0,5 (z 58) | Śnieg Kasprowy: komunikat / IMGW w kalendarzu | Źródło |
+|---|---|---|---|---|
+| 16.12.2024 | 2 | 0 | 25 / 23 cm | [radiomaryja.pl](https://www.radiomaryja.pl/informacje/tatry-drugi-stopien-zagrozenia-lawinowego/) |
+| 04.01.2025 | 2 | 0 | 45 / 45 cm | [radiomaryja.pl](https://www.radiomaryja.pl/informacje/tatry-wzroslo-zagrozenie-lawinowe-do-drugiego-stopnia-duze-opady-sniegu/) |
+| 12.01.2025 | 1 → 2 | 9 | 65 / 65 cm | [przedruk komunikatu TOPR/TPN (blog)](https://krolowasuperstarblog.wordpress.com/2025/01/12/wzroslo-zagrozenie-lawinowe-w-tatrach-karkonoszach-i-babiej-gorze/) |
+| 13.01.2025 | 2 → 3 | 12 | 85 / 85 cm | [PAP przez opoka.org.pl](https://opoka.org.pl/News/Polska/2024/na-kasprowym-65-cm-sniegu-w-tatrach-wzrasta-zagrozenie-lawinowe), [misyjne.pl](https://misyjne.pl/tatry-trzeci-stopien-zagrozenia-lawinowego/) |
+| 15.03.2025 | 3 | 0 | brak / 61 cm | [rmf24.pl](https://www.rmf24.pl/regiony/zakopane/news-niebezpiecznie-w-tatrach-topr-oglosil-trzeci-stopien-zagroze,nId,7931716) |
+| 16.03.2025 | 3 | 0 | 65 / 65 cm | [PAP przez opoka.org.pl](https://opoka.org.pl/News/Polska/2025/tatry-trzeci-stopien-zagrozenia-lawinowego-trudne-warunki) |
+| 27.03.2025 | 1 | 0 | 65 / 65 cm | [PAP przez opoka.org.pl](https://opoka.org.pl/News/Polska/2025/tatry-maleje-zagrozenie-lawinowe-ryzyko-lawin-na-stromych) |
+| 06.04.2025 | 3 | 0 | 80 / 76 cm | [dziennik.pl](https://wiadomosci.dziennik.pl/wydarzenia/artykuly/9772183,zima-uderzyla-z-impetem-zagrozenie-lawinowe-w-tatrach.html) |
+| 09.04.2025 | 3 → 2 | 8 | 92 / 92 cm | [rmf24.pl](https://www.rmf24.pl/regiony/zakopane/news-po-sniezycach-wyszlo-slonce-warunki-dla-narciarzy-w-tatrach-,nId,7946118) |
+
+Co pasuje: wzrost 12–13.01 pokrywa się z kalendarzem dzień w dzień; 27.03 TOPR obniża do 1, kalendarz ciemny. Co nie pasuje: 10–11.01 kalendarz ma już po 8 sektorów, gdy TOPR był jeszcze na 1 (wyprzedzenie albo fałszywy alarm, nie rozstrzygamy); 15–16.03 TOPR 3, kalendarz 0 (pominięcie; nawiewanie tylko ok. 12 h w 3 doby, a heurystyka mocno waży transport wiatrem przy założonym W–SW); 6.04 TOPR 3, kalendarz zapala się dopiero 7–9.04 (opóźnienie o dobę); 9.04 TOPR schodzi na 2, kalendarz nadal 8; 16.12 i 4.01 TOPR 2, kalendarz 0. Brak stopnia w zebranych źródłach dla 26.11–3.12.2024 i 1–3.04.2025 (kalendarz zapala tam 8–9 sektorów). Archiwum lawiny.topr.pl i Wayback Machine były niedostępne. W prasie nie znaleźliśmy lawin z tej zimy w naszym wycinku mapy.
+
+Zastrzeżenie: stopień TOPR to jedna ocena w skali 1–5 dla całych polskich Tatr, a kalendarz liczy lokalne sektory z ryzykiem ≥ 0,5, więc przy „trójce” jedno trafienie (13.01), jedno pominięcie (15–16.03) i jedno opóźnienie o dobę (6.04) to test zdrowego rozsądku, nie dowód trafności prognozy; grubość śniegu na Kasprowym w komunikatach pochodzi z tej samej stacji IMGW, którą czyta kalendarz, więc jej zgodność potwierdza tylko, że demo liczy na liczbach prawdziwej zimy.

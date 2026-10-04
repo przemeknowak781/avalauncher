@@ -1,0 +1,124 @@
+{
+ "title": "Porównanie z komunikatami TOPR (zima 2024/25)",
+ "source_note": "Stopnie TOPR z komunikatów cytowanych w prasie (archiwum lawiny.topr.pl i Wayback Machine niedostępne). Kalendarz: web/data/release_calendar.json, próg 0,5, 58 sektorów.",
+ "no_level_found_pl": [
+  "26.11–3.12.2024: brak dziennego stopnia w zebranych źródłach (pierwsza „jedynka” sezonu 21.11.2024 tylko w wynikach wyszukiwania, niepobrana)",
+  "1–3.04.2025: kalendarz zapala 8–9 sektorów, brak komunikatu w zebranych źródłach"
+ ],
+ "avalanches_in_area": [],
+ "caveat_pl": "Stopień TOPR to jedna ocena w skali 1–5 dla całych polskich Tatr, a kalendarz liczy lokalne sektory (z 58) z ryzykiem ≥ 0,5, więc przy „trójce” jedno trafienie (13.01), jedno pominięcie (15–16.03) i jedno opóźnienie o dobę (6.04) to test zdrowego rozsądku, nie dowód trafności prognozy; grubość śniegu na Kasprowym w komunikatach pochodzi z tej samej stacji IMGW, którą czyta kalendarz, więc jej zgodność potwierdza tylko, że demo liczy na liczbach prawdziwej zimy.",
+ "rows": [
+  {
+   "date": "2024-12-16",
+   "level": "2",
+   "change": "obowiązuje od poniedziałku, powyżej 1700 m",
+   "hs_kasprowy_cm_komunikat": 25,
+   "source_type": "prasa",
+   "source_url": "https://www.radiomaryja.pl/informacje/tatry-drugi-stopien-zagrozenia-lawinowego/",
+   "quote_pl": null,
+   "hs_imgw_cm": 23,
+   "sectors_over": 0,
+   "max_risk": 0.01
+  },
+  {
+   "date": "2025-01-04",
+   "level": "2",
+   "change": "podniesiony w sobotę",
+   "hs_kasprowy_cm_komunikat": 45,
+   "source_type": "prasa",
+   "source_url": "https://www.radiomaryja.pl/informacje/tatry-wzroslo-zagrozenie-lawinowe-do-drugiego-stopnia-duze-opady-sniegu/",
+   "quote_pl": "Wyzwolenie lawiny jest możliwe przeważnie przy dużym obciążeniu dodatkowym",
+   "hs_imgw_cm": 45,
+   "sectors_over": 0,
+   "max_risk": 0.06
+  },
+  {
+   "date": "2025-01-12",
+   "level": "2",
+   "change": "1 → 2, ogłoszony w niedzielę",
+   "hs_kasprowy_cm_komunikat": 65,
+   "source_type": "przedruk komunikatu TOPR/TPN (blog)",
+   "source_url": "https://krolowasuperstarblog.wordpress.com/2025/01/12/wzroslo-zagrozenie-lawinowe-w-tatrach-karkonoszach-i-babiej-gorze/",
+   "quote_pl": "Silny wiatr w połączeniu z intensywnie padającym śniegiem zwiększają zagrożenie lawinami.",
+   "hs_imgw_cm": 65,
+   "sectors_over": 9,
+   "max_risk": 0.92
+  },
+  {
+   "date": "2025-01-13",
+   "level": "3",
+   "change": "2 → 3, najwyższy dotąd w sezonie, ogłoszony w poniedziałek",
+   "hs_kasprowy_cm_komunikat": 85,
+   "source_type": "prasa (PAP)",
+   "source_url": "https://opoka.org.pl/News/Polska/2024/na-kasprowym-65-cm-sniegu-w-tatrach-wzrasta-zagrozenie-lawinowe",
+   "source_url_extra": [
+    "https://misyjne.pl/tatry-trzeci-stopien-zagrozenia-lawinowego/",
+    "https://wydarzenia.interia.pl/kraj/news-niebezpiecznie-w-tatrach-trzeci-stopien-zagrozenia-lawinoweg,nId,7891135"
+   ],
+   "quote_pl": "Te miejsca należy traktować jako szczególne niebezpieczne",
+   "hs_imgw_cm": 85,
+   "sectors_over": 12,
+   "max_risk": 1.0
+  },
+  {
+   "date": "2025-03-15",
+   "level": "3",
+   "change": "obowiązuje (komunikat z soboty)",
+   "hs_kasprowy_cm_komunikat": null,
+   "source_type": "prasa",
+   "source_url": "https://www.rmf24.pl/regiony/zakopane/news-niebezpiecznie-w-tatrach-topr-oglosil-trzeci-stopien-zagroze,nId,7931716",
+   "quote_pl": "Lawina może zostać wyzwolona nawet przy niewielkim obciążeniu dodatkowym",
+   "hs_imgw_cm": 61,
+   "sectors_over": 0,
+   "max_risk": 0.08
+  },
+  {
+   "date": "2025-03-16",
+   "level": "3",
+   "change": "obowiązuje",
+   "hs_kasprowy_cm_komunikat": 65,
+   "source_type": "prasa (PAP)",
+   "source_url": "https://opoka.org.pl/News/Polska/2025/tatry-trzeci-stopien-zagrozenia-lawinowego-trudne-warunki",
+   "quote_pl": "Pokrywa śnieżna na wielu stromych stokach jest związana umiarkowanie bądź słabo.",
+   "hs_imgw_cm": 65,
+   "sectors_over": 0,
+   "max_risk": 0.08
+  },
+  {
+   "date": "2025-03-27",
+   "level": "1",
+   "change": "obniżony do 1 od czwartku",
+   "hs_kasprowy_cm_komunikat": 65,
+   "source_type": "prasa (PAP)",
+   "source_url": "https://opoka.org.pl/News/Polska/2025/tatry-maleje-zagrozenie-lawinowe-ryzyko-lawin-na-stromych",
+   "quote_pl": "obniżyło od czwartku stopień zagrożenia lawinowego w Tatrach do pierwszego",
+   "hs_imgw_cm": 65,
+   "sectors_over": 0,
+   "max_risk": 0.0
+  },
+  {
+   "date": "2025-04-06",
+   "level": "3",
+   "change": "obowiązuje powyżej 1700 m",
+   "hs_kasprowy_cm_komunikat": 80,
+   "source_type": "prasa",
+   "source_url": "https://wiadomosci.dziennik.pl/wydarzenia/artykuly/9772183,zima-uderzyla-z-impetem-zagrozenie-lawinowe-w-tatrach.html",
+   "quote_pl": "Pokrywa śnieżna na stromych stokach jest słabo związana.",
+   "hs_imgw_cm": 76,
+   "sectors_over": 0,
+   "max_risk": 0.02
+  },
+  {
+   "date": "2025-04-09",
+   "level": "2",
+   "change": "3 → 2",
+   "hs_kasprowy_cm_komunikat": 92,
+   "source_type": "prasa",
+   "source_url": "https://www.rmf24.pl/regiony/zakopane/news-po-sniezycach-wyszlo-slonce-warunki-dla-narciarzy-w-tatrach-,nId,7946118",
+   "quote_pl": "o zmniejszeniu zagrożenia lawinowego z trzeciego do drugiego stopnia",
+   "hs_imgw_cm": 92,
+   "sectors_over": 8,
+   "max_risk": 0.64
+  }
+ ]
+}
