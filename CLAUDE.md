@@ -19,8 +19,10 @@ Pełny plan, kontrakt danych i podział pracy: [docs/09_plan_budowy.md](docs/09_
 - Surowe dane trafiają do `data/raw/` (poza Git). Nie commituj sekretów ani plików powyżej 15 MB.
 - Małe commity na `main`, przed pushem `git pull --rebase`.
 
-## Prezentacja i film (decyzja użytkownika, 4.10.2026, ok. 02:40)
+## Prezentacja i film (decyzje użytkownika, 4.10.2026)
 
-- **Nie eksportuj decku do PDF**, dopóki projekt graficzny decku nie jest zatwierdzony (powstanie w docs/16_design_decku.md). Wolno najwyżej szkic HTML w deck/.
-- **Nie montuj finalnego filmu demo.** Scenariusz filmu: docs/15_wideo.md (fikcyjna rozmowa wideo z ratownikiem, potem pokaz ekranu). Nagrywaj tylko surowe ujęcia ekranu pod ten scenariusz, opisane numerami scen.
+Ok. 08:15–08:20 użytkownik wybrał w czacie: deck „Styl XP jak aplikacja”, film „Surowe ujęcia + szybki montaż”, a potem napisał: „wznawiamy. Styl xp subtelny, nie nachalny ale widoczny i rozpoznawalny”. To zastępuje blokady z 02:40.
+
+- **Deck:** 10 slajdów w deck/ według docs/11_deck.md, w stylu XP subtelnym: rozpoznawalne akcenty (pasek tytułu okna Luna, przyciski okna, pasek zadań), ale treść czysta, czytelna z daleka, dużo powietrza. Eksport do PDF dozwolony.
+- **Film:** scenariusz docs/15_wideo.md. Wolno nagrać surowe ujęcia i zmontować wersję roboczą bez głosu, z napisami.
 - Postać ratownika jest fikcyjna; nie używamy nazwy ani logo TOPR, Skype ani Microsoft jako sugestii partnerstwa.
