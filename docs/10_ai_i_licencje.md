@@ -44,6 +44,8 @@ Użycie było istotne. Większość kodu, tekstów i wizualizacji napisał Claud
 
 **Literatura.** Prace cytowane w `docs/01`–`docs/08` (m.in. Bühler i in. 2022, Mayer i in. 2023) podajemy z DOI. Ich danych nie dołączamy do repo.
 
+**Wygląd interfejsu.** Interfejs aplikacji, ekran logowania, strona „O projekcie”, deck i komunikator w filmie są inspirowane stylem Windows XP (hołd dla estetyki z lat 2001–2006). Wszystko narysowaliśmy od zera w CSS i SVG: nie używamy grafik, ikon, czcionek, dźwięków ani logotypów Microsoftu. Windows i Windows XP są znakami towarowymi Microsoft Corporation. Projekt nie jest powiązany z firmą Microsoft ani przez nią wspierany.
+
 ## 3. Oprogramowanie
 
 | Zasób | Do czego | Licencja |

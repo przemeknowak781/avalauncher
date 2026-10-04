@@ -178,6 +178,8 @@ Docelowo: regularne przeloty helikoptera lub UAV nad korytarzami szlaków: radar
 - Nasz kod: MIT, plik [`LICENSE`](LICENSE).
 - Dane i programy zewnętrzne zachowują własne licencje. Teren i ortofotomapa: GUGiK. Szlaki: © współtwórcy OpenStreetMap (ODbL). Pogoda: IMGW-PIB (dane przetworzone). Lawiny do kalibracji: OpenNHM/AvaFrameData 1.0 (CC BY 4.0; dane F. Perzl, BFW; WLV; SLF Davos); teren: Land Tirol (CC BY 4.0 AT), BEV ALS DTM 1 m (CC BY 4.0), © swisstopo swissALTI3D (warunki licencji do potwierdzenia). Satelita: zawiera zmodyfikowane dane Copernicus Sentinel (2025), Sentinel-2 L2A przez Element84 Earth Search (AWS Open Data). Solver: AvaFrame (EUPL-1.2). Czcionka: Archivo (OFL).
 - Kod, teksty i wizualizacje powstały z dużym udziałem Claude Code (model Claude Opus 5.5). Zakres i tezę ustalili ludzie.
+- Wygląd inspirowany stylem Windows XP, narysowany od zera w CSS/SVG, bez grafik i logotypów Microsoftu. Windows i Windows XP są znakami towarowymi Microsoft Corporation; projekt nie jest powiązany z Microsoft.
+- Tapeta: Radek Kucharski, Wikimedia Commons, CC BY 4.0.
 - Pełna lista i atrybucje: [docs/10](docs/10_ai_i_licencje.md).
 
 ## Zaplecze badawcze
