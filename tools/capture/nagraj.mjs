@@ -174,7 +174,10 @@ function recorder(b, name) {
       const list = path.join(dir, "klatki.txt");
       fs.writeFileSync(list, lines.join("\n"));
       ffmpeg(["-f", "concat", "-safe", "0", "-i", list, "-vf", `fps=30,scale=${W}:${H}:flags=lanczos`, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-preset", "medium", "-movflags", "+faststart", out]);
-      return { rel: (wall) => wall - off - t0, total: endTs - t0, off, n: frames.length };
+      const gaps = frames.slice(1).map((f, i) => (f.ts - frames[i].ts) * 1000).sort((x, y) => x - y);
+      const gapStats = { p50: +gaps[Math.floor(gaps.length * 0.5)].toFixed(1), p95: +gaps[Math.floor(gaps.length * 0.95)].toFixed(1), max: +gaps.at(-1).toFixed(1), over100: gaps.filter((g) => g > 100).length };
+      log(`${name}: frame gaps ms`, JSON.stringify(gapStats));
+      return { rel: (wall) => wall - off - t0, total: endTs - t0, off, n: frames.length, gapStats };
     },
     dir,
   };
@@ -207,7 +210,7 @@ async function sessionA() {
   try {
     await rec.start();
     T("A1").from = now();
-    await b.send("Page.navigate", { url: BASE });
+    await b.send("Page.navigate", { url: BASE + "?nohints" }); // ?nohints: no first-run hint balloons (the voice script has none)
     await p.waitFor(`document.readyState !== "loading" && !!document.getElementById("__cursor")`, 10000, "DOM ready");
     await p.jump(...REST);
     await p.waitFor(`!!window.__firstPaint`, 5000, "first paint");
@@ -349,8 +352,8 @@ async function sessionA() {
   }
   const master = path.join(MASTER_DIR, "A_sesja_ciagla.mp4");
   log(`encoding A master (${rec.frames.length} frames)`);
-  const { rel, total } = rec.encode(master);
-  report.masters.push({ file: master, total, frames: rec.frames.length });
+  const { rel, total, gapStats } = rec.encode(master);
+  report.masters.push({ file: master, total, frames: rec.frames.length, gapStats });
   report.relA = rel;
   for (const bl of report.balloonsA) if (/brak łączności/i.test(bl.title)) notes.push(`Sesja A: dymek „${bl.title}” (${bl.ev}) w ${rel(bl.t).toFixed(1)} s nagrania ciągłego.`);
   const names = { A1: "A1_s04_start.mp4", A2: "A2_s05-06_dzien1.mp4", A3: "A3_s07_dzien2_mgla.mp4", A4: "A4_s07_imgw.mp4", A5: "A5_s08_przelot.mp4", A5b: "A5b_s09_menu_biblioteka.mp4", A6: "A6_s10_wylacz.mp4" };
@@ -397,8 +400,8 @@ async function sessionB() {
     await b.close();
   }
   const master = path.join(MASTER_DIR, "B_sesja_ciagla.mp4");
-  const { rel, total } = rec.encode(master);
-  report.masters.push({ file: master, total, frames: rec.frames.length });
+  const { rel, total, gapStats } = rec.encode(master);
+  report.masters.push({ file: master, total, frames: rec.frames.length, gapStats });
   const file = "B1_s09_biblioteka.mp4", out = path.join(OUT, file), { s, e } = cut(master, rel, shot, out);
   report.shots.push({ k: "B1", file, s, e, ...probe(out) });
 }
