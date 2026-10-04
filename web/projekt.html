@@ -234,8 +234,8 @@
               <div class="figure-unit">na prawdziwej lawinie, błąd zasięgu +20&nbsp;m</div>
             </div>
             <div>
-              <p class="claim">Kalibracja AvaFrame na obserwowanym zdarzeniu: lawina mokrego śniegu Popeletzbach (Tyrol Wschodni, Austria), 7.04.2009. Z 21 przebiegów najlepszy (samosAT, odryw 0,6&nbsp;m) daje zasięg 1795&nbsp;m wobec obserwowanych 1775&nbsp;m.</p>
-              <p class="caveat"><b>Zastrzeżenie:</b> grubości odrywu nie było w danych, to założenie z siatki 0,6–1,6&nbsp;m, a najlepszy wynik leży na jej dolnej krawędzi. samosAT to kalibracja dla suchego śniegu, tu użyta do lawiny mokrej. To przykładowa kalibracja na zdarzeniu z Austrii; dla Tatr potrzebne są lokalne obserwacje (TOPR).</p>
+              <p class="claim">Fizykę AvaFrame sprawdziliśmy na 5 prawdziwych lawinach z Austrii i Szwajcarii (OpenNHM/AvaFrameData), 234 symulacje. W teście bez podglądania (ustawienie tarcia wybrane na czterech lawinach, sprawdzone na piątej) typowa pomyłka zasięgu to 92&nbsp;m (mediana; średnio 154&nbsp;m, najgorzej +350&nbsp;m). Na lawinie Popeletzbach (Tyrol Wschodni, 7.04.2009) pomyłka wynosi 25&nbsp;m na 1775&nbsp;m.</p>
+              <p class="caveat"><b>Zastrzeżenie:</b> grubość odrywu zmierzono tylko na jednej lawinie (Eiskar, 2,7&nbsp;m); na pozostałych przyjęto 1,2&nbsp;m. Symulacje bez lasu i porywania śniegu. To przykładowa kalibracja na zdarzeniach z Austrii i Szwajcarii; dla Tatr potrzebne są lokalne obserwacje.</p>
               <p class="src">Źródło: <a href="data/calibration.json">data/calibration.json</a> · dane zdarzenia OpenNHM/AvaFrameData, <a href="https://doi.org/10.5281/zenodo.20701552">DOI 10.5281/zenodo.20701552</a></p>
             </div>
           </li>
@@ -344,7 +344,7 @@
               <tr><th scope="row">Szlaki</th><td class="kind"><span class="tag real">prawdziwe</span></td><td>OpenStreetMap, w ich prawdziwych kolorach</td></tr>
               <tr><th scope="row">Pogoda</th><td class="kind"><span class="tag real">prawdziwa</span></td><td>IMGW-PIB Kasprowy Wierch, zima 2024/25 (dobowe archiwum). Poranki demo 12 i 13.01.2025 leżą w prawdziwym epizodzie: +34&nbsp;cm nowego śniegu w 3 dni, 72&nbsp;h zamieci, pokrywa 51 → 85&nbsp;cm. Kierunek wiatru założony, bo brak go w archiwum</td></tr>
               <tr><th scope="row">Biblioteka scenariuszy</th><td class="kind"><span class="tag calc">policzona</span></td><td>Fizyczny solver AvaFrame com1DFA na prawdziwym terenie, standardowe kalibracje tarcia, bez kalibracji dla Tatr</td></tr>
-              <tr><th scope="row">Kalibracja</th><td class="kind"><span class="tag calc">prawdziwe zdarzenie</span></td><td>Przykładowa, na lawinie Popeletzbach z Austrii (OpenNHM/AvaFrameData)</td></tr>
+              <tr><th scope="row">Kalibracja</th><td class="kind"><span class="tag calc">prawdziwe zdarzenie</span></td><td>Przykładowa, na 5 prawdziwych lawinach z Austrii i Szwajcarii (OpenNHM/AvaFrameData)</td></tr>
               <tr><th scope="row">Strefy startowe</th><td class="kind"><span class="tag calc">wyznaczone</span></td><td>Z prawdziwego terenu prostą regułą nachylenia i wysokości, bez inwentarza służby</td></tr>
               <tr><th scope="row">Grubość płyty, przeloty i odczyty drona</th><td class="kind"><span class="tag synth">syntetyczne</span></td><td>Wygenerowane naszymi skryptami</td></tr>
               <tr><th scope="row">30 poranków dowodu</th><td class="kind"><span class="tag mixed">mieszane</span></td><td>Prawdziwa pogoda, syntetyczny stan stoków i błąd modelu</td></tr>
