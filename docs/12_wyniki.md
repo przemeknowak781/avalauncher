@@ -82,7 +82,20 @@ Wobec reguły „suma nowego śniegu z 3 dni ≥ 30 cm”: przeoczenia 0 wobec 1
 
 Decyzja: fizyka i rendery na CPU Sparka, trening surogatu na GPU Sparka (dane na miejscu, 128 GB pamięci wspólnej).
 
-## Do uzupełnienia
+## RL dla planu przelotu
 
-- RL dla planu przelotu: `web/data/rl.json` (agent RL, w toku).
-- Kalendarz uwolnień „kiedy”: `web/data/release_calendar.json` (agent WHEN, w toku).
+**Polityka RL dorównuje prostemu planowi według wartości informacji, ale go nie pokonuje, więc zgodnie z docs/07 zostajemy przy prostszym planerze.** Źródło: [web/data/rl.json](../web/data/rl.json), `filmy/rl/krzywa_uczenia.png`, `filmy/rl/trasy.png`, skrypty `tools/rl/`.
+
+| 1000 poranków spoza treningu, przelot 20 min | RL | Plan VOI | Patrol wzdłuż szlaku |
+| --- | --- | --- | --- |
+| Spadek niepewności decyzji | 19,9% | **20,2%** | 5,4% |
+| Wyjaśnione sektory „nie wiem” (z 33 059) | 3915 | **3987** | 2895 |
+| Wychwycone zagrożenia (z 7924) | **1936** | 1810 | 1189 |
+
+Trening: REINFORCE, 10,4 mln epizodów w 6 min na GPU DGX Spark. Środowisko woła prawdziwy silnik (różnica kontrolna 1e-13). Zastrzeżenie: prawda losowana z przekonania silnika (uczciwy test trasowania, ale nie świat z błędem modelu z dowodu powyżej), więc liczby nie są wprost porównywalne z 86 wobec 71.
+
+## Kiedy schodzą: kalendarz uwolnień (heurystyka)
+
+**Na prawdziwej zimie 2024/25 ryzyko zapala się w połowie stycznia i na początku kwietnia; 12.01 ryzyko ≥ 0,5 ma 9 sektorów, 13.01 już 12, wszystkie na stokach NE/E/N.** Źródło: [web/data/release_calendar.json](../web/data/release_calendar.json) (58 sektorów × 181 dni), `filmy/kiedy/kalendarz.png`, skrypty `tools/when/`.
+
+Model: obciążenie nowym śniegiem z 3 dni i nawiewanie (godziny zamieci) → prawdopodobieństwo uwolnienia × udział analogów z biblioteki, które dochodzą do szlaku. Zastrzeżenia: IMGW nie podaje kierunku wiatru dla tej zimy, przyjęto W–SW i to decyduje, które stoki się zapalają; składnik mokrych lawin nie przekracza progu tej zimy; archiwum stopni zagrożenia TOPR nie jest dostępne, więc brak porównania. Heurystyka PoC, docelowo SNOWPACK.
