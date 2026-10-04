@@ -162,8 +162,10 @@ export function layout(force = false) {
   if (dw < 980) { // narrow screens: cascade
     const w = dw - 2 * m;
     ["w-map", "w-sit", "w-sec", "w-plan", "w-imgw", "w-player"].forEach((id, i) => set(id, m, m + i * 34, w, Math.min(dh - 2 * m - i * 34, 640)));
+    const pw = Math.min(w, 340), ph = Math.round((pw - 12) * 9 / 16 + 66);
+    set("w-preview", dw - m - pw, dh - m - ph, pw, ph);
   } else {
-    const strip = 70; // leaves the desktop note visible under the map
+    const strip = 78; // leaves the desktop note (4 lines) visible under the map
     const mapH = dh - m - strip;
     const side = mapH - 116; // title + menubar + legend + status bar
     const mapW = Math.max(460, Math.min(side + 18, dw * 0.52));
@@ -177,6 +179,9 @@ export function layout(force = false) {
     set("w-plan", rx, 3 * m + h1 + h2, rw, h3);
     set("w-imgw", rx, 2 * m + h1, rw, h2 + h3 + m); // opens over the two lower panels, never over the map
     set("w-player", rx, 2 * m + h1, rw, h2 + h3 + m); // same slot as the IMGW chart: the map stays visible beside the film
+    // light 3D preview: bottom-right, inside the Plan przelotu slot, so the flag list and the map stay clear
+    const ph = h3, pw = Math.min(rw, Math.round((ph - 66) * 16 / 9 + 12));
+    set("w-preview", dw - m - pw, 3 * m + h1 + h2, pw, ph);
   }
   if (force) userMoved = false;
 }

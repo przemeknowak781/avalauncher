@@ -646,6 +646,7 @@ function renderAll() { renderDays(); renderSituation(); renderRows(); renderPlan
 
 function select(id, { toggle = true, explain = true } = {}) {
   state.selected = toggle && state.selected === id ? null : id;
+  if (state.selected && hasVideo(state.selected)) showPreview(videoFor(state.selected)); // the light preview follows the clicked slope
   buildHazardLayer(); renderRows();
   if (explain && state.selected && R.flagOf[state.selected]) explainFlag(R.flagOf[state.selected]);
 }
@@ -831,13 +832,32 @@ function openPlayer(sector = null, th = null, frict = null) {
   }
 }
 
+// Full films are fetched once in the background (low priority) and kept as blob URLs: the player starts
+// at once on the poster and the light preview, then swaps to the full film at the same moment of the run.
+const fullFilm = new Map(); // file -> Promise<blob URL>
+function loadFull(v, priority = "auto") {
+  if (!v) return Promise.reject();
+  if (!fullFilm.has(v.file)) {
+    const p = fetch(`media/3d/${v.file}`, { priority }).then((r) => { if (!r.ok) throw new Error(r.status); return r.blob(); }).then((b) => URL.createObjectURL(b));
+    p.catch(() => fullFilm.delete(v.file));
+    fullFilm.set(v.file, p);
+  }
+  return fullFilm.get(v.file);
+}
+
 function playVideo(v) {
   const vid = player.video;
   player.cur = v;
   $("pl-empty").hidden = true;
   vid.poster = `media/3d/${v.poster}`;
-  vid.src = `media/3d/${v.file}`;
+  vid.src = v.preview ? `media/3d/${v.preview}` : `media/3d/${v.file}`;
   vid.play().catch(() => {});
+  if (v.preview) loadFull(v).then((url) => {
+    if (player.cur !== v) return; // another scenario was picked meanwhile
+    const t = vid.currentTime, was = !vid.paused;
+    vid.addEventListener("loadedmetadata", () => { vid.currentTime = t; if (was) vid.play().catch(() => {}); }, { once: true });
+    vid.src = url;
+  }).catch(() => { if (player.cur === v) { vid.src = `media/3d/${v.file}`; vid.play().catch(() => {}); } });
   renderPlayer();
   paintSeek();
 }
@@ -908,8 +928,36 @@ if (player.el) {
   vid.addEventListener("error", () => { if (player.cur) status(`Nie udało się wczytać filmu ${player.cur.file}`); });
   vid.addEventListener("click", () => $("pl-play").click());
   // a hidden player (closed, minimised) never plays on in the background
-  new MutationObserver(() => { if (player.el.classList.contains("is-hidden")) vid.pause(); })
-    .observe(player.el, { attributes: true, attributeFilter: ["class"] });
+  new MutationObserver(() => {
+    const hidden = player.el.classList.contains("is-hidden");
+    if (hidden) vid.pause();
+    prev.sync(hidden); // the light preview rests while the full player is on screen
+  }).observe(player.el, { attributes: true, attributeFilter: ["class"] });
+}
+
+// ---------- Lawina w 3D — podgląd: a light pre-rendered film (480 px, 12 kl./s), open from the start ----------
+const prev = {
+  el: $("w-preview"), video: $("pv-video"), cur: null,
+  sync(playerHidden = player.el?.classList.contains("is-hidden") ?? true) {
+    if (!this.el || !this.cur) return;
+    if (playerHidden && !this.el.classList.contains("is-hidden")) this.video.play().catch(() => {});
+    else this.video.pause();
+  },
+};
+function showPreview(v) {
+  if (!prev.el || !v || prev.cur === v) return;
+  prev.cur = v;
+  prev.video.poster = `media/3d/${v.poster}`;
+  prev.video.src = `media/3d/${v.preview ?? v.file}`;
+  $("pv-cap").textContent = `${byId[v.sector].name} · płyta ${pl(v.relTh, 1)} m · AvaFrame, śnieg syntetyczny`;
+  prev.el.querySelector(".title-text").textContent = `Lawina w 3D — podgląd: ${byId[v.sector].name}`;
+  prev.sync();
+}
+if (prev.el) {
+  const full = () => { if (prev.cur) openPlayer(prev.cur.sector, prev.cur.relTh, prev.cur.frict); };
+  prev.video.addEventListener("click", full);
+  $("pv-full").addEventListener("click", full);
+  new MutationObserver(() => prev.sync()).observe(prev.el, { attributes: true, attributeFilter: ["class"] });
 }
 
 // ---------- first-run hints: "zobacz lawinę w 3D" ----------
@@ -1445,6 +1493,9 @@ setInterval(live, 10 * 60 * 1000);
 requestAnimationFrame(frame);
 announceDay();
 xp.ready();
+const firstFilm = () => { const id = hintSector(); return id && hasVideo(id) ? videoFor(id) : null; };
+if (HINTS && firstFilm()) { showPreview(firstFilm()); xp.open("w-preview"); xp.focus("w-map"); } // ?nohints: clean screenshots
+setTimeout(() => loadFull(firstFilm(), "low").catch(() => {}), 2500); // warm-up: the full player opens fast on the first slope
 if (HINTS) { // the map hint waits until the day balloons (and the login screen) are gone
   const wait = setInterval(() => { if (xp.balloonsIdle()) { clearInterval(wait); setTimeout(showMapHint, 300); } }, 400);
 }

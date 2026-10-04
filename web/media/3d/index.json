@@ -9,7 +9,8 @@
    "poster": "S22_samosATMedium_0.8.jpg",
    "duration_s": 12.6,
    "crf": 26,
-   "bytes": 458636
+   "bytes": 458636,
+   "preview": "preview/S22_samosATMedium_0.8.mp4"
   },
   {
    "sector": "S22",
@@ -19,7 +20,8 @@
    "poster": "S22_samosATMedium_1.0.jpg",
    "duration_s": 12.0,
    "crf": 26,
-   "bytes": 470570
+   "bytes": 470570,
+   "preview": "preview/S22_samosATMedium_1.0.mp4"
   },
   {
    "sector": "S31",
@@ -29,7 +31,8 @@
    "poster": "S31_samosATMedium_0.4.jpg",
    "duration_s": 8.1,
    "crf": 26,
-   "bytes": 330665
+   "bytes": 330665,
+   "preview": "preview/S31_samosATMedium_0.4.mp4"
   },
   {
    "sector": "S31",
@@ -39,7 +42,8 @@
    "poster": "S31_samosATMedium_0.6.jpg",
    "duration_s": 7.6,
    "crf": 26,
-   "bytes": 329952
+   "bytes": 329952,
+   "preview": "preview/S31_samosATMedium_0.6.mp4"
   },
   {
    "sector": "S49",
@@ -49,7 +53,8 @@
    "poster": "S49_samosATMedium_0.4.jpg",
    "duration_s": 9.4,
    "crf": 26,
-   "bytes": 349546
+   "bytes": 349546,
+   "preview": "preview/S49_samosATMedium_0.4.mp4"
   },
   {
    "sector": "S50",
@@ -59,7 +64,8 @@
    "poster": "S50_samosATMedium_0.6.jpg",
    "duration_s": 10.1,
    "crf": 26,
-   "bytes": 406960
+   "bytes": 406960,
+   "preview": "preview/S50_samosATMedium_0.6.mp4"
   },
   {
    "sector": "S50",
@@ -69,7 +75,8 @@
    "poster": "S50_samosATMedium_1.0.jpg",
    "duration_s": 8.4,
    "crf": 26,
-   "bytes": 350064
+   "bytes": 350064,
+   "preview": "preview/S50_samosATMedium_1.0.mp4"
   },
   {
    "sector": "S55",
@@ -79,7 +86,8 @@
    "poster": "S55_samosATMedium_0.4.jpg",
    "duration_s": 6.8,
    "crf": 26,
-   "bytes": 301425
+   "bytes": 301425,
+   "preview": "preview/S55_samosATMedium_0.4.mp4"
   },
   {
    "sector": "S69",
@@ -89,7 +97,8 @@
    "poster": "S69_samosATMedium_0.4.jpg",
    "duration_s": 7.2,
    "crf": 26,
-   "bytes": 321085
+   "bytes": 321085,
+   "preview": "preview/S69_samosATMedium_0.4.mp4"
   },
   {
    "sector": "S69",
@@ -99,7 +108,8 @@
    "poster": "S69_samosATMedium_0.6.jpg",
    "duration_s": 5.9,
    "crf": 26,
-   "bytes": 278710
+   "bytes": 278710,
+   "preview": "preview/S69_samosATMedium_0.6.mp4"
   },
   {
    "sector": "S22",
@@ -109,7 +119,8 @@
    "poster": "S22_samosATMedium_1.3.jpg",
    "duration_s": 11.3,
    "crf": 26,
-   "bytes": 288205
+   "bytes": 288205,
+   "preview": "preview/S22_samosATMedium_1.3.mp4"
   },
   {
    "sector": "S22",
@@ -119,7 +130,8 @@
    "poster": "S22_samosAT_2.0.jpg",
    "duration_s": 9.7,
    "crf": 26,
-   "bytes": 433377
+   "bytes": 433377,
+   "preview": "preview/S22_samosAT_2.0.mp4"
   },
   {
    "sector": "S31",
@@ -129,7 +141,8 @@
    "poster": "S31_samosATMedium_1.3.jpg",
    "duration_s": 6.6,
    "crf": 26,
-   "bytes": 300539
+   "bytes": 300539,
+   "preview": "preview/S31_samosATMedium_1.3.mp4"
   },
   {
    "sector": "S31",
@@ -139,7 +152,9 @@
    "poster": "S31_samosAT_2.0.jpg",
    "duration_s": 6.4,
    "crf": 26,
-   "bytes": 304316
+   "bytes": 304316,
+   "preview": "preview/S31_samosAT_2.0.mp4"
   }
- ]
+ ],
+ "note_preview": "Lekkie podglądy: preview/<plik>.mp4, 480 px, 12 kl./s, bez dźwięku (ffmpeg z filmów 1280x720)."
 }

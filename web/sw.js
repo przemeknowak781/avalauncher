@@ -11,7 +11,7 @@
 //
 // Bump VERSION when the precache list changes.
 
-const VERSION = "2026-10-04c";
+const VERSION = "2026-10-04d";
 const SHELL = `ava-shell-${VERSION}`;
 const MEDIA = `ava-media-${VERSION}`;
 const LIVE = "ava-live"; // survives version bumps: the last IMGW reading stays useful
@@ -55,6 +55,12 @@ self.addEventListener("install", (e) => {
     await Promise.allSettled([...DATA, ...EXTRA].map((u) => cache.add(u)));
     const media = await caches.open(MEDIA);
     await Promise.allSettled(LANDING.map((u) => media.add(u)));
+    // light 3D previews and their posters: the "Lawina w 3D — podgląd" window plays them at once, offline too
+    try {
+      const list = await (await fetch("./media/3d/index.json")).json();
+      const quick = (list.videos ?? []).flatMap((v) => [v.preview, v.poster]).filter((f) => typeof f === "string");
+      await Promise.allSettled(quick.map((f) => media.add(`./media/3d/${f}`)));
+    } catch {}
     await self.skipWaiting();
   })());
 });
@@ -192,7 +198,7 @@ async function warmMedia() {
     const walk = (o) => {
       if (Array.isArray(o)) o.forEach(walk);
       else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) {
-        if ((k === "file" || k === "poster") && typeof v === "string") files.add(new URL(`./media/3d/${v}`, self.location).href);
+        if ((k === "file" || k === "poster" || k === "preview") && typeof v === "string") files.add(new URL(`./media/3d/${v}`, self.location).href);
         else walk(v);
       }
     };

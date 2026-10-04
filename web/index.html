@@ -295,6 +295,7 @@
         <strong>Brak flagi to nie zielone światło. Decyzję podejmuje prognosta.</strong>
         <span>Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny.</span>
         <span>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Źródło: IMGW-PIB</span>
+        <span class="wm-credit">Tapeta: Radek Kucharski, Wikimedia Commons, CC BY 4.0</span>
       </div>
 
       <!-- Mapa -->
@@ -475,6 +476,19 @@
         </div>
       </section>
 
+      <!-- Lawina w 3D — podgląd: lekki film (480 px) stoku z flagą, otwarty od startu; klik otwiera pełny odtwarzacz -->
+      <section class="window wprev" id="w-preview" data-title="Lawina w 3D — podgląd" data-icon="i-player" data-start="closed">
+        <div class="title-bar">
+          <svg class="title-icon"><use href="#i-player"/></svg>
+          <span class="title-text">Lawina w 3D — podgląd</span>
+          <div class="title-controls"><button class="tb-min" aria-label="Minimalizuj"></button><button class="tb-close" aria-label="Zamknij"></button></div>
+        </div>
+        <div class="window-body wprev-body">
+          <div class="wprev-screen"><video id="pv-video" muted playsinline loop autoplay preload="auto" title="Otwórz pełny odtwarzacz 3D" aria-label="Podgląd animacji 3D przebiegu lawiny AvaFrame"></video></div>
+          <div class="wprev-row"><p class="wprev-cap" id="pv-cap"></p><button class="xp-btn" id="pv-full" type="button">Pełny ekran 3D</button></div>
+        </div>
+      </section>
+
       <!-- Odtwarzacz 3D: animacje przebiegów AvaFrame com1DFA dla sektorów z flagą (skórka rysowana w CSS) -->
       <section class="window wmp" id="w-player" data-title="Odtwarzacz 3D — scenariusz AvaFrame" data-icon="i-player" data-start="closed">
         <div class="title-bar">
@@ -485,7 +499,7 @@
         <div class="window-body wmp-body">
           <div class="wmp-main">
             <div class="wmp-screen">
-              <video id="pl-video" muted playsinline loop preload="metadata" aria-label="Animacja 3D przebiegu lawiny AvaFrame"></video>
+              <video id="pl-video" muted playsinline loop preload="auto" aria-label="Animacja 3D przebiegu lawiny AvaFrame"></video>
               <p class="wmp-empty" id="pl-empty" hidden></p>
             </div>
             <aside class="wmp-list" aria-label="Lista scenariuszy 3D">
