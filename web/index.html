@@ -20,6 +20,7 @@
   </script>
   <link rel="preload" href="vendor/fonts/Archivo-var.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="xp/xp.css">
+  <link rel="stylesheet" href="xp/login.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -357,12 +358,12 @@
             <span><i class="sw route"></i>Plan przelotu</span>
             <span id="heat-legend" hidden><i class="sw heat"></i><b id="heat-n"></b></span>
             <span id="whatif-legend" hidden><i class="sw whatif"></i><b id="whatif-n"></b></span>
-            <span id="sat-legend" hidden><i class="sw sat"></i><b id="sat-n"></b><span id="sat-cloud" hidden><i class="sw cloud"></i>chmury</span><small class="sat-credit">Zawiera zmodyfikowane dane Copernicus Sentinel (2025)</small></span>
+            <span id="sat-legend" hidden title="Zawiera zmodyfikowane dane Copernicus Sentinel (2025)"><i class="sw sat"></i><b id="sat-n"></b><span id="sat-cloud" hidden><i class="sw cloud"></i>chmury</span></span>
           </div>
         </div>
         <div class="status-bar">
           <p class="status-field scale"><i class="bar"></i>500 m</p>
-          <p class="status-field grow">Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Pogoda: IMGW-PIB</p>
+          <p class="status-field grow">Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Pogoda: IMGW-PIB<span id="sat-credit" hidden> · Zawiera zmodyfikowane dane Copernicus Sentinel (2025)</span></p>
           <p class="status-field" title="Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny.">Płyta i przeloty: syntetyczne</p>
         </div>
       </section>
@@ -583,6 +584,8 @@
     <div class="sp-bottom"><span>Wczytywanie ustawień osobistych…</span></div>
   </div>
 
+  <!-- user selection screen at start (skipped for deep links); see xp/login.js -->
+  <script src="xp/login.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

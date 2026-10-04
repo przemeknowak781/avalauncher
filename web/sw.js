@@ -11,7 +11,7 @@
 //
 // Bump VERSION when the precache list changes.
 
-const VERSION = "2026-10-04a";
+const VERSION = "2026-10-04b";
 const SHELL = `ava-shell-${VERSION}`;
 const MEDIA = `ava-media-${VERSION}`;
 const LIVE = "ava-live"; // survives version bumps: the last IMGW reading stays useful
@@ -20,7 +20,7 @@ const KEEP = new Set([SHELL, MEDIA, LIVE]);
 // Atomic part: without these the app cannot start at all.
 const CORE = [
   "./", "./index.html", "./app.js", "./engine.js", "./style.css",
-  "./xp/xp.css", "./xp/xp.js", "./xp/icon.svg", "./vendor/fonts/Archivo-var.ttf", "./manifest.webmanifest",
+  "./xp/xp.css", "./xp/xp.js", "./xp/login.css", "./xp/login.js", "./xp/icon.svg", "./vendor/fonts/Archivo-var.ttf", "./manifest.webmanifest",
 ];
 // Best effort, one by one: a single missing file must not cancel the install.
 const DATA = [
@@ -35,6 +35,15 @@ const EXTRA = [
   "./projekt.html", "./projekt.css", "./projekt.js",
 ];
 
+// Images of projekt.html go to the media cache (media() reads only that one), so the
+// landing page shows its hero, posters and calibration board offline even on a first visit.
+const LANDING = [
+  "hero_koncepcja_1280.jpg", "koncepcja_orbit.jpg", "mapa_zasiegow_orbit.jpg", "przeglad_3d.jpg", "surogat_suwak.jpg",
+  "kalibracja_5_lawin.jpg",
+].map((f) => `./media/landing/${f}`);
+const LANDING_FILMS = ["koncepcja_orbit.mp4", "mapa_zasiegow_orbit.mp4", "przeglad_3d.mp4", "surogat_suwak.mp4"]
+  .map((f) => `./media/landing/${f}`);
+
 const BASE = new URL("./", self.location).pathname;
 const IMGW_HOST = "danepubliczne.imgw.pl";
 
@@ -43,6 +52,8 @@ self.addEventListener("install", (e) => {
     const cache = await caches.open(SHELL);
     await cache.addAll(CORE);
     await Promise.allSettled([...DATA, ...EXTRA].map((u) => cache.add(u)));
+    const media = await caches.open(MEDIA);
+    await Promise.allSettled(LANDING.map((u) => media.add(u)));
     await self.skipWaiting();
   })());
 });
@@ -185,6 +196,7 @@ async function warmMedia() {
       }
     };
     walk(list);
+    for (const f of LANDING_FILMS) files.add(new URL(f, self.location).href);
     const cache = await caches.open(MEDIA);
     for (const u of files) if (!(await cache.match(u))) await cache.add(u).catch(() => {});
   } catch {}
