@@ -12,13 +12,18 @@ const MEASURED_SIGMA = 0.08;
 const $ = (id) => document.getElementById(id);
 const json = (p) => fetch(p).then((r) => (r.ok ? r.json() : Promise.reject(new Error(p))));
 const optional = (p) => json(p).catch(() => null);
+const binary = (p, T) => fetch(p).then((r) => (r.ok ? r.arrayBuffer() : null))
+  .then((b) => (b && b.byteLength % T.BYTES_PER_ELEMENT === 0 ? new T(b) : null)).catch(() => null);
 
 // ---------- data ----------
-const [terrain, sectors, trails, real, mock, scenarios, calibration, proof] = await Promise.all([
+const [terrain, sectors, trails, real, mock, scenarios, calibration, proof, kasprowy] = await Promise.all([
   json("data/terrain.json"), json("data/sectors.json"), json("data/trails.json"),
   optional("data/days.json"), optional("data/mock/days.json"),
   optional("data/scenarios.json"), optional("data/calibration.json"), optional("data/proof.json"),
+  optional("data/kasprowy_2024_25.json"), // real IMGW-PIB daily synop, tools/real/build_kasprowy.py
 ]);
+// AvaFrame footprints (5 MB) load after the first frame; see loadLibraryCells()
+let cells = null, libHeat = null;
 const DAYS = real ?? mock;
 const index = new Uint8Array(await (await fetch("data/sectors_u8.bin")).arrayBuffer());
 const base = new Image();
@@ -28,12 +33,28 @@ await document.fonts.load('700 16px "Archivo"').catch(() => {});
 
 const W = terrain.width, H = terrain.height;
 const byId = Object.fromEntries(sectors.map((s) => [s.id, s]));
-const ctx = { exposure: DAYS.exposure, base: DAYS.base, scenarios, trails };
+const ctx = { exposure: DAYS.exposure, base: DAYS.base, scenarios, trails, cells: null };
+
+// ---------- real weather: IMGW-PIB Kasprowy Wierch, winter 2024/25 ----------
+const KW = kasprowy?.days?.length ? kasprowy : null;
+const MONTHS_GEN = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
+const pl = (v, d = 0) => Number(v).toLocaleString("pl-PL", { maximumFractionDigits: d, minimumFractionDigits: d });
+const dmy = (iso) => { const [y, m, d] = iso.split("-"); return `${+d}.${m}.${y}`; };
+const longDate = (iso) => { const [y, m, d] = iso.split("-"); return `${+d} ${MONTHS_GEN[m - 1]} ${y}`; };
+/** The real morning behind demo day n: that day's IMGW record plus the 3-day storm totals. */
+function realMorning(n = state.day) {
+  const date = KW?.demo_days?.[n];
+  const i = date ? KW.days.findIndex((d) => d.date === date) : -1;
+  if (i < 0) return null;
+  const w = KW.days.slice(Math.max(0, i - 2), i + 1);
+  return { ...KW.days[i], i, new3: w.reduce((a, d) => a + (d.new_cm ?? 0), 0), blow3: w.reduce((a, d) => a + (d.blowing_h ?? 0), 0) };
+}
 
 // ---------- state ----------
 const state = {
   day: new URLSearchParams(location.search).get("day") === "2" ? 1 : 0, selected: null, budget: 20,
   visited: new Set(), flight: null, // { path, len, t, done }
+  heat: false, // "Widok › Zasięgi z biblioteki AvaFrame"
   fog: new Float32Array(sectors.length + 1), // animated fog per sector index
   dash: 0,
 };
@@ -77,6 +98,7 @@ function resize() {
     ox: (canvas.width - W * scale) / 2, oy: (canvas.height - H * scale) / 2 });
   document.querySelector(".scale").style.setProperty("--bar", `${(500 / terrain.cell_m) * scale / dpr}px`);
   buildHazardLayer();
+  buildHeatLayer();
 }
 
 function maskCanvas(test) {
@@ -90,7 +112,15 @@ function maskCanvas(test) {
   return c;
 }
 
-let hazardLayer = null, idleLayer = null, selectLayer = null, unknownLayer = null;
+function cellMask(list) {
+  const img = new ImageData(W, H), n = W * H;
+  for (const idx of list) if (idx < n) img.data[idx * 4 + 3] = 255;
+  const c = new OffscreenCanvas(W, H);
+  c.getContext("2d").putImageData(img, 0, 0);
+  return c;
+}
+
+let hazardLayer = null, idleLayer = null, selectLayer = null, unknownLayer = null, envUnion = null, envSelected = null, heatLayer = null;
 function scaledLayer(mask, paint) {
   const c = new OffscreenCanvas(view.cw, view.ch);
   const x = c.getContext("2d");
@@ -136,6 +166,53 @@ function buildHazardLayer() {
   selectLayer = state.selected
     ? outlined(maskCanvas((s) => s.id === state.selected), INK, 2.6 * dpr, (x) => { x.fillStyle = "rgba(0,0,0,0)"; x.fillRect(0, 0, 1, 1); })
     : null;
+  // AvaFrame run-out envelopes: faint union for every hazard flag, a strong one for the selected flag
+  const union = new Set();
+  for (const f of R.flags) if (f.kind === "zagrozenie" && f.envelope) for (const c of f.envelope) union.add(c);
+  // outlined() needs an opaque edge colour; the union is made faint with globalAlpha in draw()
+  envUnion = union.size ? outlined(cellMask(union), "#a63b00", 1 * dpr,
+    (x) => { x.fillStyle = "rgba(232, 89, 12, 0.22)"; x.fillRect(0, 0, view.cw, view.ch); }) : null;
+  const sel = R.flagOf[state.selected]?.envelope;
+  envSelected = sel?.length ? outlined(cellMask(sel), "#a63b00", 1.8 * dpr,
+    (x) => { x.fillStyle = "rgba(232, 89, 12, 0.32)"; x.fillRect(0, 0, view.cw, view.ch); }) : null;
+}
+
+// Library heat: how many of the AvaFrame runs reach each cell (one hue, light to dark).
+let heatMax = 0;
+async function loadLibraryCells() {
+  const [c, h] = await Promise.all([binary("data/scenario_cells.bin", Uint32Array), binary("data/library_heat.bin", Uint16Array)]);
+  // footprints only when they belong to this scenarios.json (the library export may be mid-update)
+  const need = scenarios?.runs?.reduce((m, r) => Math.max(m, r.cells_offset + r.cells_count), 0) ?? 0;
+  cells = c && need && c.length === need ? c : null;
+  if (h?.length === W * H) { libHeat = h; heatMax = 0; for (let i = 0; i < h.length; i++) if (h[i] > heatMax) heatMax = h[i]; }
+  ctx.cells = cells;
+  if (cells && !(state.flight && !state.flight.done)) recompute();
+  buildHeatLayer();
+}
+function buildHeatLayer() {
+  if (!state.heat || !heatMax || !view.cw) { heatLayer = null; return; }
+  const img = new ImageData(W, H);
+  for (let i = 0; i < libHeat.length; i++) {
+    const v = libHeat[i];
+    if (!v) continue;
+    const t = Math.sqrt(v / heatMax), o = i * 4;
+    img.data[o] = 250 - 110 * t; img.data[o + 1] = 170 - 140 * t; img.data[o + 2] = 60 - 50 * t; img.data[o + 3] = 255 * (0.22 + 0.58 * t);
+  }
+  const small = new OffscreenCanvas(W, H);
+  small.getContext("2d").putImageData(img, 0, 0);
+  const c = new OffscreenCanvas(view.cw, view.ch);
+  const x = c.getContext("2d");
+  x.imageSmoothingEnabled = true;
+  x.drawImage(small, view.ox, view.oy, W * view.scale, H * view.scale);
+  heatLayer = c;
+}
+function toggleHeat() {
+  state.heat = !state.heat && !!heatMax;
+  buildHeatLayer();
+  document.getElementById("m-heat")?.classList.toggle("checked", state.heat);
+  $("heat-legend").hidden = !state.heat;
+  if (state.heat) $("heat-n").textContent = `Zasięgi biblioteki: 1–${heatMax} z ${scenarios?.count?.toLocaleString("pl-PL") ?? "?"} symulacji`;
+  if (!heatMax) dlg({ title: "Zasięgi z biblioteki AvaFrame", icon: "i-library", html: "<p>Biblioteka zasięgów jeszcze się liczy. Spróbuj za chwilę.</p>" });
 }
 
 function fogLayer() {
@@ -156,7 +233,9 @@ function draw() {
   g.imageSmoothingEnabled = true;
   g.drawImage(base, view.ox, view.oy, W * view.scale, H * view.scale);
   if (idleLayer) g.drawImage(idleLayer, 0, 0);
+  if (heatLayer) g.drawImage(heatLayer, 0, 0);
   if (hazardLayer) g.drawImage(hazardLayer, 0, 0);
+  if (envUnion) { g.globalAlpha = 0.5; g.drawImage(envUnion, 0, 0); g.globalAlpha = 1; }
 
   // fog of not knowing: soft white haze, violet edge
   const fog = fogLayer();
@@ -168,6 +247,7 @@ function draw() {
   g.filter = "none";
   g.restore();
   if (unknownLayer) g.drawImage(unknownLayer, 0, 0);
+  if (envSelected) g.drawImage(envSelected, 0, 0);
 
   // trails
   for (const t of trails) for (const part of t.paths) {
@@ -323,14 +403,16 @@ function renderSituation() {
   else text = hz(true);
   $("summary").innerHTML = text;
   const [day, hour] = d.label.split(", ");
-  $("stamp").textContent = `stan na ${hour} · ${day.toLowerCase()}`;
+  const rm = realMorning();
+  $("stamp").textContent = rm ? `stan na ${hour} · ${longDate(rm.date)}` : `stan na ${hour} · ${day.toLowerCase()}`;
+  $("stamp").title = rm ? "Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny." : "";
   const exposed = Object.keys(R.day.sectors).length;
   const since = state.flight?.done ? "0 h" : `${d.weather.hours_since_flight} h`;
   $("kpis").innerHTML = [
     [exposed, "sektorów nad szlakami", ""],
     [nz, "może zagrozić", "hazard"],
     [nw, "nie wiem", "unknown"],
-    [since, `od przelotu · ${d.weather.new_cm} cm śniegu`, ""],
+    [since, rm ? `od przelotu · +${pl(rm.new_cm)} cm śniegu w dobę (IMGW)` : `od przelotu · ${d.weather.new_cm} cm śniegu`, ""],
   ].map(([v, l, c]) => `<div class="kpi ${c}"><b>${v}</b><span>${l}</span></div>`).join("");
   renderSources();
 }
@@ -344,10 +426,18 @@ function flightStatus() {
 
 function renderSources() {
   const [st, text] = flightStatus();
-  $("sources").innerHTML = `
-    <div><svg aria-hidden="true"><use href="#i-drone"/></svg><dl><dt>Przelot drona</dt><dd class="${st === "ok" ? "" : "warn"}">${text}</dd></dl></div>
-    <div><svg aria-hidden="true"><use href="#i-network"/></svg><dl><dt>Stacja IMGW Kasprowy Wierch</dt><dd id="live">łączę…</dd></dl></div>
-    <div><svg aria-hidden="true"><use href="#i-library"/></svg><dl><dt>Biblioteka scenariuszy</dt><dd>${scenarios?.count ? scenarios.count.toLocaleString("pl-PL") : "w budowie"}</dd></dl></div>`;
+  const REAL = `<b class="tag real">prawdziwe</b>`, SYN = `<b class="tag syn">syntetyczne</b>`;
+  const lib = scenarios?.count ? `${scenarios.count.toLocaleString("pl-PL")} symulacji com1DFA` : "w budowie";
+  const src = (icon, dt, tag, dd) => `<div><svg aria-hidden="true"><use href="#${icon}"/></svg><dl><dt>${dt} ${tag}</dt><dd>${dd}</dd></dl></div>`;
+  $("sources").innerHTML = [
+    src("i-mountain", "Teren GUGiK NMT", REAL, `siatka ${terrain.cell_m} m, nachylenia i strefy`),
+    src("i-desktop", "Ortofoto GUGiK", REAL, "tekstura renderów 3D"),
+    src("i-trail", "Szlaki OSM", REAL, `${trails.length} ${plural(trails.length, "odcinek", "odcinki", "odcinków")} w kolorach szlaków`),
+    src("i-network", "IMGW Kasprowy", KW ? REAL : "",
+      `${KW ? `<button class="link" data-open="w-imgw" title="Otwórz wykres zimy 2024/25">archiwum 2024/25</button> · teraz ` : ""}<span id="live">łączę…</span>`),
+    src("i-library", "Biblioteka AvaFrame", scenarios?.count ? `<b class="tag real">policzona</b>` : "", `${lib}${scenarios?.count ? " · DGX Spark" : ""}`),
+    src("i-drone", "Płyta, przeloty", SYN, `<span class="${st === "ok" ? "" : "warn"}">przelot ${text}</span>`),
+  ].join("");
   xp.setTray("drone", { state: st, title: `Przelot drona: ${text}` });
   paintLive();
 }
@@ -412,7 +502,11 @@ function renderPlan() {
 function factParts() {
   const parts = [`<strong>${sectors.length}</strong> stref startowych wyznaczonych z terenu GUGiK NMT (nachylenie 28–55°, powyżej 1600 m).`];
   if (scenarios?.count) parts.push(`<strong>${scenarios.count.toLocaleString("pl-PL")}</strong> scenariuszy lawin policzonych z góry.`);
-  if (calibration) parts.push(`Prosty model skalibrowany do AvaFrame: błąd zasięgu ±${calibration.runout_error_m} m.`);
+  if (calibration?.runout_error_m != null) parts.push(`Prosty model skalibrowany do AvaFrame: błąd zasięgu ±${calibration.runout_error_m} m.`);
+  if (cells) parts.push("Na mapie: zasięgi tych symulacji, które z danego sektora dochodzą do szlaku.");
+  const rm = realMorning();
+  const top = KW?.episodes?.length ? KW.episodes.reduce((a, e) => (e.new_cm_3d > a.new_cm_3d ? e : a)) : null;
+  if (rm && top) parts.push(`Pogoda: prawdziwy poranek ${dmy(rm.date)} z IMGW Kasprowy Wierch, w środku śnieżycy ${top.label.split(": ")[0]} (+${top.new_cm_3d} cm w 3 dni, zamieć ${pl(top.blowing_h_3d)} h). Grubość płyty i przeloty drona: scenariusz syntetyczny.`);
   if (!real) parts.push("Silnik tymczasowy, dane udawane.");
   return parts;
 }
@@ -429,7 +523,7 @@ function select(id, { toggle = true, explain = true } = {}) {
 function explainFlag(f) {
   const s = byId[f.sector], st = R.day.sectors[f.sector];
   const unknown = f.kind === "nie_wiem";
-  const analogs = f.analogs ? `<p>${f.analogs_hitting} z ${f.analogs} podobnych scenariuszy dochodzi do szlaku.</p>` : "";
+  const analogs = f.analogs ? `<p>${f.analogs_hitting} z ${f.analogs} podobnych scenariuszy dochodzi do szlaku.${f.envelope?.length ? " Ich zasięg jest zaznaczony na mapie na pomarańczowo." : ""}</p>` : "";
   const inPlan = R.plan.route.includes(f.sector);
   xp.msgbox({
     id: "flag-dialog", title: `${f.n}. ${s.name}`, icon: unknown ? "i-question" : "i-warn",
@@ -451,6 +545,7 @@ function setDay(n) {
   document.getElementById("flag-dialog")?.remove();
   state.day = n; state.selected = null; state.visited.clear(); state.flight = null;
   recompute();
+  drawChart();
   try { history.replaceState(null, "", n === 1 ? "?day=2" : location.pathname); } catch {}
   announceDay();
 }
@@ -460,7 +555,14 @@ function announceDay() {
   const d = DAYS.days[state.day];
   const { nw } = counts();
   if (d.flight.flown) xp.balloon({ title: "Przelot wykonany o 6:00", text: `${d.label.replace(", ", ", stan na ")}. ${hazardSentence(true)}`, icon: "i-drone" });
-  else xp.balloon({ title: "Przelot odwołany: śnieżyca", text: `Ostatni przelot ${d.weather.hours_since_flight} h temu, od tego czasu ${d.weather.new_cm} cm śniegu.`, icon: "i-badge-warn" });
+  else {
+    const rm = realMorning();
+    xp.balloon({
+      title: "Przelot odwołany: śnieżyca", icon: "i-badge-warn",
+      text: rm ? `Ostatni przelot ${d.weather.hours_since_flight} h temu. Kasprowy Wierch (IMGW), ${dmy(rm.date)}: +${pl(rm.new_cm)} cm śniegu w dobę, ${pl(rm.new3)} cm w 3 dni, zamieć ${pl(rm.blowing_h)} h.`
+        : `Ostatni przelot ${d.weather.hours_since_flight} h temu, od tego czasu ${d.weather.new_cm} cm śniegu.`,
+    });
+  }
   if (nw) xp.balloon({ title: `${nw} ${plural(nw, "sektor", "sektory", "sektorów")}: Nie wiem`, text: "Mgła niewiedzy na mapie. Plan przelotu wskazuje, gdzie polecieć, żeby się dowiedzieć.", icon: "i-question" });
 }
 
@@ -606,13 +708,15 @@ xp.registerActions({
   fly: startFlight,
   layout: () => xp.layout(true),
   "max-map": () => xp.toggleMax("w-map"),
+  "lib-heat": toggleHeat,
+  "library-page": () => window.open("biblioteka.html", "_blank", "noopener"),
   "show-desktop": () => xp.showDesktop(),
   logoff: () => xp.logoff(),
   about: () => dlg({
     title: "O projekcie Avalauncher", icon: "i-logo",
     html: `<h3>Avalauncher</h3><p>Cyfrowy bliźniak góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć.</p>
       <p>Drony mierzą śnieg nad szlakami, a każdy pomiar porównujemy z policzonymi z góry scenariuszami lawin. Gdy wiedza się starzeje, bo dron nie mógł polecieć, ekran mówi to wprost i planuje przelot.</p>
-      <p><b>Brak flagi nie oznacza, że jest bezpiecznie. Decyzję podejmuje prognosta.</b><br>Śnieg, przeloty i pogoda w scenariuszu to dane syntetyczne.<br>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap</p>
+      <p><b>Brak flagi nie oznacza, że jest bezpiecznie. Decyzję podejmuje prognosta.</b><br>Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny.<br>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Źródło: IMGW-PIB</p>
       <p>HackYeah 2026 · Defence</p>`,
   }),
   zones: () => dlg({
@@ -635,6 +739,170 @@ xp.registerActions({
   "tray-net": () => xp.balloon({ title: "Stacja IMGW Kasprowy Wierch", text: liveText() + (liveState?.ok ? " (na żywo, poza scenariuszem demo)" : ""), icon: "i-network", anchor: "#tray-net" }),
 });
 
+// ---------- window "Kasprowy Wierch — zima 2024/25 (IMGW)" ----------
+const chartCanvas = $("imgw-chart");
+const cg = chartCanvas.getContext("2d");
+const CH = { hs: "#1d4fa8", hsFill: "rgba(29, 79, 168, 0.13)", nw: "#3a86dc", storm: "rgba(232, 89, 12, 0.13)", now: ROUTE, grid: "#e4e1d3", axis: "#8a8678", text: "#4a4438" };
+const MONTHS_SHORT = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
+const FONT = "Tahoma, 'Segoe UI', sans-serif";
+let chartGeom = null;
+
+function drawChart() {
+  renderChartStatus();
+  const wrap = chartCanvas.parentElement.getBoundingClientRect();
+  if (!KW || wrap.width < 40 || wrap.height < 40) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  chartCanvas.width = Math.round(wrap.width * dpr); chartCanvas.height = Math.round(wrap.height * dpr);
+  const days = KW.days, n = days.length;
+  const cw = wrap.width, ch = wrap.height;
+  const L = 44, Rm = 12, T = 30, B = 22;
+  const pw = cw - L - Rm, ph = ch - T - B;
+  const hsH = Math.round(ph * 0.58), stripY = T + hsH + 8, stripH = 10, nwY = stripY + stripH + 10, nwH = T + ph - nwY;
+  let hsTop = 0, nwTop = 0;
+  for (const d of days) { hsTop = Math.max(hsTop, d.hs_cm ?? 0); nwTop = Math.max(nwTop, d.new_cm ?? 0); }
+  const hsMax = Math.max(60, Math.ceil(hsTop / 20) * 20 + 10);
+  const nwMax = Math.max(10, Math.ceil(nwTop / 10) * 10);
+  const xOf = (i) => L + ((i + 0.5) / n) * pw, bw = pw / n;
+  const yHs = (v) => T + hsH - (v / hsMax) * hsH;
+  const yNw = (v) => nwY + nwH - (v / nwMax) * nwH;
+  chartGeom = { L, pw, n, T, ph };
+
+  const c = cg;
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.fillStyle = "#fff"; c.fillRect(0, 0, cw, ch);
+  c.font = `11px ${FONT}`; c.textBaseline = "middle";
+
+  // storm episodes: pale bands across all panels, labelled at the top
+  const idx = Object.fromEntries(days.map((d, i) => [d.date, i]));
+  for (const e of KW.episodes ?? []) {
+    const a = idx[e.start], b = idx[e.end];
+    if (a == null || b == null) continue;
+    const x0 = L + (a / n) * pw, x1 = L + ((b + 1) / n) * pw;
+    c.fillStyle = CH.storm; c.fillRect(x0, T - 4, x1 - x0, ph + 4);
+    c.fillStyle = "#a63b00"; c.fillRect(x0, T - 4, x1 - x0, 2);
+    c.fillStyle = CH.text; c.font = `bold 11px ${FONT}`; c.textAlign = "center";
+    c.fillText(`+${e.new_cm_3d} cm / 3 dni`, (x0 + x1) / 2, T - 14);
+  }
+  c.font = `11px ${FONT}`;
+
+  // recessive grid + y labels
+  c.strokeStyle = CH.grid; c.lineWidth = 1; c.textAlign = "right"; c.fillStyle = CH.text;
+  for (let v = 0; v <= hsMax; v += hsMax > 100 ? 40 : 20) {
+    const y = Math.round(yHs(v)) + 0.5;
+    c.beginPath(); c.moveTo(L, y); c.lineTo(L + pw, y); c.stroke();
+    c.fillText(`${v}`, L - 6, y);
+  }
+  for (let v = 0; v <= nwMax; v += 10) {
+    const y = Math.round(yNw(v)) + 0.5;
+    c.beginPath(); c.moveTo(L, y); c.lineTo(L + pw, y); c.stroke();
+    c.fillText(`${v}`, L - 6, y);
+  }
+  // months
+  c.textAlign = "left";
+  days.forEach((d, i) => {
+    if (!d.date.endsWith("-01")) return;
+    const x = Math.round(L + (i / n) * pw) + 0.5;
+    c.strokeStyle = CH.grid; c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke();
+    c.fillStyle = CH.text;
+    const m = +d.date.slice(5, 7);
+    c.fillText(m === 1 ? "sty 2025" : MONTHS_SHORT[m - 1], x + 4, T + ph + 11);
+  });
+
+  // panel titles in text ink; the swatch legend above carries identity
+  c.fillStyle = "#1d1b17"; c.font = `bold 11px ${FONT}`; c.textAlign = "left";
+  c.fillText("Pokrywa śnieżna [cm]", L + 6, T + 9);
+  c.fillText("Przyrost w dobę [cm]", L + 6, nwY + 7);
+  c.font = `10px ${FONT}`; c.fillStyle = CH.text; c.textAlign = "right";
+  c.fillText("zamieć", L - 6, stripY + stripH / 2);
+
+  // snow depth: area + 2px line, broken on gaps
+  const runs = [];
+  let cur = [];
+  days.forEach((d, i) => { if (d.hs_cm == null) { if (cur.length) runs.push(cur); cur = []; } else cur.push([xOf(i), yHs(d.hs_cm)]); });
+  if (cur.length) runs.push(cur);
+  for (const r of runs) {
+    c.beginPath(); c.moveTo(r[0][0], yHs(0));
+    for (const [x, y] of r) c.lineTo(x, y);
+    c.lineTo(r.at(-1)[0], yHs(0)); c.closePath();
+    c.fillStyle = CH.hsFill; c.fill();
+    c.beginPath(); r.forEach(([x, y], k) => (k ? c.lineTo(x, y) : c.moveTo(x, y)));
+    c.strokeStyle = CH.hs; c.lineWidth = 2; c.lineJoin = "round"; c.stroke();
+  }
+
+  // blowing-snow strip: one cell per day, darker = more hours (24 h max)
+  days.forEach((d, i) => {
+    const h = d.blowing_h ?? 0;
+    if (h <= 0) return;
+    c.fillStyle = `rgba(74, 68, 56, ${0.15 + 0.85 * Math.min(1, h / 24)})`;
+    c.fillRect(L + (i / n) * pw, stripY, Math.max(1, bw - 0.5), stripH);
+  });
+  c.strokeStyle = "#d5d2bf"; c.lineWidth = 1; c.strokeRect(L + 0.5, stripY - 0.5, pw - 1, stripH + 1);
+
+  // new-snow bars from the baseline, rounded data end
+  c.fillStyle = CH.nw;
+  days.forEach((d, i) => {
+    const v = d.new_cm ?? 0;
+    if (v <= 0) return;
+    const x = L + (i / n) * pw + 0.25, w = Math.max(1, bw - 0.5), y = yNw(v), h = yNw(0) - y, rr = Math.min(1.5, w / 2);
+    c.beginPath();
+    if (c.roundRect) c.roundRect(x, y, w, h, [rr, rr, 0, 0]); else c.rect(x, y, w, h);
+    c.fill();
+  });
+  c.strokeStyle = CH.axis; c.lineWidth = 1;
+  for (const y0 of [yHs(0), yNw(0)]) { c.beginPath(); c.moveTo(L, Math.round(y0) + 0.5); c.lineTo(L + pw, Math.round(y0) + 0.5); c.stroke(); }
+
+  // demo mornings: the other one faint, the current one strong with a label pill
+  (KW.demo_days ?? []).forEach((date, k) => {
+    const i = idx[date];
+    if (i == null) return;
+    const x = Math.round(xOf(i)) + 0.5, on = k === state.day;
+    c.save();
+    c.strokeStyle = on ? CH.now : "rgba(214, 0, 126, 0.4)"; c.lineWidth = on ? 2 : 1; c.setLineDash(on ? [5, 3] : [2, 3]);
+    c.beginPath(); c.moveTo(x, T - 2); c.lineTo(x, T + ph); c.stroke();
+    c.restore();
+    if (!on) return;
+    const d = days[i], y = yHs(d.hs_cm ?? 0);
+    c.fillStyle = CH.now; c.beginPath(); c.arc(x, y, 4.5, 0, 7); c.fill();
+    c.strokeStyle = "#fff"; c.lineWidth = 2; c.stroke();
+    const text = `Dzień ${k + 1} · ${dmy(date)}, 7:00 · ${d.hs_cm} cm`;
+    c.font = `bold 11px ${FONT}`;
+    const tw = c.measureText(text).width + 12;
+    const px0 = Math.max(L + 2, Math.min(L + pw - tw - 2, x + 8)), py = Math.max(T + 18, y - 30);
+    c.fillStyle = CH.now; c.beginPath();
+    if (c.roundRect) c.roundRect(px0, py, tw, 18, 3); else c.rect(px0, py, tw, 18);
+    c.fill();
+    c.fillStyle = "#fff"; c.textAlign = "left"; c.fillText(text, px0 + 6, py + 9.5);
+  });
+}
+
+function renderChartStatus() {
+  const rm = realMorning();
+  if (!rm) { $("imgw-status").textContent = KW ? "" : "Brak danych archiwalnych IMGW."; return; }
+  $("imgw-status").textContent = `Dzień ${state.day + 1} = ${dmy(rm.date)}, 7:00: pokrywa ${rm.hs_cm} cm · +${pl(rm.new_cm)} cm w dobę · +${pl(rm.new3)} cm w 3 dni · zamieć ${pl(rm.blowing_h)} h · Tmin ${pl(rm.tmin_c, 1)} °C`;
+}
+
+chartCanvas.addEventListener("mousemove", (ev) => {
+  const tip = $("chart-tip");
+  if (!chartGeom || !KW) return;
+  const r = chartCanvas.getBoundingClientRect();
+  const x = ev.clientX - r.left, y = ev.clientY - r.top;
+  const i = Math.floor(((x - chartGeom.L) / chartGeom.pw) * chartGeom.n);
+  const d = KW.days[i];
+  if (!d || y < chartGeom.T - 22 || y > chartGeom.T + chartGeom.ph) { tip.hidden = true; return; }
+  const ep = (KW.episodes ?? []).find((e) => d.date >= e.start && d.date <= e.end);
+  const type = d.precip_type === "S" ? " (śnieg)" : d.precip_type === "W" ? " (deszcz)" : "";
+  tip.hidden = false;
+  tip.innerHTML = `<b>${longDate(d.date)}</b><br>pokrywa ${d.hs_cm ?? "brak pomiaru"} cm · przyrost ${d.new_cm == null ? "brak" : `+${pl(d.new_cm)} cm`}<br>`
+    + `opad ${pl(d.precip_mm ?? 0, 1)} mm${type} · śnieg pada ${pl(d.snowfall_h ?? 0, 1)} h<br>`
+    + `zamieć ${pl(d.blowing_h ?? 0, 1)} h · wiatr ≥10 m/s ${pl(d.wind10_h ?? 0, 1)} h · T ${pl(d.tmin_c, 1)}…${pl(d.tmax_c, 1)} °C`
+    + (ep ? `<br><b>Epizod: ${ep.label}</b>` : "");
+  const wr = chartCanvas.parentElement.getBoundingClientRect();
+  tip.style.left = `${Math.max(4, Math.min(x + 14, wr.width - tip.offsetWidth - 4))}px`;
+  tip.style.top = `${Math.max(4, Math.min(y + 16, wr.height - tip.offsetHeight - 4))}px`;
+});
+chartCanvas.addEventListener("mouseleave", () => { $("chart-tip").hidden = true; });
+new ResizeObserver(() => drawChart()).observe(chartCanvas.parentElement);
+
 // ---------- loop ----------
 let last = performance.now();
 function frame(now) {
@@ -656,3 +924,4 @@ setInterval(live, 10 * 60 * 1000);
 requestAnimationFrame(frame);
 announceDay();
 xp.ready();
+loadLibraryCells();

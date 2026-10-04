@@ -55,7 +55,7 @@ class Scene:
         r0, c0, side = box
         self.box, self.up = box, up
         sub = z[r0:r0 + side, c0:c0 + side]
-        self.z = ndimage.zoom(sub, up, order=1)
+        self.z = ndimage.zoom(sub, up, order=1, mode="nearest")
         nodata = ndimage.zoom((sub <= z.min() + 0.01).astype(np.float32), up, order=0) > 0.5
         self.z = np.where(nodata, np.nan, self.z)  # no NMT data (Slovak side): leave a hole, not a flat wall
         tex_file = assets / "winter.png" if (assets / "winter.png").exists() else assets / "map.png"

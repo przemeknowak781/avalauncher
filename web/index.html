@@ -188,6 +188,16 @@
       <path d="M8 5.5 V10" stroke="#1d1b17" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="12.4" r="1" fill="#1d1b17"/>
     </symbol>
 
+    <symbol id="i-chart" viewBox="0 0 32 32">
+      <rect x="2.5" y="3.5" width="27" height="25" rx="2" fill="#fff" stroke="#3d5f9a" stroke-width="1"/>
+      <rect x="3" y="4" width="26" height="4.5" fill="url(#g-screen)"/>
+      <path d="M3 8.5 h26" stroke="#3d5f9a"/>
+      <rect x="12" y="11" width="6" height="15.5" fill="#e8590c" opacity=".18"/>
+      <path d="M5 24 L9 21 L12 22 L15 15 L18 13 L21 17 L24 18 L27 20" fill="none" stroke="#1d4fa8" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M6 26.5 v-1.5 M9 26.5 v-1 M14 26.5 v-3 M16 26.5 v-4 M20 26.5 v-1.5 M25 26.5 v-1" stroke="#3a86dc" stroke-width="1.6"/>
+      <path d="M24.5 11.5 v4 M22.8 12.5 l3.4 2 M22.8 14.5 l3.4 -2" stroke="#5a86c8" stroke-width=".9" stroke-linecap="round"/>
+    </symbol>
+
     <symbol id="i-min" viewBox="0 0 12 12"><rect x="2" y="8" width="6" height="2.2" fill="#fff"/></symbol>
     <symbol id="i-max" viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="2" y="2" width="8" height="2.4" fill="#fff"/></symbol>
     <symbol id="i-restore" viewBox="0 0 12 12"><rect x="4" y="1.5" width="6.5" height="6" fill="none" stroke="#fff" stroke-width="1.2"/><rect x="1.5" y="4.5" width="6.5" height="6" fill="#2562d6" stroke="#fff" stroke-width="1.2"/><rect x="1.5" y="4.5" width="6.5" height="1.8" fill="#fff"/></symbol>
@@ -248,8 +258,8 @@
 
       <div class="watermark" aria-label="Zastrzeżenia">
         <strong>Brak flagi nie oznacza, że jest bezpiecznie. Decyzję podejmuje prognosta.</strong>
-        <span>Śnieg, przeloty i pogoda w scenariuszu to dane syntetyczne.</span>
-        <span>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap</span>
+        <span>Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny.</span>
+        <span>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Źródło: IMGW-PIB</span>
       </div>
 
       <!-- Mapa -->
@@ -269,6 +279,9 @@
           </div>
           <div class="menu"><button class="menu-head">Widok</button>
             <div class="menu-pop">
+              <button data-action="lib-heat" class="toggle" id="m-heat">Zasięgi z biblioteki AvaFrame</button>
+              <button data-open="w-imgw">Pogoda: Kasprowy Wierch, zima 2024/25…</button>
+              <hr>
               <button data-action="max-map">Mapa na cały ekran</button>
               <button data-action="show-desktop">Pokaż pulpit</button>
             </div>
@@ -298,13 +311,15 @@
             <span><i class="sw hatch"></i>Może zagrozić szlakowi</span>
             <span><i class="sw fog"></i>Nie wiem</span>
             <span><i class="sw idle"></i>Strefa startowa</span>
+            <span><i class="sw env"></i>Zasięg lawiny (AvaFrame)</span>
             <span><i class="sw route"></i>Plan przelotu</span>
+            <span id="heat-legend" hidden><i class="sw heat"></i><b id="heat-n"></b></span>
           </div>
         </div>
         <div class="status-bar">
           <p class="status-field scale"><i class="bar"></i>500 m</p>
-          <p class="status-field grow">Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap</p>
-          <p class="status-field">Dane syntetyczne</p>
+          <p class="status-field grow">Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Pogoda: IMGW-PIB</p>
+          <p class="status-field" title="Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny.">Płyta i przeloty: syntetyczne</p>
         </div>
       </section>
 
@@ -384,6 +399,35 @@
           </div>
         </div>
       </section>
+
+      <!-- Kasprowy Wierch, zima 2024/25: prawdziwe dane IMGW-PIB -->
+      <section class="window" id="w-imgw" data-title="Kasprowy Wierch — zima 2024/25 (IMGW)" data-icon="i-chart" data-start="min">
+        <div class="title-bar">
+          <svg class="title-icon"><use href="#i-chart"/></svg>
+          <span class="title-text">Kasprowy Wierch — zima 2024/25 (IMGW)</span>
+          <div class="title-controls"><button class="tb-min" aria-label="Minimalizuj"></button><button class="tb-max" aria-label="Maksymalizuj"></button><button class="tb-close" aria-label="Zamknij"></button></div>
+        </div>
+        <div class="window-body imgw-body">
+          <div class="imgw-head">
+            <div class="imgw-legend" aria-label="Legenda wykresu">
+              <span><i class="sw hs"></i>Pokrywa śnieżna</span>
+              <span><i class="sw new"></i>Przyrost w dobę</span>
+              <span><i class="sw blow"></i>Zamieć śnieżna (godz.)</span>
+              <span><i class="sw storm"></i>Epizod burzowy</span>
+              <span><i class="sw now"></i>Poranek demo</span>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="imgw-chart" role="img" aria-label="Wykres: pokrywa śnieżna, przyrost i zamieć na Kasprowym Wierchu, październik 2024 – maj 2025"></canvas>
+            <div id="chart-tip" class="tooltip" hidden></div>
+          </div>
+          <p class="imgw-caption">Prawdziwe dane: IMGW-PIB, stacja Kasprowy Wierch. Grubość płyty na stokach i przeloty drona: scenariusz syntetyczny.</p>
+        </div>
+        <div class="status-bar">
+          <p class="status-field grow" id="imgw-status"></p>
+          <p class="status-field">Źródło: IMGW-PIB · stacja 349190650, 1987 m</p>
+        </div>
+      </section>
     </main>
 
     <!-- ===================== taskbar ===================== -->
@@ -419,13 +463,14 @@
         <div class="sm-right">
           <button data-action="zones" class="sm-item"><svg><use href="#i-sectors"/></svg><b>Moje strefy startowe</b></button>
           <button data-action="trails" class="sm-item"><svg><use href="#i-trail"/></svg><b>Szlaki</b></button>
-          <button data-action="library" class="sm-item"><svg><use href="#i-library"/></svg><b>Biblioteka scenariuszy</b></button>
+          <button data-action="library-page" class="sm-item" title="Otwiera biblioteka.html w nowej karcie"><svg><use href="#i-library"/></svg><b>Biblioteka scenariuszy</b></button>
           <hr>
           <button data-open="w-map" class="sm-item"><svg><use href="#i-plan"/></svg>Mapa</button>
           <button data-open="w-sit" class="sm-item"><svg><use href="#i-report"/></svg>Sytuacja</button>
           <button data-open="w-sec" class="sm-item"><svg><use href="#i-list"/></svg>Sektory do uwagi</button>
           <button data-open="w-plan" class="sm-item"><svg><use href="#i-folder"/></svg>Plan przelotu</button>
           <hr>
+          <button data-open="w-imgw" class="sm-item"><svg><use href="#i-chart"/></svg>Kasprowy Wierch, zima 2024/25</button>
           <button data-action="tray-net" class="sm-item"><svg><use href="#i-network"/></svg>Stacja IMGW Kasprowy Wierch</button>
         </div>
       </div>

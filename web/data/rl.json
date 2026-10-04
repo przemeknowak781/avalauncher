@@ -1,0 +1,744 @@
+{
+ "algo": "REINFORCE, baza = średnia z K=16 lotów tego samego poranka (POMO); polityka: MLP na cechach sektora + kontekst zbioru, maskowanie akcji",
+ "env_episodes_trained": 10428416,
+ "train_minutes": 6.0,
+ "gpu": "NVIDIA GB10",
+ "eval_mornings": 1000,
+ "train_mornings": 5500,
+ "budget_min": 20,
+ "sectors": 48,
+ "metrics": {
+  "rl": {
+   "uncertainty_drop_pct": 19.88,
+   "unknowns_resolved": 3915,
+   "threats_caught": 1936,
+   "reward": 27.2898,
+   "sectors_per_flight": 6.47
+  },
+  "greedy_voi": {
+   "uncertainty_drop_pct": 20.17,
+   "unknowns_resolved": 3987,
+   "threats_caught": 1810,
+   "reward": 27.4643,
+   "sectors_per_flight": 6.65
+  },
+  "fixed_route": {
+   "uncertainty_drop_pct": 5.44,
+   "unknowns_resolved": 2895,
+   "threats_caught": 1189,
+   "reward": 7.4348,
+   "sectors_per_flight": 7.0
+  }
+ },
+ "unknowns_before": 33059,
+ "threats_catchable": 7924,
+ "rl_vs_voi_pct": -1.4,
+ "verdict": "RL dorównuje planowi VOI (-1.4% spadku niepewności, +7% wykrytych zagrożeń); zgodnie z docs/07 zostajemy przy prostszym planerze.",
+ "definitions": {
+  "uncertainty_drop_pct": "spadek niepewności decyzji silnika (engine.uncertainty) po locie, % sumy przed lotem",
+  "unknowns_resolved": "stoki „nie wiem” przed lotem, które po pomiarze mają odpowiedź",
+  "threats_caught": "stoki naprawdę groźne (ukryta prawda), które lot zamienił w „zagrożenie”",
+  "reward": "nagroda RL na lot: spadek niepewności × waga szlaku + 0,5 × waga za wykryte zagrożenie",
+  "greedy_voi": "engine.planFlight (wartość informacji, zachłannie), ta sama ocena",
+  "fixed_route": "stały patrol z tools/proof.mjs: korytarz Murowaniec – Czarny Staw – Zawrat, potem najbliższe stoki"
+ },
+ "day2": {
+  "rl": [
+   "S49",
+   "S31",
+   "S55",
+   "S69",
+   "S64",
+   "S51"
+  ],
+  "greedy_voi": [
+   "S14",
+   "S69",
+   "S55",
+   "S31",
+   "S50",
+   "S49",
+   "S22"
+  ],
+  "fixed_route": [
+   "S51",
+   "S14",
+   "S10",
+   "S64",
+   "S55",
+   "S69",
+   "S35"
+  ],
+  "minutes": {
+   "rl": 18.0,
+   "greedy_voi": 19.9,
+   "fixed_route": 18.7
+  },
+  "metrics": {
+   "rl": {
+    "uncertainty_drop_pct": 83.16,
+    "unknowns_resolved": 4,
+    "threats_caught": 2,
+    "reward": 23.6366,
+    "sectors_per_flight": 6.0
+   },
+   "greedy_voi": {
+    "uncertainty_drop_pct": 83.39,
+    "unknowns_resolved": 4,
+    "threats_caught": 2,
+    "reward": 23.6963,
+    "sectors_per_flight": 7.0
+   },
+   "fixed_route": {
+    "uncertainty_drop_pct": 24.05,
+    "unknowns_resolved": 2,
+    "threats_caught": 1,
+    "reward": 6.7578,
+    "sectors_per_flight": 7.0
+   }
+  }
+ },
+ "curve": [
+  {
+   "episodes": 8192,
+   "train": 6.146,
+   "test": 4.6434
+  },
+  {
+   "episodes": 90112,
+   "train": 7.5015,
+   "test": 22.8575
+  },
+  {
+   "episodes": 172032,
+   "train": 9.4557,
+   "test": 23.5768
+  },
+  {
+   "episodes": 253952,
+   "train": 11.3777,
+   "test": 23.868
+  },
+  {
+   "episodes": 335872,
+   "train": 13.5416,
+   "test": 24.2133
+  },
+  {
+   "episodes": 417792,
+   "train": 16.8075,
+   "test": 24.5747
+  },
+  {
+   "episodes": 499712,
+   "train": 19.3477,
+   "test": 24.9003
+  },
+  {
+   "episodes": 581632,
+   "train": 22.2598,
+   "test": 25.1153
+  },
+  {
+   "episodes": 663552,
+   "train": 22.399,
+   "test": 25.5254
+  },
+  {
+   "episodes": 745472,
+   "train": 23.6026,
+   "test": 25.9839
+  },
+  {
+   "episodes": 827392,
+   "train": 23.9668,
+   "test": 26.1724
+  },
+  {
+   "episodes": 909312,
+   "train": 25.027,
+   "test": 26.3375
+  },
+  {
+   "episodes": 991232,
+   "train": 25.2493,
+   "test": 26.4085
+  },
+  {
+   "episodes": 1073152,
+   "train": 24.619,
+   "test": 26.4857
+  },
+  {
+   "episodes": 1155072,
+   "train": 26.304,
+   "test": 26.5582
+  },
+  {
+   "episodes": 1236992,
+   "train": 26.7174,
+   "test": 26.5346
+  },
+  {
+   "episodes": 1318912,
+   "train": 25.391,
+   "test": 26.5633
+  },
+  {
+   "episodes": 1400832,
+   "train": 25.6421,
+   "test": 26.6348
+  },
+  {
+   "episodes": 1482752,
+   "train": 26.1507,
+   "test": 26.6478
+  },
+  {
+   "episodes": 1564672,
+   "train": 25.8552,
+   "test": 26.6847
+  },
+  {
+   "episodes": 1646592,
+   "train": 26.5675,
+   "test": 26.6555
+  },
+  {
+   "episodes": 1728512,
+   "train": 26.0306,
+   "test": 26.6501
+  },
+  {
+   "episodes": 1810432,
+   "train": 26.4485,
+   "test": 26.6204
+  },
+  {
+   "episodes": 1892352,
+   "train": 25.7483,
+   "test": 26.6349
+  },
+  {
+   "episodes": 1974272,
+   "train": 25.5854,
+   "test": 26.6581
+  },
+  {
+   "episodes": 2056192,
+   "train": 26.6383,
+   "test": 26.6624
+  },
+  {
+   "episodes": 2138112,
+   "train": 26.3364,
+   "test": 26.6708
+  },
+  {
+   "episodes": 2220032,
+   "train": 24.9321,
+   "test": 26.6976
+  },
+  {
+   "episodes": 2301952,
+   "train": 26.7127,
+   "test": 26.7019
+  },
+  {
+   "episodes": 2383872,
+   "train": 25.855,
+   "test": 26.7321
+  },
+  {
+   "episodes": 2465792,
+   "train": 26.92,
+   "test": 26.7607
+  },
+  {
+   "episodes": 2547712,
+   "train": 26.2942,
+   "test": 26.7531
+  },
+  {
+   "episodes": 2629632,
+   "train": 27.2413,
+   "test": 26.7952
+  },
+  {
+   "episodes": 2711552,
+   "train": 25.9776,
+   "test": 26.8068
+  },
+  {
+   "episodes": 2793472,
+   "train": 26.4002,
+   "test": 26.8055
+  },
+  {
+   "episodes": 2875392,
+   "train": 25.7173,
+   "test": 26.8183
+  },
+  {
+   "episodes": 2957312,
+   "train": 26.6837,
+   "test": 26.8042
+  },
+  {
+   "episodes": 3039232,
+   "train": 26.7239,
+   "test": 26.7968
+  },
+  {
+   "episodes": 3121152,
+   "train": 27.3413,
+   "test": 26.8329
+  },
+  {
+   "episodes": 3203072,
+   "train": 26.5403,
+   "test": 26.8308
+  },
+  {
+   "episodes": 3284992,
+   "train": 26.7813,
+   "test": 26.8307
+  },
+  {
+   "episodes": 3366912,
+   "train": 25.9512,
+   "test": 26.8263
+  },
+  {
+   "episodes": 3448832,
+   "train": 27.3965,
+   "test": 26.8368
+  },
+  {
+   "episodes": 3530752,
+   "train": 26.1218,
+   "test": 26.8455
+  },
+  {
+   "episodes": 3612672,
+   "train": 26.7889,
+   "test": 26.8854
+  },
+  {
+   "episodes": 3694592,
+   "train": 26.9833,
+   "test": 26.9127
+  },
+  {
+   "episodes": 3776512,
+   "train": 26.5347,
+   "test": 26.8943
+  },
+  {
+   "episodes": 3858432,
+   "train": 26.6232,
+   "test": 26.9127
+  },
+  {
+   "episodes": 3940352,
+   "train": 26.4181,
+   "test": 26.9193
+  },
+  {
+   "episodes": 4022272,
+   "train": 26.4236,
+   "test": 26.9241
+  },
+  {
+   "episodes": 4104192,
+   "train": 27.1168,
+   "test": 26.8939
+  },
+  {
+   "episodes": 4186112,
+   "train": 25.6537,
+   "test": 26.9044
+  },
+  {
+   "episodes": 4268032,
+   "train": 26.626,
+   "test": 26.9255
+  },
+  {
+   "episodes": 4349952,
+   "train": 26.8311,
+   "test": 26.9457
+  },
+  {
+   "episodes": 4431872,
+   "train": 26.1589,
+   "test": 26.9386
+  },
+  {
+   "episodes": 4513792,
+   "train": 27.6521,
+   "test": 26.97
+  },
+  {
+   "episodes": 4595712,
+   "train": 26.781,
+   "test": 26.9789
+  },
+  {
+   "episodes": 4677632,
+   "train": 27.2384,
+   "test": 26.9858
+  },
+  {
+   "episodes": 4759552,
+   "train": 26.9671,
+   "test": 27.0019
+  },
+  {
+   "episodes": 4841472,
+   "train": 26.7518,
+   "test": 27.0116
+  },
+  {
+   "episodes": 4923392,
+   "train": 26.7113,
+   "test": 26.9861
+  },
+  {
+   "episodes": 5005312,
+   "train": 26.6084,
+   "test": 26.9839
+  },
+  {
+   "episodes": 5087232,
+   "train": 26.2999,
+   "test": 26.9909
+  },
+  {
+   "episodes": 5169152,
+   "train": 27.2519,
+   "test": 27.0119
+  },
+  {
+   "episodes": 5251072,
+   "train": 26.8855,
+   "test": 27.023
+  },
+  {
+   "episodes": 5332992,
+   "train": 27.3289,
+   "test": 27.0472
+  },
+  {
+   "episodes": 5414912,
+   "train": 26.4362,
+   "test": 27.0537
+  },
+  {
+   "episodes": 5496832,
+   "train": 26.5477,
+   "test": 27.0701
+  },
+  {
+   "episodes": 5578752,
+   "train": 26.2386,
+   "test": 27.0613
+  },
+  {
+   "episodes": 5660672,
+   "train": 27.5669,
+   "test": 27.0715
+  },
+  {
+   "episodes": 5742592,
+   "train": 26.9765,
+   "test": 27.0844
+  },
+  {
+   "episodes": 5824512,
+   "train": 26.6968,
+   "test": 27.0922
+  },
+  {
+   "episodes": 5906432,
+   "train": 26.9492,
+   "test": 27.0456
+  },
+  {
+   "episodes": 5988352,
+   "train": 28.2577,
+   "test": 27.0683
+  },
+  {
+   "episodes": 6070272,
+   "train": 26.9041,
+   "test": 27.0788
+  },
+  {
+   "episodes": 6152192,
+   "train": 27.9935,
+   "test": 27.1379
+  },
+  {
+   "episodes": 6234112,
+   "train": 27.5309,
+   "test": 27.1353
+  },
+  {
+   "episodes": 6316032,
+   "train": 26.4641,
+   "test": 27.1496
+  },
+  {
+   "episodes": 6397952,
+   "train": 26.7823,
+   "test": 27.1771
+  },
+  {
+   "episodes": 6479872,
+   "train": 26.1996,
+   "test": 27.1846
+  },
+  {
+   "episodes": 6561792,
+   "train": 27.5403,
+   "test": 27.1794
+  },
+  {
+   "episodes": 6643712,
+   "train": 27.473,
+   "test": 27.1754
+  },
+  {
+   "episodes": 6725632,
+   "train": 26.5885,
+   "test": 27.2204
+  },
+  {
+   "episodes": 6807552,
+   "train": 26.2058,
+   "test": 27.2676
+  },
+  {
+   "episodes": 6889472,
+   "train": 27.5441,
+   "test": 27.2656
+  },
+  {
+   "episodes": 6971392,
+   "train": 27.1938,
+   "test": 27.246
+  },
+  {
+   "episodes": 7053312,
+   "train": 25.8781,
+   "test": 27.2429
+  },
+  {
+   "episodes": 7135232,
+   "train": 27.0672,
+   "test": 27.273
+  },
+  {
+   "episodes": 7217152,
+   "train": 27.2019,
+   "test": 27.2727
+  },
+  {
+   "episodes": 7299072,
+   "train": 26.5106,
+   "test": 27.3026
+  },
+  {
+   "episodes": 7380992,
+   "train": 27.3716,
+   "test": 27.2674
+  },
+  {
+   "episodes": 7462912,
+   "train": 26.2296,
+   "test": 27.2809
+  },
+  {
+   "episodes": 7544832,
+   "train": 26.6291,
+   "test": 27.2737
+  },
+  {
+   "episodes": 7626752,
+   "train": 26.4755,
+   "test": 27.2649
+  },
+  {
+   "episodes": 7708672,
+   "train": 27.7111,
+   "test": 27.2704
+  },
+  {
+   "episodes": 7790592,
+   "train": 27.8034,
+   "test": 27.2611
+  },
+  {
+   "episodes": 7872512,
+   "train": 27.267,
+   "test": 27.2451
+  },
+  {
+   "episodes": 7954432,
+   "train": 26.687,
+   "test": 27.2433
+  },
+  {
+   "episodes": 8036352,
+   "train": 26.8094,
+   "test": 27.2282
+  },
+  {
+   "episodes": 8118272,
+   "train": 27.9671,
+   "test": 27.2671
+  },
+  {
+   "episodes": 8200192,
+   "train": 27.3115,
+   "test": 27.2298
+  },
+  {
+   "episodes": 8282112,
+   "train": 27.0804,
+   "test": 27.2089
+  },
+  {
+   "episodes": 8364032,
+   "train": 26.2844,
+   "test": 27.2768
+  },
+  {
+   "episodes": 8445952,
+   "train": 27.7315,
+   "test": 27.2336
+  },
+  {
+   "episodes": 8527872,
+   "train": 26.6003,
+   "test": 27.2474
+  },
+  {
+   "episodes": 8609792,
+   "train": 26.6846,
+   "test": 27.2513
+  },
+  {
+   "episodes": 8691712,
+   "train": 28.0426,
+   "test": 27.2469
+  },
+  {
+   "episodes": 8773632,
+   "train": 27.6923,
+   "test": 27.2563
+  },
+  {
+   "episodes": 8855552,
+   "train": 26.9793,
+   "test": 27.2956
+  },
+  {
+   "episodes": 8937472,
+   "train": 26.6954,
+   "test": 27.2509
+  },
+  {
+   "episodes": 9019392,
+   "train": 28.0682,
+   "test": 27.2153
+  },
+  {
+   "episodes": 9101312,
+   "train": 27.2986,
+   "test": 27.2232
+  },
+  {
+   "episodes": 9183232,
+   "train": 26.9684,
+   "test": 27.2627
+  },
+  {
+   "episodes": 9265152,
+   "train": 27.4327,
+   "test": 27.2827
+  },
+  {
+   "episodes": 9347072,
+   "train": 27.7155,
+   "test": 27.2837
+  },
+  {
+   "episodes": 9428992,
+   "train": 26.8233,
+   "test": 27.2981
+  },
+  {
+   "episodes": 9510912,
+   "train": 26.5353,
+   "test": 27.2864
+  },
+  {
+   "episodes": 9592832,
+   "train": 27.0322,
+   "test": 27.2684
+  },
+  {
+   "episodes": 9674752,
+   "train": 28.3916,
+   "test": 27.2743
+  },
+  {
+   "episodes": 9756672,
+   "train": 26.7958,
+   "test": 27.2861
+  },
+  {
+   "episodes": 9838592,
+   "train": 26.8996,
+   "test": 27.2797
+  },
+  {
+   "episodes": 9920512,
+   "train": 27.1043,
+   "test": 27.2984
+  },
+  {
+   "episodes": 10002432,
+   "train": 27.449,
+   "test": 27.2828
+  },
+  {
+   "episodes": 10084352,
+   "train": 27.6914,
+   "test": 27.3078
+  },
+  {
+   "episodes": 10166272,
+   "train": 26.9947,
+   "test": 27.3086
+  },
+  {
+   "episodes": 10248192,
+   "train": 27.4867,
+   "test": 27.3039
+  },
+  {
+   "episodes": 10330112,
+   "train": 26.7696,
+   "test": 27.2898
+  },
+  {
+   "episodes": 10412032,
+   "train": 27.9476,
+   "test": 27.3056
+  }
+ ],
+ "note": "dane syntetyczne, test logiki"
+}

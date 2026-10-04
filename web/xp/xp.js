@@ -32,7 +32,9 @@ for (const el of desktop.querySelectorAll(".window:not(.dialog)")) {
     else focus(id);
   });
   taskButtons.appendChild(btn);
-  wins.set(id, { el, btn, min: false, closed: false, max: false, prev: null });
+  const startMin = el.dataset.start === "min"; // lives on the taskbar until opened
+  if (startMin) { btn.classList.add("min"); el.classList.add("is-hidden"); }
+  wins.set(id, { el, btn, min: startMin, closed: false, max: false, prev: null });
   wireWindow(el, id);
 }
 
@@ -157,7 +159,7 @@ export function layout(force = false) {
   };
   if (dw < 980) { // narrow screens: cascade
     const w = dw - 2 * m;
-    ["w-map", "w-sit", "w-sec", "w-plan"].forEach((id, i) => set(id, m, m + i * 34, w, Math.min(dh - 2 * m - i * 34, 640)));
+    ["w-map", "w-sit", "w-sec", "w-plan", "w-imgw"].forEach((id, i) => set(id, m, m + i * 34, w, Math.min(dh - 2 * m - i * 34, 640)));
   } else {
     const strip = 70; // leaves the desktop note visible under the map
     const mapH = dh - m - strip;
@@ -165,11 +167,12 @@ export function layout(force = false) {
     const mapW = Math.max(460, Math.min(side + 18, dw * 0.52));
     const rx = m + mapW + m, rw = dw - rx - m;
     const avail = dh - 4 * m;
-    const h1 = Math.round(avail * 0.375), h2 = Math.round(avail * 0.32), h3 = avail - h1 - h2;
+    const h1 = Math.round(avail * 0.42), h2 = Math.round(avail * 0.3), h3 = avail - h1 - h2;
     set("w-map", m, m, mapW, mapH);
     set("w-sit", rx, m, rw, h1);
     set("w-sec", rx, 2 * m + h1, rw, h2);
     set("w-plan", rx, 3 * m + h1 + h2, rw, h3);
+    set("w-imgw", rx, 2 * m + h1, rw, h2 + h3 + m); // opens over the two lower panels, never over the map
   }
   if (force) userMoved = false;
 }

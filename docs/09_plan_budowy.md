@@ -2,14 +2,14 @@
 
 **Cel:** do 02:30 działa jeden ekran, który pokazuje dwa zdania tezy na prawdziwym terenie Tatr. Po 02:30 tylko poprawki i nagranie.
 
-> Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z tysiącami policzonych z góry scenariuszy lawin i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom. Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.
+> Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z ponad 1500 policzonymi z góry scenariuszami lawin i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom. Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.
 
 ## 1. Zasady (obowiązują każdego agenta)
 
 1. **Filtr dwóch zdań.** Budujesz tylko to, co widać w jednym z dwóch zdań. Wszystko inne: nie teraz.
 2. **Efekt przed kompletnością.** Proof of concept na pokaz, nie wdrożenie. Prosty, czytelny model, który da się wytłumaczyć jednym zdaniem, wygrywa z dokładnym.
 3. **Weryfikacja tylko niezbędna.** Jeden test dymny na pakiet i skrypt dowodu, który się uruchamia. Bez pokrycia testami, bez refaktoryzacji, bez abstrakcji na zapas.
-4. **Uczciwość jest częścią designu.** Dane śniegu, przeloty i pogoda są syntetyczne i tak je podpisujemy na ekranie. Nigdzie nie piszemy „bezpiecznie”, „skalibrowane”, „miliony symulacji”. Liczba scenariuszy na ekranie to liczba faktycznie policzona.
+4. **Uczciwość jest częścią designu.** Pogoda jest prawdziwa (IMGW-PIB), a grubość płyty i przeloty są syntetyczne i tak je podpisujemy na ekranie. Nigdzie nie piszemy „bezpiecznie”, „skalibrowane”, „miliony symulacji”. Liczba scenariuszy na ekranie to liczba faktycznie policzona.
 5. **Tylko eskalacja.** Brak flagi nie oznacza braku zagrożenia: ten napis jest stale widoczny.
 6. **Offline.** Demo działa bez sieci: zero CDN, biblioteki skopiowane do `web/vendor/`, dane w `web/data/`.
 7. **Po polsku, krótko.** Cały tekst w interfejsie po polsku, zdania do 12 słów.
