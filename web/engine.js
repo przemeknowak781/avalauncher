@@ -11,6 +11,7 @@
 //   trail is interpolated; below the thinnest computed slab there is no analog, so no evidence.
 // - Hit: a run puts at least 0.5 m of flowing snow on a trail segment (hits_pft_m), not just a touch.
 // - Release: a slab rarely releases below 0.3 m and usually does above 0.5 m (linear between).
+//   This is a demo assumption, not a snowpack model; AvaFrame itself assumes the release.
 // - Chance for a slab x: release(x) × share of analogs with a hit; threshold = thinnest x where ≥ 50 %.
 // - "zagrozenie": that chance is ≥ 50 % even at the low end of the plausible range.
 // - "nie_wiem": the plausible range straddles the threshold thickness, i.e. the measurement error
@@ -215,12 +216,12 @@ function reasonOf(kind, st, day, lo, hi, L) {
   const cm = (m) => Math.round(m * 100);
   const range = `${cm(lo)}–${cm(hi)} cm`;
   if (kind === "zagrozenie") {
-    return `${st.hours_since_measured <= 1 ? "Dron zmierzył płytę" : "Płyta"} ${range}. Już przy ${cm(lo)} cm zwykle rusza i dochodzi do szlaku.`;
+    return `${st.hours_since_measured <= 1 ? "Dron zmierzył płytę" : "Płyta"} ${range} (pomiar syntetyczny). Jeśli ruszy, większość podobnych scenariuszy z biblioteki dochodzi do szlaku.`;
   }
   const since = st.hours_since_measured > 1
     ? `Pomiar ${st.hours_since_measured} h temu, od tego czasu ${Math.round(day.weather?.new_cm ?? cm(st.dhs_m ?? 0))} cm śniegu. `
     : "";
-  return `${since}Płyta ${range}, a od ${cm(L.threshold)} cm zwykle rusza i dochodzi do szlaku.`;
+  return `${since}Płyta ${range} (szacunek syntetyczny), próg ${cm(L.threshold)} cm: powyżej, jeśli ruszy, większość podobnych scenariuszy dochodzi do szlaku.`;
 }
 
 function trailNames(ctx) {

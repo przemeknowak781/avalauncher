@@ -629,13 +629,20 @@ function renderTraining() {
       ]) + `<p class="note" title="${esc(SUR.note ?? "")}">${esc(SUR.iou_definition ?? "")}. ${esc(SUR.note ?? "")}</p>`
     : WIP;
   const best = CAL?.best, row = CAL?.table?.find((t) => t.frictModel === best?.frictModel && t.relTh === best?.relTh && t.iou === best?.iou);
+  // Lead with the leave-one-out test on 5 real avalanches; the Popeletzbach best fit below is in-sample, not validation.
+  const sum = CAL?.summary, looP = CAL?.loo?.avaPopeletzbach;
+  const looErr = Object.values(CAL?.loo ?? {}).map((e) => e.runout_error_m).filter(Number.isFinite);
+  const worst = looErr.length ? looErr.reduce((a, v) => (Math.abs(v) > Math.abs(a) ? v : a)) : null;
+  const sgn = (v) => `${v > 0 ? "+" : ""}${nInt(v)}`;
   const cal = CAL
     ? kv([
-        ["Zdarzenie", `${esc(CAL.event)}, ${esc(CAL.date)}`],
+        sum?.median_abs_runout_error_loo_m != null && ["Test bez podglądania", `<b class="big">${nInt(sum.median_abs_runout_error_loo_m)} m</b> mediana błędu zasięgu na ${sum.n_events} prawdziwych lawinach z Austrii i Szwajcarii (symulacje AvaFrame: ${nInt(sum.n_runs)}): średnio ${nInt(sum.mean_abs_runout_error_loo_m)} m${worst != null ? `, najgorzej ${sgn(worst)} m` : ""}`],
+        looP?.runout_error_m != null && ["Popeletzbach w teście", `${sgn(looP.runout_error_m)} m${looP.iou != null ? `, IoU ${nf(looP.iou, 2)}` : ""} (ustawienie dobrane na pozostałych 4 lawinach)`],
+        ["Zdarzenie (dopasowanie)", `${esc(CAL.event)}, ${esc(CAL.date)}`],
         ["Przebiegów", `${CAL.runs} (${esc(CAL.model)})`],
-        best && ["Najlepsze dopasowanie", `<b>${FR[best.frictModel]?.pl ?? best.frictModel} (${esc(best.frictModel)}), płyta ${nf(best.relTh)} m</b>`],
-        best && ["IoU ze śladem zdarzenia", `<b class="big">${nf(best.iou, 3)}</b>`],
-        best && ["Błąd zasięgu", `<b>${best.runout_error_m > 0 ? "+" : ""}${nInt(best.runout_error_m)} m</b>${row ? ` (symulacja ${nInt(row.runout_sim_m)} m, obserwacja ${nInt(row.runout_obs_m)} m)` : ""}`],
+        best && ["Dopasowanie na tym samym zdarzeniu", `<b>${FR[best.frictModel]?.pl ?? best.frictModel} (${esc(best.frictModel)}), płyta ${nf(best.relTh)} m</b> (w próbie, nie walidacja)`],
+        best && ["IoU ze śladem (w próbie)", `${nf(best.iou, 3)}`],
+        best && ["Błąd zasięgu (w próbie)", `<b>${best.runout_error_m > 0 ? "+" : ""}${nInt(best.runout_error_m)} m</b>${row ? ` (symulacja ${nInt(row.runout_sim_m)} m, obserwacja ${nInt(row.runout_obs_m)} m)` : ""}`],
         best?.dep_hit != null && ["Pokrycie depozytu", `${nInt(best.dep_hit * 100)}%`],
       ]) + `<p class="note">${esc(CAL.assumptions ?? "")}. ${esc(CAL.note ?? "")}.${CAL.source?.doi ? ` Dane zdarzenia: ${esc(CAL.source.event_data ?? "")}, DOI ${esc(CAL.source.doi)}, ${esc(CAL.source.licence ?? "")}.` : ""}</p>`
     : WIP;
@@ -672,7 +679,7 @@ function renderTraining() {
   p.innerHTML = `<div class="mx-head"><h2>Trening i kalibracja</h2><p>tylko liczby z plików wyników; brak pliku = „w toku”</p></div>
   <div class="tr-grid">
     <fieldset class="group"><legend>Surogat U-Net: szybkie przybliżenie AvaFrame</legend>${imgs(media.surrogate, "Porównanie AvaFrame i surogatu")}${sur}</fieldset>
-    <fieldset class="group"><legend>Kalibracja na prawdziwym zdarzeniu</legend>${imgs(media.kalibracja, "Kalibracja: AvaFrame a obserwowany ślad")}${cal}</fieldset>
+    <fieldset class="group"><legend>Kalibracja na prawdziwych lawinach</legend>${imgs(media.kalibracja, "Kalibracja: AvaFrame a obserwowany ślad")}${cal}</fieldset>
     <fieldset class="group"><legend>Plan przelotu: uczenie ze wzmocnieniem</legend>${imgs(media.rl, "Uczenie ze wzmocnieniem")}${rl}</fieldset>
     <fieldset class="group"><legend>Dowód: ${pr?.mornings ?? "—"} poranków, scenariusz syntetyczny</legend>${proof}</fieldset>
   </div>`;

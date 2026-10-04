@@ -1,0 +1,200 @@
+/* AvaKomunikator: rekwizyt filmu (docs/15_wideo.md, sekcja 4.1). Kadr 1920x1080, chrom okien z ../xp/xp.css. */
+@font-face {
+  font-family: "Archivo";
+  src: url("../vendor/fonts/Archivo-var.ttf") format("truetype");
+  font-weight: 100 900; font-stretch: 62% 125%;
+}
+:root { --papier: #f4efe4; --atrament: #1d1b17; --magenta: #d6007e; }
+html, body { margin: 0; padding: 0; background: var(--atrament); overflow: hidden; }
+#kadr { position: fixed; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--atrament); font: 13px/1.35 var(--xp-font); }
+#kadr .window { box-sizing: border-box; }
+.stan { position: absolute; inset: 0; display: none; }
+body[data-stan="dzwoni"] #st-dzwoni, body[data-stan="rozmowa"] #st-rozmowa, body[data-stan="owca"] #st-owca,
+body[data-stan="ekran"] #st-ekran, body[data-stan="film"] #st-ekran, body[data-stan="koniec"] #st-koniec { display: block; }
+.tlo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ---------- avatar ---------- */
+.awatar { width: 48px; height: 48px; flex: none; border-radius: 4px; overflow: hidden; background: #5a3d26; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 1px 1px 3px rgba(0, 0, 0, 0.4); }
+.awatar.duzy { width: 78px; height: 78px; }
+.awatar svg { display: block; width: 100%; height: 100%; }
+
+/* ---------- buttons ---------- */
+.ak-btn {
+  appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 116px; padding: 6px 16px;
+  font: 700 13.5px var(--xp-font); color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35); border-radius: 3px; cursor: pointer;
+}
+.ak-btn svg { width: 16px; height: 16px; color: #fff; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.3)); }
+.ak-btn.zielony { border: 1px solid #1d6b14; background: linear-gradient(180deg, #a6ea8f 0%, #5cc644 42%, #2f9a22 58%, #45b232 100%); box-shadow: inset 0 1px rgba(255, 255, 255, 0.6); }
+.ak-btn.pomaranczowy { border: 1px solid #a8420a; background: linear-gradient(180deg, #ffcb9c 0%, #f69046 42%, #dd6116 58%, #ee7a2c 100%); box-shadow: inset 0 1px rgba(255, 255, 255, 0.55); }
+.ak-btn.wcisniety, .xp-btn.wcisniety { filter: brightness(0.86); box-shadow: inset 1px 2px 3px rgba(0, 0, 0, 0.45) !important; }
+.obrot { rotate: 135deg; }
+
+/* ---------- sc. 1: dzwoni ---------- */
+.zegar-latka {
+  position: absolute; left: 1862px; top: 1046px; width: 58px; height: 34px; display: grid; place-items: center;
+  background: linear-gradient(180deg, #0c59b9 1%, #139ee9 6%, #18b5f2 10%, #139beb 14%, #1290e8 19%, #0d8dea 63%, #0d9ff1 81%, #0f9eed 88%, #119be9 91%, #1392e2 94%, #137ed7 97%, #095bc9 100%);
+  font: 12.5px var(--xp-font); color: #fff; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.zegar-latka.mala { left: 1551px; top: 871px; width: 49px; height: 29px; font-size: 10.5px; }
+.toast {
+  position: absolute; right: 10px; bottom: 44px; width: 380px; border: 1px solid #0831d9; border-radius: 7px 7px 3px 3px; overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f6fe 55%, #d9e6f9 100%); box-shadow: 2px 4px 12px rgba(0, 20, 60, 0.45);
+  translate: 0 calc(100% + 60px); transform-origin: 50% 100%; opacity: 0;
+  /* wysuwa się zza paska zadań: część poniżej docelowej krawędzi jest ucięta */
+  clip-path: inset(-30px -30px calc(100% + 60px) -30px);
+}
+.toast.wjazd { translate: 0 0; opacity: 1; clip-path: inset(-30px -30px -10px -30px);
+  transition: translate 0.45s cubic-bezier(0.2, 0.8, 0.3, 1), clip-path 0.45s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.15s; }
+.toast.dzwoni { animation: ak-drga 1.25s linear infinite; }
+.toast.zamkniety { opacity: 0; transition: opacity 0.25s; animation: none; }
+@keyframes ak-drga {
+  0%, 36%, 100% { rotate: 0deg; }
+  3% { rotate: -1.1deg; } 6% { rotate: 1.1deg; } 9% { rotate: -1deg; } 12% { rotate: 1deg; }
+  15% { rotate: -0.8deg; } 18% { rotate: 0.8deg; } 21% { rotate: -0.5deg; } 24% { rotate: 0.5deg; } 27% { rotate: 0deg; }
+}
+.toast-bar {
+  height: 26px; display: flex; align-items: center; gap: 6px; padding: 0 6px 0 7px;
+  background: linear-gradient(180deg, #0058ee 0%, #3593ff 6%, #127dff 12%, #0262ee 20%, #0055eb 56%, #026afe 78%, #0052d6 92%, #003092 100%);
+  font: 700 13px var(--xp-title-font); color: #fff; text-shadow: 1px 1px 0 #0f1089;
+}
+.toast-bar svg { width: 18px; height: 18px; }
+.toast-x {
+  margin-left: auto; width: 18px; height: 18px; border: 1px solid #fff; border-radius: 3px; box-sizing: border-box;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 3 L9 9 M9 3 L3 9' stroke='white' stroke-width='1.8'/%3E%3C/svg%3E") center / 10px no-repeat,
+    radial-gradient(circle at 90% 90%, #cc4600 0%, #dc6527 55%, #cd7546 70%, #ffccb2 90%, #fff 100%);
+}
+.toast-body { display: flex; gap: 14px; padding: 14px 16px 6px; }
+.toast-txt { display: grid; gap: 4px; align-content: start; font-size: 13px; color: #222; }
+.toast-txt b { font-size: 15.5px; color: #0b2c7a; }
+.toast-txt .typ { display: flex; align-items: center; gap: 6px; }
+.toast-txt .typ svg { width: 14px; height: 14px; color: #2f9a22; }
+.toast-txt em { color: #5a5a5a; font-size: 12.5px; }
+.toast-btns { display: flex; gap: 10px; justify-content: flex-end; padding: 8px 16px 14px; }
+
+/* ---------- sc. 2-3: rozmowa ---------- */
+.okno-rozmowa { left: 37px; top: 16px; width: 1846px; height: 957px; }
+.rozmowa-body { flex: 1; display: flex; gap: 16px; padding: 12px; min-height: 0; }
+.kamera { position: relative; background: #000; overflow: hidden; flex: none; }
+.kamera canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+.kamera.duza { width: 1200px; height: 900px; outline: 1px solid #7f9db9; }
+.kamera.duza canvas { width: 1200px; height: 900px; }
+.podpis {
+  position: absolute; left: 0; bottom: 64px; padding: 14px 30px 15px 24px; border-left: 6px solid var(--magenta);
+  background: rgba(29, 27, 23, 0.84); color: var(--papier); font: 600 30px/1.1 "Archivo", sans-serif; letter-spacing: 0.2px;
+  translate: -105% 0; transition: translate 0.45s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.podpis.show { translate: 0 0; }
+.etykieta {
+  position: absolute; right: 20px; top: 20px; display: flex; align-items: center; gap: 9px; padding: 7px 14px 7px 9px;
+  background: #ffffe1; border: 1px solid #000; border-radius: 7px; box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.35);
+  font: 16px var(--xp-font); color: #000; opacity: 0; translate: 0 -6px; transition: opacity 0.25s, translate 0.25s;
+}
+.etykieta svg { width: 24px; height: 24px; }
+.etykieta.show { opacity: 1; translate: 0 0; }
+
+.kolumna { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.kontakt-wiersz { display: flex; gap: 14px; align-items: center; padding: 8px 2px 4px; }
+.kontakt-wiersz > div:last-child { display: grid; gap: 3px; }
+.kontakt-wiersz b { font-size: 16px; }
+.kontakt-wiersz em { color: #555; font-size: 13px; }
+.awatar + div .online, .online { display: flex; align-items: center; gap: 6px; color: #2b6b1f; font-size: 13px; }
+.online i, .wstega-stan i { width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #d9ffc9, #4cc33a 55%, #1d7a16); flex: none; }
+.kolumna .awatar { width: 64px; height: 64px; }
+fieldset.czat { flex: 1; min-height: 0; display: flex; flex-direction: column; padding-bottom: 10px; }
+.czat-log {
+  flex: 1; min-height: 0; overflow: hidden; background: #fff; border: 1px solid var(--xp-list-border); padding: 12px 14px;
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; font: 15px/1.4 var(--xp-font); color: #111;
+}
+.msg { animation: ak-msg 0.25s ease-out; }
+.msg .kto { font-weight: 700; color: #1450b4; }
+.msg.staszek .kto { color: #8a4f1c; }
+.msg .czas { color: #8a8a8a; font-size: 12.5px; margin-left: 6px; font-weight: 400; }
+.msg p { margin: 2px 0 0 12px; }
+.msg.system { color: #6a6a6a; font-style: italic; font-size: 13.5px; display: flex; align-items: center; gap: 6px; }
+.msg.system svg { width: 18px; height: 18px; flex: none; }
+@keyframes ak-msg { from { opacity: 0; translate: 0 6px; } }
+.czat-pole {
+  position: relative; flex: none; height: 60px; box-sizing: border-box; padding: 9px 11px; background: #fff; border: 1px solid var(--xp-list-border);
+  font: 15px var(--xp-font); color: #111;
+}
+.czat-placeholder { position: absolute; left: 11px; top: 9px; color: #9a9a9a; }
+.czat-pole.pisze .czat-placeholder { display: none; }
+.czat-pole.pisze .czat-tekst::after { content: ""; display: inline-block; width: 1px; height: 17px; margin-left: 1px; vertical-align: -3px; background: #000; animation: ak-caret 0.9s steps(1) infinite; }
+@keyframes ak-caret { 50% { opacity: 0; } }
+.rozmowa-btns { display: flex; gap: 10px; }
+.duzy-btn { flex: 1; min-height: 42px; display: inline-flex !important; align-items: center; justify-content: center; gap: 8px; font-weight: 700 !important; font-size: 14px !important; }
+.duzy-btn svg { width: 24px; height: 24px; }
+.ak-btn.duzy-btn svg { width: 18px; height: 18px; }
+
+/* ---------- sc. 4: owca ---------- */
+.okno-owca { left: 170px; top: 26px; width: 1580px; height: 944px; opacity: 0; scale: 0.96; }
+.okno-owca.otwarte { opacity: 1; scale: 1; transition: opacity 0.18s, scale 0.18s ease-out; }
+.okno-owca.zamkniete { opacity: 0; scale: 0.98; transition: opacity 0.14s, scale 0.14s; }
+.owca-body { flex: 1; min-height: 0; display: flex; flex-direction: column; background: #fff; }
+.owca-obraz { flex: 1; min-height: 0; display: grid; place-items: center; }
+.owca-obraz svg { width: 1260px; height: 788px; display: block; box-shadow: 0 0 0 1px #9a9a9a, 3px 3px 8px rgba(0, 0, 0, 0.25); }
+.owca-pasek { flex: none; height: 58px; display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(180deg, #fbfbf7, #e6e3d4); border-top: 1px solid #cac7b6; }
+.ob { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 700 15px var(--xp-font); font-style: normal; color: #fff;
+  background: radial-gradient(circle at 35% 30%, #cfe6ff, #3b8cf0 55%, #0b3f9e); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 1px 1px 2px rgba(0, 0, 0, 0.35); }
+.ob-l::after { content: "\25C0"; font-size: 12px; } .ob-p::after { content: "\25B6"; font-size: 12px; }
+.ob-plus::after { content: "+"; font-size: 20px; } .ob-minus::after { content: "\2212"; font-size: 20px; } .ob-obr::after { content: "\21BB"; font-size: 18px; }
+.ob-plus, .ob-minus, .ob-obr { background: radial-gradient(circle at 35% 30%, #d9ffc9, #4cc33a 55%, #1d7a16); }
+.owca-pasek .sep { width: 1px; height: 30px; background: #b9b7a8; margin: 0 6px; }
+
+/* ---------- sc. 4-10: udostępnianie ekranu ---------- */
+.okno-ekran { left: 0; top: 0; width: 1920px; height: 30px; min-height: 0 !important; }
+.wstega {
+  position: absolute; left: 0; top: 30px; width: 1920px; height: 60px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 20px;
+  background: linear-gradient(180deg, #fdfdf9 0%, #f3f1e6 55%, #e4e1d0 100%); border-bottom: 1px solid #b4b09b;
+  font: 15px var(--xp-font); color: #1d1b17;
+}
+.wstega svg { width: 32px; height: 32px; }
+.wstega b { font-size: 18px; }
+.wstega-stan { margin-left: auto; margin-right: 108px; display: flex; align-items: center; gap: 7px; color: #2b6b1f; font-size: 14px; }
+.wstega-stan i { animation: ak-puls 1.6s ease-in-out infinite; }
+@keyframes ak-puls { 50% { opacity: 0.45; } }
+.slot { position: absolute; left: 0; top: 90px; width: 1600px; height: 900px; background: var(--atrament); overflow: hidden; }
+.slot-film { display: none; position: absolute; inset: 0; }
+body[data-stan="film"] .slot-film { display: block; }
+.okno-film { left: 157px; top: 73px; width: 1286px; height: 753px; }
+.okno-film video { display: block; width: 1280px; height: 720px; background: #000; }
+.bok { position: absolute; left: 1600px; top: 90px; width: 320px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; background: var(--xp-face); }
+.kamera.mala { width: 320px; height: 240px; }
+.kamera.mala canvas { width: 320px; height: 240px; }
+.kam-nazwa { position: absolute; left: 6px; bottom: 6px; padding: 2px 7px; font: 12px var(--xp-font); color: #fff; background: rgba(0, 0, 0, 0.5); border-radius: 2px; }
+.bok fieldset.czat { margin: 0 8px; }
+.bok .czat-log { font-size: 13.5px; padding: 8px 10px; gap: 8px; }
+.bok .msg p { margin-left: 8px; }
+.bok .czat-pole { margin: 0 8px; height: 46px; font-size: 13.5px; }
+
+/* ---------- napisy ---------- */
+#pas-napisow {
+  position: absolute; left: 0; top: 990px; width: 1920px; height: 90px; display: none; align-items: center; justify-content: center;
+  background: var(--atrament); color: var(--papier); font: 500 34px/1.15 "Archivo", sans-serif; text-align: center; z-index: 50;
+}
+body[data-stan="rozmowa"] #pas-napisow, body[data-stan="owca"] #pas-napisow, body[data-stan="ekran"] #pas-napisow, body[data-stan="film"] #pas-napisow { display: flex; }
+#napis { max-width: 1700px; }
+
+/* ---------- sc. 11: koniec ---------- */
+#st-koniec { background: var(--papier); color: var(--atrament); }
+.plansza { position: absolute; left: 0; right: 0; top: 112px; display: flex; flex-direction: column; align-items: center; text-align: center; font-family: "Archivo", sans-serif; }
+.plansza-logo { width: 150px; height: 150px; }
+.plansza h1 { margin: 14px 0 12px; font-weight: 800; font-stretch: 125%; font-size: 136px; line-height: 1; letter-spacing: -1px; }
+.plansza .teza { margin: 0 0 26px; font-weight: 500; font-size: 42px; line-height: 1.25; max-width: 1500px; }
+.plansza .hy { margin: 0 0 40px; font-weight: 700; font-stretch: 112%; font-size: 26px; letter-spacing: 4px; text-transform: uppercase; }
+.zastrzezenia p { margin: 0; font-weight: 500; font-size: 25px; line-height: 1.45; }
+.plansza .drobny { margin: 40px 0 0; max-width: 1460px; font-weight: 400; font-size: 16.5px; line-height: 1.55; color: #4a463e; }
+.plansza .tts { display: none; margin-top: 10px; }
+body.tts .plansza .tts { display: block; }
+.rozlaczono { left: auto; right: 26px; bottom: 26px; width: 380px; min-height: 0 !important; transition: opacity 0.6s; }
+.rozlaczono.znika { opacity: 0; }
+.rozl-body { display: flex; gap: 12px; align-items: center; padding: 12px 14px; font: 13px var(--xp-font); }
+.rozl-body b { display: block; font-size: 14px; margin-bottom: 2px; }
+.rozl-body span { color: #555; }
+
+/* ---------- kursor (tylko w nagraniu stanów dzwoni i owca) ---------- */
+#kursor { position: absolute; left: 0; top: 0; z-index: 99999; pointer-events: none; display: none; }
+body.kursor #kursor { display: block; }
+
+/* 2x2 px w rogu, niewidoczna zmiana co klatkę: screencast wysyła klatki także w spokojnych ujęciach */
+#puls { position: absolute; left: 0; top: 0; width: 4px; height: 4px; z-index: 99998; pointer-events: none; }

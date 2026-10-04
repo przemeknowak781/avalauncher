@@ -63,7 +63,9 @@ function realMorning(n = state.day) {
   const i = date ? KW.days.findIndex((d) => d.date === date) : -1;
   if (i < 0) return null;
   const w = KW.days.slice(Math.max(0, i - 2), i + 1);
-  return { ...KW.days[i], i, new3: w.reduce((a, d) => a + (d.new_cm ?? 0), 0), blow3: w.reduce((a, d) => a + (d.blowing_h ?? 0), 0) };
+  // IMGW daily totals (zamieć, Tmin, opad) cover the whole day D, i.e. hours after the 7:00 morning too;
+  // the morning view uses day D−1 for them (prev). hs_cm (06 UTC) and new_cm (vs the previous morning) are known at 7:00.
+  return { ...KW.days[i], i, prev: KW.days[i - 1] ?? null, new3: w.reduce((a, d) => a + (d.new_cm ?? 0), 0), blow3: w.reduce((a, d) => a + (d.blowing_h ?? 0), 0) };
 }
 
 // ---------- state ----------
@@ -268,6 +270,7 @@ function toggleSat() {
   const n = SAT.days_after_episode;
   $("m-sat").classList.toggle("checked", state.sat);
   $("sat-legend").hidden = !state.sat;
+  $("sat-credit").hidden = !state.sat; // credit in the status bar: the legend keeps its height
   $("sat-n").textContent = `Śnieg z satelity Sentinel-2, ${dmy(SAT.date)}${n ? ` (${n} ${plural(n, "dzień", "dni", "dni")} po zamieci)` : ""}`;
   $("sat-cloud").hidden = !(SAT.cloud_pct_over_area > 0);
   if (!state.sat) return;
@@ -353,16 +356,24 @@ const free = (r) => inside(r) && placed.every((q) => r.x > q.x + q.w || r.x + r.
 function drawPlaces() {
   const { dpr } = view;
   const flagged = R.flags.map((f) => px(byId[f.sector].centroid));
+  const pad = 15 * dpr; // badge radius + margin: a peak label never runs under a sector badge
+  const hitsBadge = (r) => flagged.some(([fx, fy]) => fx > r.x - pad && fx < r.x + r.w + pad && fy > r.y - pad && fy < r.y + r.h + pad);
   for (const p of terrain.places) {
     const [x, y] = px(p.cell);
     if (x < 0 || y < 0 || x > view.cw || y > view.ch) continue;
     g.font = `700 75% ${14 * dpr}px Archivo`;
-    const rect = { x: x - 6 * dpr, y: y - 9 * dpr, w: g.measureText(p.name).width + 16 * dpr, h: 18 * dpr };
+    const tw = g.measureText(p.name).width;
     if (flagged.some(([fx, fy]) => Math.hypot(fx - x, fy - y) < 60 * dpr)) continue; // flags own that spot
+    // text to the right of the peak; at the right edge of the map, to the left of it
+    const right = { x: x - 6 * dpr, y: y - 9 * dpr, w: tw + 16 * dpr, h: 18 * dpr };
+    const left = { x: x - tw - 14 * dpr, y: y - 9 * dpr, w: tw + 20 * dpr, h: 18 * dpr };
+    const rect = inside(right) ? right : inside(left) ? left : null;
+    if (!rect || hitsBadge(rect)) continue;
     placed.push(rect);
     g.fillStyle = INK;
     g.beginPath(); g.moveTo(x, y - 5 * dpr); g.lineTo(x + 4.5 * dpr, y + 3 * dpr); g.lineTo(x - 4.5 * dpr, y + 3 * dpr); g.fill();
-    label(p.name, x + 8 * dpr, y, { size: 13, weight: 650, stretch: "75%" });
+    if (rect === right) label(p.name, x + 8 * dpr, y, { size: 13, weight: 650, stretch: "75%" });
+    else label(p.name, x - 8 * dpr, y, { size: 13, weight: 650, stretch: "75%", align: "right" });
   }
 }
 
@@ -398,6 +409,7 @@ function drawDrone(x, y) {
 
 function drawBadges() {
   const { dpr } = view;
+  // first all badges (so a label never lands under a later badge), then the labels around them
   for (const f of R.flags) {
     const s = byId[f.sector];
     const [x, y] = px(s.centroid);
@@ -411,14 +423,21 @@ function drawBadges() {
     g.fillStyle = "#fff"; g.font = `800 ${13 * dpr}px Archivo`; g.textAlign = "center"; g.textBaseline = "middle";
     g.fillText(String(f.n), x, y + 1 * dpr);
     placed.push({ x: x - r, y: y - r, w: 2 * r, h: 2 * r });
+  }
+  for (const f of R.flags) {
+    const s = byId[f.sector];
+    const [x, y] = px(s.centroid);
+    const r = (state.selected === s.id ? 14 : 12) * dpr;
     g.font = `700 87.5% ${13.5 * dpr}px Archivo`;
     const tw = g.measureText(s.name).width, th = 18 * dpr;
     const right = { x: x + r + 6 * dpr, y: y - th / 2, w: tw, h: th };
     const left = { x: x - r - 6 * dpr - tw, y: y - th / 2, w: tw, h: th };
-    const spot = state.selected === s.id ? right : free(right) ? right : free(left) ? left : null;
+    const below = { x: x - tw / 2, y: y + r + 3 * dpr, w: tw, h: th };
+    const above = { x: x - tw / 2, y: y - r - 3 * dpr - th, w: tw, h: th };
+    const spot = state.selected === s.id ? right : [right, left, below, above].find(free) ?? null;
     if (spot) {
       placed.push(spot);
-      label(s.name, spot.x, y, { size: 13.5, weight: 700, color: f.kind === "nie_wiem" ? UNKNOWN : "#a63b00", stretch: "87.5%" });
+      label(s.name, spot.x, spot.y + th / 2, { size: 13.5, weight: 700, color: f.kind === "nie_wiem" ? UNKNOWN : "#a63b00", stretch: "87.5%" });
     }
   }
 }
@@ -495,13 +514,13 @@ function flightStatus() {
 function renderSources() {
   const [st, text] = flightStatus();
   const REAL = `<b class="tag real">prawdziwe</b>`, SYN = `<b class="tag syn">syntetyczne</b>`;
-  const lib = scenarios?.count ? `${scenarios.count.toLocaleString("pl-PL")} symulacji com1DFA` : "w budowie";
+  const lib = scenarios?.count ? `${scenarios.count.toLocaleString("pl-PL")} symulacji` : "w budowie";
   const src = (icon, dt, tag, dd) => `<div><svg aria-hidden="true"><use href="#${icon}"/></svg><dl><dt>${dt} ${tag}</dt><dd>${dd}</dd></dl></div>`;
   const terrainSrc = src("i-mountain", "Teren GUGiK NMT", REAL, `siatka ${terrain.cell_m} m, nachylenia i strefy`);
   const trailSrc = src("i-trail", "Szlaki OSM", REAL, "w prawdziwych kolorach szlaków");
   const imgwSrc = src("i-network", "IMGW Kasprowy", KW ? REAL : "",
-    `${KW ? `<button class="link" data-open="w-imgw" title="Otwórz wykres zimy 2024/25">archiwum 2024/25</button> · teraz ` : ""}<span id="live">łączę…</span>`);
-  const libSrc = src("i-library", "Biblioteka AvaFrame", scenarios?.count ? `<b class="tag real">policzona</b>` : "", `${lib}${scenarios?.count ? " · DGX Spark" : ""}`);
+    `${KW ? `<button class="link" data-open="w-imgw" title="Otwórz wykres zimy 2024/25 (archiwum IMGW)">zima 2024/25</button> · ` : ""}<span id="live" title="">łączę…</span>`);
+  const libSrc = src("i-library", "Biblioteka AvaFrame", scenarios?.count ? `<b class="tag calc">policzona</b>` : "", `${lib}${scenarios?.count ? " · DGX Spark" : ""}`);
   const synSrc = src("i-drone", "Płyta, przeloty", SYN, `<span class="${st === "ok" ? "" : "warn"}">przelot ${text}</span>`);
   // With the satellite the panel keeps two rows of three (the Sytuacja window has no room for a third):
   // the GUGiK orthophoto joins the terrain cell, and the top row holds only one-line entries.
@@ -552,18 +571,30 @@ function renderRows() {
     body.appendChild(tr);
   });
   const f = R.flagOf[state.selected] ?? R.flags[0];
-  const analogs = f.analogs ? ` ${f.analogs_hitting} z ${f.analogs} podobnych scenariuszy dochodzi do szlaku.` : "";
+  // one line under the table: the reason ends with "…dochodzi do szlaku", the analog count follows as ": 12 z 12"
+  // (a "nie wiem" range also spans slabs below the threshold, so its count gets its own sentence)
+  const analogs = !f.analogs ? "." : f.kind === "zagrozenie" ? `: ${f.analogs_hitting} z ${f.analogs}.`
+    : `. Podobne scenariusze: ${f.analogs_hitting} z ${f.analogs} dochodzi do szlaku.`;
   const film = hasVideo(f.sector) ? ` <button class="link" data-action="player-sel" title="Animacja 3D przebiegu AvaFrame dla tego sektora">Pokaż lawinę w 3D</button>` : "";
-  $("why").innerHTML = `<b>${f.n}. ${byId[f.sector].name}:</b> ${f.reason}${analogs}${film}`;
+  $("why").innerHTML = `<b>${f.n}. ${byId[f.sector].name}:</b> ${f.reason.replace(/\.$/, "")}${analogs}${film}`;
 }
 
 function renderPlan() {
   const p = R.plan;
   $("budget-out").textContent = `${state.budget} min`;
+  const flown = state.flight?.done;
   $("plan-kpis").innerHTML = p.route.length
-    ? `<div><b>${p.route.length}</b><span>sektorów do zmierzenia</span></div><div><b>${p.minutes} min</b><span>lotu z powrotem</span></div><div><b class="gain">${p.sigma_drop > 0 ? "−" : ""}${p.sigma_drop}%</b><span>niepewności nad szlakami</span></div>`
+    ? `<div><b>${p.route.length}</b><span title="${flown ? "Sektory zmierzone w tym przelocie" : "Sektory do zmierzenia w tym przelocie"}">${flown ? "sektorów zmierzono" : "sektorów w planie"}</span></div><div><b>${p.minutes} min</b><span>${flown ? "lotu, wykonany" : "lotu z powrotem"}</span></div><div><b class="gain">${p.sigma_drop > 0 ? "−" : ""}${p.sigma_drop}%</b><span title="Niepewność decyzji nad szlakami">${flown ? "niepewność spadła" : "niepewność szlaków"}</span></div>`
     : `<div><b>0</b><span>za mało czasu na dolot i powrót</span></div>`;
-  $("route").innerHTML = p.route.map((id) => `<li class="${state.visited.has(id) ? "done" : ""}" title="${byId[id].name}">${byId[id].name}</li>`).join("");
+  // Stops in flight order; the badge is the sector's number on the map and in "Sektory do uwagi".
+  // Several zones share a name (e.g. four "Mały Kościelec W"), so a repeated name gets its zone id.
+  const seen = {};
+  for (const id of p.route) seen[byId[id].name] = (seen[byId[id].name] ?? 0) + 1;
+  $("route").innerHTML = p.route.map((id, k) => {
+    const f = R.flagOf[id], name = `${byId[id].name}${seen[byId[id].name] > 1 ? ` (${id})` : ""}`;
+    const badge = f ? `<i class="n${f.kind === "nie_wiem" ? " unknown" : ""}" title="Nr ${f.n} na mapie">${f.n}</i>` : `<i class="n none" title="Sektor bez flagi">·</i>`;
+    return `<li class="${state.visited.has(id) ? "done" : ""}" title="Przystanek ${k + 1}: ${name}">${badge}${name}</li>`;
+  }).join("");
   const fly = $("fly");
   const d = DAYS.days[state.day];
   fly.disabled = !p.route.length || (state.flight && !state.flight.done);
@@ -580,13 +611,18 @@ function libraryReach() {
 
 function factParts() {
   const { reach, simulated } = libraryReach();
-  const zones = "stref startowych wyznaczonych z terenu GUGiK NMT (nachylenie 28–55°, powyżej 1600 m)";
-  const parts = [simulated ? `Strefy startowe wyznaczone z terenu GUGiK NMT (nachylenie 28–55°, powyżej 1600 m): <strong>${simulated}</strong> w pobliżu szlaków ma policzone scenariusze lawin.`
+  const zones = "stref startowych wyznaczonych z terenu GUGiK NMT regułą nachylenia i wysokości";
+  const parts = [simulated ? `Strefy startowe wyznaczone z terenu GUGiK NMT regułą nachylenia i wysokości: <strong>${simulated}</strong> w pobliżu szlaków ma policzone scenariusze lawin.`
     : `<strong>${sectors.length}</strong> ${zones}.`];
   if (scenarios?.count) parts.push(`<strong>${scenarios.count.toLocaleString("pl-PL")}</strong> scenariuszy lawin AvaFrame policzonych z góry${reach && simulated ? `; <strong>${reach}</strong> z ${simulated} stref może zrzucić lawinę na szlak` : ""}.`);
-  const cal = calibration?.best;
+  const cal = calibration?.best, sum = calibration?.summary;
+  const loo = Object.values(calibration?.loo ?? {}).map((e) => e.runout_error_m).filter(Number.isFinite);
+  const worst = loo.length ? loo.reduce((a, v) => (Math.abs(v) > Math.abs(a) ? v : a)) : null;
+  if (sum?.median_abs_runout_error_loo_m != null) {
+    parts.push(`Przykładowa kalibracja na ${sum.n_events} prawdziwych lawinach z Austrii i Szwajcarii, test bez podglądania: mediana błędu zasięgu <strong>${pl(sum.median_abs_runout_error_loo_m)} m</strong>, średnio ${pl(sum.mean_abs_runout_error_loo_m)} m${worst != null ? `, najgorzej ${worst > 0 ? "+" : ""}${pl(worst)} m` : ""}; nie dla Tatr.`);
+  }
   if (cal?.iou != null && cal.runout_error_m != null) {
-    parts.push(`Przykładowa kalibracja na prawdziwym zdarzeniu z Austrii (Popeletzbach): AvaFrame trafia zasięg obserwowanej lawiny z IoU ${pl(cal.iou, 2)}, błąd długości zasięgu ${cal.runout_error_m > 0 ? "+" : ""}${pl(cal.runout_error_m)} m.`);
+    parts.push(`Popeletzbach: IoU ${pl(cal.iou, 2)}, błąd zasięgu ${cal.runout_error_m > 0 ? "+" : ""}${pl(cal.runout_error_m)} m (dopasowanie w próbie).`);
   }
   if (cells) parts.push("Na mapie: zasięgi tych symulacji, które z danego sektora dochodzą do szlaku.");
   const rm = realMorning();
@@ -616,7 +652,8 @@ function explainFlag(f) {
     html: `<div class="fd-text"><h3>${unknown ? "Nie wiem" : "Może zagrozić szlakowi"}</h3>
       <p>${f.reason}</p>${analogs}
       <p>Szlak: <b>${f.trails.join(", ")}</b><br>${s.band} · ΔHS ${Math.round(st.dhs_m * 100)} cm · σ ±${Math.round(st.sigma_m * 100)} cm · pomiar ${st.hours_since_measured} h temu</p>
-      <p>${inPlan ? "Sektor jest w planie przelotu." : "Sektora nie ma w obecnym planie przelotu."}${unknown ? " Pomiar z drona zamieni „nie wiem” w liczbę." : ""}</p></div>
+      <p>${inPlan ? "Sektor jest w planie przelotu." : "Sektora nie ma w obecnym planie przelotu."}${unknown ? " Pomiar z drona zamieni „nie wiem” w liczbę." : ""}</p>
+      <p class="fd-note">Reguła, od jakiej grubości płyta rusza, to założenie demo, nie model pokrywy śnieżnej. AvaFrame liczy tylko, dokąd lawina dojdzie, gdy ruszy.</p></div>
       ${withLib ? whatIfForm(f, snapTh(f.h_m ?? 1)) : ""}`,
     buttons: unknown && inPlan && !state.flight
       ? [{ label: "Wykonaj przelot", value: "fly" }, { label: "OK", value: true, default: true }]
@@ -685,6 +722,8 @@ const whatIfSegments = () => { const r = runOf(shown); return r ? hitSegments(r)
 
 // The run on the map: the dialog's slider while the flag dialog is open, otherwise the film playing in the
 // 3D player (its com1DFA run is the library run with the same sector, slab and friction, recomputed with time steps).
+// Films at 1.3 m come from the earlier first series: the library has no such slab, so the map shows no outline
+// for them and the player caption says so (FIRST_SERIES).
 let shown = null, shownKey = "";
 function activeWhatIf() {
   if (state.whatIf && document.getElementById("flag-dialog")) return { ...state.whatIf, from: "dialog" };
@@ -736,6 +775,7 @@ const FRICT_SHORT = { samosATSmall: "tarcie: małe", samosATMedium: "tarcie: śr
 const player = { el: $("w-player"), video: $("pl-video"), cur: null, list: [], seeking: false };
 const mmss = (t) => { const s = Math.max(0, Math.floor(t || 0)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
 const hasVideo = (sector) => VIDEOS.some((v) => v.sector === sector);
+const FIRST_SERIES = (v) => !THS.some((t) => Math.abs(t - v.relTh) < 1e-6); // slab not in the library grid
 
 /** The video closest to a slab thickness (default: this morning's estimate) and friction (default: medium). */
 function videoFor(sector, th = null, frict = null) {
@@ -790,13 +830,14 @@ function renderPlayer() {
     const near = f && videoFor(x.sector) === x;
     return `<li><button type="button" data-i="${i}" aria-current="${x === v}">
       <span class="pl-n">${f ? `<i class="n${f.kind === "nie_wiem" ? " unknown" : ""}">${f.n}</i>` : ""}</span><span class="pl-t">${byId[x.sector].name}</span><span class="pl-d">${mmss(x.duration_s)}</span>
-      <small>${pl(x.relTh, 1)} m · ${FRICT_SHORT[x.frict] ?? x.frict}${near ? ` <b class="near" title="Najbliżej szacunku płyty na ten poranek">≈ dziś</b>` : ""}</small></button></li>`;
+      <small>${pl(x.relTh, 1)} m${FIRST_SERIES(x) ? " (wcześniejsza seria)" : ""} · ${FRICT_SHORT[x.frict] ?? x.frict}${near ? ` <b class="near" title="Najbliżej szacunku płyty na ten poranek">≈ dziś</b>` : ""}</small></button></li>`;
   }).join("");
   if (!v) { $("pl-caption").innerHTML = `<p><b>Odtwarzacz 3D</b></p><p class="sub">AvaFrame com1DFA, teren GUGiK, śnieg: scenariusz syntetyczny</p>`; $("pl-now").textContent = ""; return; }
   const s = byId[v.sector], f = R.flagOf[v.sector];
   const pill = f ? ` <span class="pill ${f.kind}">${f.n}. ${f.kind === "nie_wiem" ? "Nie wiem" : "Może zagrozić szlakowi"}</span>` : "";
   const today = f?.range_m ? ` · płyta na ten poranek ${cm(f.range_m[0])}–${cm(f.range_m[1])} cm` : "";
-  $("pl-caption").innerHTML = `<p><b>Lawina: ${s.name}</b> · płyta ${pl(v.relTh, 1)} m · ${FRICT_PL[v.frict] ?? v.frict}${pill}</p>
+  const first = FIRST_SERIES(v) ? " (z wcześniejszej serii, bez obrysu na mapie)" : "";
+  $("pl-caption").innerHTML = `<p><b>Lawina: ${s.name}</b> · płyta ${pl(v.relTh, 1)} m${first} · ${FRICT_PL[v.frict] ?? v.frict}${pill}</p>
     <p class="sub">AvaFrame com1DFA, teren GUGiK, śnieg: scenariusz syntetyczny${today}</p>`;
   $("pl-now").textContent = `${s.name} · ${pl(v.relTh, 1)} m`;
 }
@@ -866,16 +907,18 @@ function announceDay() {
   xp.clearBalloons();
   const d = DAYS.days[state.day];
   const { nw } = counts();
-  if (d.flight.flown) xp.balloon({ title: "Przelot wykonany o 6:00", text: `${d.label.replace(", ", ", stan na ")}. ${hazardSentence(true)}`, icon: "i-drone" });
+  // short: these balloons sit over the "Trasa drona" list while the presenter explains the plan
+  if (d.flight.flown) xp.balloon({ title: "Przelot wykonany o 6:00 (scenariusz syntetyczny)", text: `${d.label.replace(", ", ", stan na ")}. ${hazardSentence(true)}`, icon: "i-drone", timeout: 3500 });
   else {
     const rm = realMorning();
     xp.balloon({
       title: "Przelot odwołany: śnieżyca", icon: "i-badge-warn",
-      text: rm ? `Ostatni przelot ${d.weather.hours_since_flight} h temu. Kasprowy Wierch (IMGW), ${dmy(rm.date)}: +${pl(rm.new_cm)} cm śniegu w dobę, ${pl(rm.new3)} cm w 3 dni, zamieć ${pl(rm.blowing_h)} h.`
+      text: rm ? `Ostatni przelot ${d.weather.hours_since_flight} h temu. Kasprowy Wierch (IMGW), ${dmy(rm.date)}: +${pl(rm.new_cm)} cm śniegu od poprzedniego ranka, ${pl(rm.new3)} cm w 3 dni${rm.prev ? `, zamieć w dobie ${dmy(rm.prev.date)}: ${pl(rm.prev.blowing_h ?? 0)} h` : ""}.`
         : `Ostatni przelot ${d.weather.hours_since_flight} h temu, od tego czasu ${d.weather.new_cm} cm śniegu.`,
+      timeout: 3500,
     });
   }
-  if (nw) xp.balloon({ title: `${nw} ${plural(nw, "sektor", "sektory", "sektorów")}: Nie wiem`, text: "Mgła niewiedzy na mapie. Plan przelotu wskazuje, gdzie polecieć, żeby się dowiedzieć.", icon: "i-question" });
+  if (nw) xp.balloon({ title: `${nw} ${plural(nw, "sektor", "sektory", "sektorów")}: Nie wiem`, text: "Mgła niewiedzy na mapie. Plan przelotu wskazuje, gdzie polecieć, żeby się dowiedzieć.", icon: "i-question", timeout: 3500 });
 }
 
 // ---------- interaction ----------
@@ -1045,12 +1088,13 @@ function liveText(short = false) {
   if (!liveState) return simOffline ? "niedostępne" : "łączę…";
   if (liveState.ok) {
     const d = liveState.d, t = readingAt(d);
-    return `${fmtReading(d)} · ${t ? new Date(t).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" }) : `${d.godzina_pomiaru}:00 UTC`}`;
+    const at = t ? new Date(t).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" }) : `${d.godzina_pomiaru}:00 UTC`;
+    return short ? `teraz ${fmtReading(d)}` : `${fmtReading(d)} · ${at}`; // short: the sources grid has room for two lines
   }
   const c = liveState.c;
   const why = simOffline ? "niedostępne" : "brak łączności";
-  if (!c?.d) return `${why} · brak zapisanego odczytu`;
-  return short ? `${why} · ostatni odczyt ${readingAge(c)}` : `${why}, ostatni odczyt ${readingAge(c)}: ${fmtReading(c.d)}`;
+  if (!c?.d) return short ? "offline · brak odczytu" : `${why} · brak zapisanego odczytu`;
+  return short ? `offline · odczyt ${readingAge(c)}` : `${why}, ostatni odczyt ${readingAge(c)}: ${fmtReading(c.d)}`;
 }
 function paintLive() {
   const text = liveText();
@@ -1071,7 +1115,7 @@ function paintLive() {
   if (!el) return;
   el.textContent = liveText(true);
   el.className = liveState && !ok || simOffline ? "warn" : "";
-  el.title = ok ? "Odczyt na żywo, poza scenariuszem demo" : `${text}. Dane na żywo niedostępne; teren, szlaki, biblioteka i plan przelotu działają z pamięci podręcznej.`;
+  el.title = ok ? `${text}. Odczyt na żywo, poza scenariuszem demo` : `${text}. Dane na żywo niedostępne; teren, szlaki, biblioteka i plan przelotu działają z pamięci podręcznej.`;
 }
 function setSimOffline(on) {
   simOffline = on;
@@ -1093,7 +1137,7 @@ addEventListener("offline", () => live());
 const trayMenu = $("tray-net-menu");
 let trayMenuWasOpen = false;
 $("tray-net").addEventListener("pointerdown", () => { trayMenuWasOpen = trayMenu.classList.contains("open"); });
-$("tray-net").addEventListener("contextmenu", (e) => { e.preventDefault(); trayMenu.classList.add("open"); });
+$("tray-net").addEventListener("contextmenu", (e) => { e.preventDefault(); xp.clearBalloons(); trayMenu.classList.add("open"); });
 
 // ---------- shell actions ----------
 const dlg = (o) => xp.msgbox({ near: xp.windowRect("w-map"), ...o });
@@ -1140,7 +1184,8 @@ xp.registerActions({
     onStandby: "Śnieg nie przechodzi w stan wstrzymania. Bez pomiaru mgła niewiedzy gęstnieje.",
   }),
   "tray-drone": () => { const [, t] = flightStatus(); xp.balloon({ title: "Przelot drona", text: `${cap(t)}. ${DAYS.days[state.day].label}.`, icon: "i-drone" }); },
-  "tray-net": () => { if (!trayMenuWasOpen) trayMenu.classList.add("open"); trayMenuWasOpen = false; },
+  // a balloon anchored to the tray (offline, IMGW) would sit on top of the menu and swallow the click
+  "tray-net": () => { if (!trayMenuWasOpen) { xp.clearBalloons(); trayMenu.classList.add("open"); } trayMenuWasOpen = false; },
   "net-status": () => xp.balloon({ title: "Stacja IMGW Kasprowy Wierch", text: liveText() + (liveState?.ok ? " (na żywo, poza scenariuszem demo)" : ""), icon: "i-network", anchor: "#tray-net" }),
   "sim-offline": () => setSimOffline(!simOffline),
 });
@@ -1284,7 +1329,8 @@ function drawChart() {
 function renderChartStatus() {
   const rm = realMorning();
   if (!rm) { $("imgw-status").textContent = KW ? "" : "Brak danych archiwalnych IMGW."; return; }
-  $("imgw-status").textContent = `Dzień ${state.day + 1} = ${dmy(rm.date)}, 7:00: pokrywa ${rm.hs_cm} cm · +${pl(rm.new_cm)} cm w dobę · +${pl(rm.new3)} cm w 3 dni · zamieć ${pl(rm.blowing_h)} h · Tmin ${pl(rm.tmin_c, 1)} °C`;
+  const pv = rm.prev ? ` · w dobie ${dmy(rm.prev.date)}: zamieć ${pl(rm.prev.blowing_h ?? 0)} h, Tmin ${pl(rm.prev.tmin_c, 1)} °C` : "";
+  $("imgw-status").textContent = `Dzień ${state.day + 1} = ${dmy(rm.date)}, 7:00: pokrywa ${rm.hs_cm} cm · +${pl(rm.new_cm)} cm od poprzedniego ranka · +${pl(rm.new3)} cm w 3 dni${pv}`;
 }
 
 chartCanvas.addEventListener("mousemove", (ev) => {

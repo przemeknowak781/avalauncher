@@ -1,0 +1,78 @@
+{
+  "opis": "Oś czasu filmu (sekundy, 0:00-1:54) dla kamerki AvaKomunikatora. Przedziały 'mowi' są robocze, ułożone pod napisy z docs/15_wideo.md, sekcja 2.1 (wersja bez głosu). Po nagraniu głosu podmienić na prawdziwe przedziały.",
+  "pozy_staszka": ["zaspany", "mowi", "lyk", "przeciera_oczy", "mruzy", "odsuwa_sie", "dlonie", "kiwa", "kamienna_twarz"],
+  "pozy_halnego": ["wyrzut", "ziewa", "klawiatura"],
+  "zdarzenia": [
+    { "t": 0, "staszek": "zaspany", "halny": "wyrzut" },
+
+    { "t": 4.0, "podpis": "Staszek, ratownik górski · postać fikcyjna" },
+    { "t": 4.6, "mowi": [4.6, 6.6], "napis": "Wiem, że szósta. Halny też wie." },
+    { "t": 6.8, "halny": "wyrzut", "efekt": "spojrzenie" },
+    { "t": 7.6, "mowi": [7.6, 10.0], "napis": "Siwa co rano mierzy śnieg nad szlakami." },
+    { "t": 10.1, "staszek": "lyk" },
+    { "t": 11.7, "staszek": "zaspany" },
+    { "t": 12.0, "mowi": [12.0, 13.9], "napis": "Dron. Siwa to dron. Owca też jest Siwa. Ale ona nie lata." },
+    { "t": 12.4, "podpis": "" },
+    { "t": 13.9, "staszek": "kamienna_twarz" },
+
+    { "t": 14.0, "czat": "Ja: i co teraz?" },
+    { "t": 14.6, "staszek": "przeciera_oczy" },
+    { "t": 15.2, "halny": "ziewa" },
+    { "t": 16.2, "staszek": "mowi" },
+    { "t": 16.3, "mowi": [16.3, 20.8], "napis": "A Avalauncher porównuje każdy pomiar z drona z lawinami policzonymi z góry." },
+    { "t": 16.6, "etykieta": "Avalauncher · HackYeah 2026 · Defence" },
+    { "t": 16.8, "halny": "wyrzut" },
+    { "t": 21.2, "mowi": [21.2, 25.2], "napis": "A gdy wiedza się starzeje, jak mleko, mówi wprost: »nie wiem«." },
+    { "t": 25.6, "mowi": [25.6, 27.6], "napis": "I gdzie polecieć, żeby się dowiedzieć." },
+    { "t": 27.7, "staszek": "kamienna_twarz" },
+
+    { "t": 28.0, "staszek": "mowi", "mowi": [28.0, 29.2], "napis": "Udostępniam ekran." },
+    { "t": 30.2, "mowi": [30.2, 31.0], "napis": "…Nie ta Siwa." },
+    { "t": 31.2, "staszek": "mruzy" },
+
+    { "t": 32.4, "mowi": [32.4, 35.4], "napis": "Wczoraj, dwunastego. Siwa poleciała. Ta ze śmigłami." },
+    { "t": 35.8, "mowi": [35.8, 38.0], "napis": "Dwa stoki: »Może zagrozić szlakowi«." },
+    { "t": 38.4, "mowi": [38.4, 41.8], "napis": "Klikam Suchą Dolinę. Na pomarańczowo: dokąd by zjechała." },
+    { "t": 42.0, "mowi": [42.0, 43.2], "napis": "Na szlak z Kasprowego." },
+    { "t": 43.3, "staszek": "kamienna_twarz", "mowi": [43.4, 44.8], "napis": "Płyta i przeloty: dane syntetyczne." },
+
+    { "t": 45.2, "staszek": "mruzy", "mowi": [45.2, 46.2], "napis": "A tu w 3D." },
+    { "t": 46.4, "staszek": "odsuwa_sie" },
+    { "t": 48.8, "mowi": [48.8, 51.4], "napis": "Pięknie. Nie chcę jej spotkać." },
+    { "t": 51.6, "staszek": "mruzy" },
+
+    { "t": 52.4, "mowi": [52.4, 54.8], "napis": "Dziś trzynasty. Siwa w hangarze." },
+    { "t": 55.4, "mowi": [55.4, 59.2], "napis": "Prawdziwa pogoda z IMGW: 34 cm śniegu w 3 dni." },
+    { "t": 59.6, "efekt": "piksele" },
+    { "t": 60.0, "staszek": "kamienna_twarz", "mowi": [60.0, 62.8], "napis": "To nie owce. To »nie wiem«. Cztery stoki." },
+
+    { "t": 63.0, "staszek": "mruzy" },
+    { "t": 63.4, "mowi": [63.4, 65.0], "napis": "Dwadzieścia minut lotu." },
+    { "t": 65.4, "mowi": [65.4, 69.4], "napis": "Aplikacja mówi, gdzie lecieć, żeby się najwięcej dowiedzieć." },
+    { "t": 69.8, "mowi": [69.8, 72.4], "napis": "Nie wzdłuż szlaku, tylko tam, gdzie mgła." },
+    { "t": 72.8, "mowi": [72.8, 75.6], "napis": "Puszczam Siwą. …Drona." },
+    { "t": 74.0, "staszek": "kamienna_twarz" },
+    { "t": 76.0, "staszek": "kiwa" },
+    { "t": 76.4, "mowi": [76.4, 79.4], "napis": "Przesyła pomiary. Jak w 2005." },
+    { "t": 82.0, "staszek": "mruzy" },
+    { "t": 80.4, "mowi": [80.4, 83.8], "napis": "Dwa »nie wiem« to teraz »może zagrozić«. Dwa zgasły." },
+    { "t": 84.2, "staszek": "kamienna_twarz", "mowi": [84.2, 87.8], "napis": "A zgasła flaga to jeszcze nie zielone światło. Decyduje człowiek." },
+
+    { "t": 88.0, "staszek": "mowi", "czat": "Ja: a skąd ona to wie?" },
+    { "t": 88.6, "mowi": [88.6, 92.2], "napis": "W nocy policzyli 1566 lawin. Na komputerku wielkości dwóch oscypków." },
+    { "t": 91.0, "staszek": "dlonie" },
+    { "t": 93.4, "staszek": "mruzy" },
+    { "t": 95.2, "mowi": [95.2, 99.6], "napis": "A sieć neuronowa rysuje zasięg ok. 4500 razy szybciej. Na próbę." },
+    { "t": 99.8, "staszek": "kamienna_twarz" },
+
+    { "t": 101.0, "halny": "klawiatura" },
+    { "t": 101.6, "czat": "Staszek: fffffffffff" },
+    { "t": 102.0, "staszek": "mowi", "mowi": [102.0, 103.0], "napis": "Halny, złaź!" },
+    { "t": 103.4, "staszek": "kamienna_twarz" },
+    { "t": 104.6, "mowi": [104.6, 106.2], "napis": "»Lawin nie da się wyłączyć.«" },
+    { "t": 107.0, "mowi": [107.0, 108.0], "napis": "No. Nie da się." },
+
+    { "t": 109.0, "mowi": [109.0, 110.0], "napis": "Siwa wróciła." },
+    { "t": 111.4, "mowi": [111.4, 112.4], "napis": "Ta druga też." }
+  ]
+}

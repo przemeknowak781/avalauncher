@@ -423,6 +423,7 @@ input[type="range"].xp-range, .trackbar input[type="range"] {
 
 /* ---------- offline mode: tray menu and "Symuluj awarię łączności" ---------- */
 .tray-menu { display: flex; align-items: center; }
+.taskbar:has(.tray-menu.open) { z-index: 9700; } /* an open tray menu stays above any balloon */
 .tray-menu .menu-pop { top: auto; bottom: calc(100% + 7px); left: auto; right: -8px; min-width: 260px; color: #000; text-align: left; }
 .tray-menu .menu-pop button { color: #000; white-space: nowrap; }
 .tray-menu .menu-pop button:hover { color: #fff; }

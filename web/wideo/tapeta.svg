@@ -1,0 +1,40 @@
+      <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="wp-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1c54c4"/><stop offset=".3" stop-color="#3a7fe2"/><stop offset=".62" stop-color="#86bdf3"/><stop offset=".8" stop-color="#c4e1fb"/>
+          </linearGradient>
+          <linearGradient id="wp-ridge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ea7cf"/><stop offset="1" stop-color="#b9cde8"/></linearGradient>
+          <linearGradient id="wp-ridge2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f8cbb"/><stop offset="1" stop-color="#a3bcdf"/></linearGradient>
+          <linearGradient id="wp-hill" x1="0" y1="0" x2=".25" y2="1">
+            <stop offset="0" stop-color="#93e04a"/><stop offset=".35" stop-color="#5fbf2a"/><stop offset=".75" stop-color="#3a9418"/><stop offset="1" stop-color="#26700e"/>
+          </linearGradient>
+          <linearGradient id="wp-hill2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6cc934"/><stop offset="1" stop-color="#2c7c12"/></linearGradient>
+          <radialGradient id="wp-shine" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e9ff9c" stop-opacity=".55"/><stop offset="1" stop-color="#e9ff9c" stop-opacity="0"/></radialGradient>
+          <filter id="wp-blur-l" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="22"/></filter>
+          <filter id="wp-blur-s" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="7"/></filter>
+          <filter id="wp-haze"><feGaussianBlur stdDeviation="1.2"/></filter>
+        </defs>
+        <rect width="1600" height="1000" fill="url(#wp-sky)"/>
+        <g fill="#fff" filter="url(#wp-blur-l)" opacity=".75">
+          <ellipse cx="260" cy="170" rx="230" ry="60"/><ellipse cx="760" cy="110" rx="300" ry="55"/>
+          <ellipse cx="1290" cy="210" rx="260" ry="70"/><ellipse cx="1050" cy="340" rx="200" ry="40"/>
+          <ellipse cx="420" cy="360" rx="180" ry="36"/>
+        </g>
+        <g fill="#fff" filter="url(#wp-blur-s)" opacity=".85">
+          <ellipse cx="220" cy="180" rx="120" ry="30"/><ellipse cx="320" cy="160" rx="90" ry="34"/>
+          <ellipse cx="740" cy="120" rx="150" ry="26"/><ellipse cx="850" cy="102" rx="90" ry="28"/>
+          <ellipse cx="1260" cy="220" rx="140" ry="34"/><ellipse cx="1360" cy="196" rx="90" ry="36"/>
+          <ellipse cx="1050" cy="345" rx="110" ry="18"/>
+        </g>
+        <!-- distant Tatra ridge with snow -->
+        <g filter="url(#wp-haze)">
+          <path d="M0 640 L60 610 L110 622 L170 560 L215 590 L270 520 L320 548 L360 505 L410 560 L470 530 L520 575 L600 600 L640 585 L700 610 L760 560 L800 575 L850 500 L900 470 L935 505 L980 450 L1030 498 L1070 480 L1120 530 L1180 512 L1240 556 L1300 540 L1360 580 L1420 548 L1480 590 L1540 570 L1600 600 L1600 760 L0 760 Z" fill="url(#wp-ridge)" opacity=".9"/>
+          <path d="M270 520 L292 532 L300 548 L284 542 L272 556 L258 540 Z M360 505 L376 522 L366 520 L358 532 L348 518 Z M900 470 L920 488 L906 486 L896 500 L884 486 Z M980 450 L1004 474 L990 470 L980 486 L966 470 Z M1070 480 L1090 496 L1076 494 L1066 506 Z M850 500 L866 514 L852 514 L842 526 L834 514 Z" fill="#fff" opacity=".95"/>
+          <path d="M0 690 L90 650 L160 668 L240 632 L330 666 L420 640 L520 676 L640 650 L760 672 L880 630 L990 660 L1100 636 L1220 668 L1340 640 L1460 668 L1600 640 L1600 780 L0 780 Z" fill="url(#wp-ridge2)" opacity=".75"/>
+        </g>
+        <!-- rolling hills -->
+        <path d="M0 760 C 220 690, 420 650, 640 680 C 860 712, 1080 770, 1600 740 L1600 1000 L0 1000 Z" fill="url(#wp-hill2)"/>
+        <path d="M0 700 C 160 640, 360 585, 600 600 C 860 618, 1050 700, 1280 760 C 1420 795, 1520 800, 1600 796 L1600 1000 L0 1000 Z" fill="url(#wp-hill)"/>
+        <ellipse cx="520" cy="660" rx="420" ry="90" fill="url(#wp-shine)"/>
+        <path d="M0 880 C 300 830, 700 850, 1000 900 C 1250 940, 1450 930, 1600 900 L1600 1000 L0 1000 Z" fill="#2a7a10" opacity=".35"/>
+      </svg>

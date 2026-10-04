@@ -169,7 +169,8 @@ export function layout(force = false) {
     const mapW = Math.max(460, Math.min(side + 18, dw * 0.52));
     const rx = m + mapW + m, rw = dw - rx - m;
     const avail = dh - 4 * m;
-    const h1 = Math.round(avail * 0.42), h2 = Math.round(avail * 0.3), h3 = avail - h1 - h2;
+    // Sektory gets room for 6 rows + the reason line at 1440x860; Sytuacja keeps its sources visible
+    const h1 = Math.round(avail * 0.385), h2 = Math.round(avail * 0.35), h3 = avail - h1 - h2;
     set("w-map", m, m, mapW, mapH);
     set("w-sit", rx, m, rw, h1);
     set("w-sec", rx, 2 * m + h1, rw, h2);
