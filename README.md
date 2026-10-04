@@ -4,7 +4,7 @@
 
 Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z ponad 1500 policzonymi z góry scenariuszami lawin i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom. Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.
 
-HackYeah 2026, zadanie Defence (odporność).
+HackYeah 2026, zadanie Defence (odporność). Zespół: Przemysław Nowak, Łukasz Janiec, Cezary Pastor.
 
 ## Dwie rzeczy, które robi
 

@@ -10,7 +10,7 @@ Liczby pochodzą z [docs/12_wyniki.md](12_wyniki.md). Pola w nawiasach kwadratow
 | Podtytuł | Cyfrowy bliźniak góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć |
 | Zadanie | Defence (odporność) |
 | Zespół | [nazwa zespołu] |
-| Członkowie | [imiona i nazwiska, 1–6 osób] |
+| Członkowie | Przemysław Nowak, Łukasz Janiec, Cezary Pastor |
 | Repozytorium | https://github.com/przemeknowak781/avalauncher |
 | Demo | https://przemeknowak781.github.io/avalauncher/ (dzień 2: `?day=2`) |
 | Strona projektu | https://przemeknowak781.github.io/avalauncher/projekt.html |
@@ -52,7 +52,7 @@ Do zrobienia przez koordynatora (przed 10:30):
 
 Do zrobienia przez użytkownika:
 
-- [ ] Wpisać nazwę zespołu i członków (formularz i slajd 10 w PDF, dziś „[do uzupełnienia: imiona i role]”)
+- [x] Członkowie wpisani (formularz i slajd 10). Nazwa zespołu: [do wpisania w formularzu]
 - [ ] swisstopo: sprawdzić warunki użycia darmowych geodanych swisstopo i zamienić „[licencja do potwierdzenia przed pokazem]” (slajdy 6 i 10, README) na właściwą atrybucję albo zwykły przypis
 - [ ] Film: zdecydować, czy dołączamy wersję roboczą (1:54) i gdzie ją umieścić; sprawdzić, czy platforma ma limit długości lub rozmiaru
 - [ ] Potwierdzić na Discordzie godzinę zamknięcia (11:00) i długość pitchu
