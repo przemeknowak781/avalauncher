@@ -1,5 +1,9 @@
 # Avalauncher
 
+![Avalauncher: mapa stoków, które mogą zrzucić lawinę na szlak](docs/img/cover.jpg)
+
+**Demo:** <https://przemeknowak781.github.io/avalauncher/> · **O projekcie:** <https://przemeknowak781.github.io/avalauncher/projekt.html>
+
 **Prototyp cyfrowego bliźniaka góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć.**
 
 Drony regularnie mierzą śnieg nad szlakami, a Avalauncher porównuje każdy pomiar z tysiącami scenariuszy lawin policzonych z góry, których uczy się sieć neuronowa, i wskazuje służbie lawinowej stoki, które mogą zagrozić szlakom. Gdy wiedza się starzeje, bo dron nie mógł polecieć, mówi to wprost i planuje, gdzie polecieć, żeby się dowiedzieć.
@@ -18,12 +22,24 @@ Wszystko inne służy tym dwóm kolumnom.
 
 ## Demo: dwa poranki
 
+| Dzień 1: dron poleciał, dwa stoki mogą zagrozić szlakowi | Kliknięcie stoku: dokąd zjechałaby lawina |
+| --- | --- |
+| ![Mapa dnia 1](docs/img/krok1_mapa.png) | ![Okno stoku](docs/img/krok2_stok.png) |
+| **Dzień 2: zamieć, flaga „nie wiem” i plan przelotu** | **Po przelocie: mniej niewiadomych** |
+| ![Dzień 2](docs/img/dzien2_mgla.png) | ![Po przelocie](docs/img/po_przelocie.png) |
+
 1. **Dzień 1 (12.01.2025), dron poleciał.** Porównanie z biblioteką scenariuszy wskazuje sektory, które mogą zagrozić szlakom. Kliknięcie sektora pokazuje, dlaczego.
 2. **Dzień 2 (13.01.2025), zamieć, dron nie poleciał.** Wiedza o sektorach się starzeje i sektory bez świeżego pomiaru dostają flagę „nie wiem”. Avalauncher proponuje plan przelotu na pierwsze okno pogodowe.
 
 Pogoda: IMGW-PIB (prawdziwe). Grubość płyty i przeloty: syntetyczne. Poranki demo leżą w prawdziwym epizodzie 11–13.01.2025: +34 cm nowego śniegu w 3 dni, 72 h zamieci w dobach 11–13.01, pokrywa 51 → 85 cm. Sumy dobowe IMGW (zamieć, opad) obejmują całą dobę, więc widok o 7:00 pokazuje je z doby poprzedniej.
 
 Działa lokalnie i offline: scenariusze są policzone z góry, więc wynik w terenie jest natychmiastowy i nie potrzebuje sieci.
+
+Ekran startowy i strona projektu:
+
+| Ekran startowy | Strona „O projekcie” |
+| --- | --- |
+| ![Ekran startowy](docs/img/logowanie.png) | ![O projekcie](docs/img/projekt_desktop.png) |
 
 ## Jak uruchomić demo
 
@@ -36,11 +52,13 @@ python -m http.server 8777 --directory web
 - Dzień 1: <http://localhost:8777>
 - Dzień 2 od razu: <http://localhost:8777/?day=2>
 
-Wersja online (GitHub Pages, gdy repo będzie publiczne): <https://przemeknowak781.github.io/avalauncher/>. Biblioteka scenariuszy ma osobną stronę: `biblioteka.html`.
+Wersja online (GitHub Pages): <https://przemeknowak781.github.io/avalauncher/>. Biblioteka scenariuszy ma osobną stronę: `biblioteka.html`.
 
 Otwórz przez serwer, nie przez `file://`: przeglądarka blokuje wtedy moduły i odczyt danych. Znaczek „stacja IMGW na żywo” potrzebuje sieci. Bez niej pokazuje ostatni odczyt albo brak łączności, a scenariusz działa dalej.
 
 ## Wyniki tej nocy
+
+![AvaFrame na 5 prawdziwych lawinach z Austrii i Szwajcarii](web/media/landing/kalibracja_5_lawin.jpg)
 
 Pomiary z 3/4.10.2026. Wszystkie liczby pochodzą z [docs/12_wyniki.md](docs/12_wyniki.md). Teren: GUGiK NMT (prawdziwy). Pogoda: IMGW-PIB (prawdziwe). Grubość płyty i przeloty: syntetyczne.
 

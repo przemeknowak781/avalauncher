@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><title>Avalauncher cover</title>
+<style>
+@font-face{font-family:Archivo;src:url(../../web/vendor/fonts/Archivo-var.ttf);font-weight:100 900}
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#123}
+body{font-family:Archivo,sans-serif;position:relative;
+  background:url(../../web/media/tapeta/tatry_1920.jpg) center/cover}
+.shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,22,60,.86) 0%,rgba(6,22,60,.62) 38%,rgba(6,22,60,.05) 66%)}
+.text{position:absolute;left:110px;top:170px;width:880px;color:#fff}
+.kicker{display:inline-block;font-size:26px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:6px;padding:8px 16px}
+h1{font-size:128px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-top:34px;text-shadow:0 4px 18px rgba(0,0,0,.35)}
+.tag{font-size:42px;line-height:1.25;font-weight:500;margin-top:30px}
+.tag b{color:#ffb15c;font-weight:700}
+.line{font-size:28px;line-height:1.4;margin-top:34px;opacity:.92;max-width:720px}
+.win{position:absolute;right:100px;top:130px;width:766px;border:3px solid #0831d9;border-radius:9px 9px 3px 3px;
+  box-shadow:0 30px 70px rgba(0,0,0,.5);background:#ece9d8;overflow:hidden}
+.tb{height:44px;display:flex;align-items:center;gap:10px;padding:0 10px;color:#fff;font:bold 22px "Trebuchet MS",sans-serif;
+  text-shadow:1px 1px #0b2a6b;background:linear-gradient(#0997ff,#0053ee 8%,#0050ee 40%,#06f 88%,#06f 93%,#005bff 95%,#003dd7 96%,#003dd7)}
+.tb img{width:26px;height:26px}
+.tb .sp{flex:1}
+.btn{width:30px;height:30px;border:1px solid #fff;border-radius:4px;background:linear-gradient(#3c8cfe,#1f5fe8);display:grid;place-items:center;font:bold 18px sans-serif}
+.btn.x{background:linear-gradient(#e97b5a,#c4391d)}
+.shot{display:block;width:760px;height:748px}
+.balloon{position:absolute;left:1430px;top:410px;background:#ffffe1;border:1px solid #333;border-radius:10px;padding:14px 18px;
+  font:600 24px Archivo,sans-serif;color:#222;box-shadow:0 6px 16px rgba(0,0,0,.3);border-left:8px solid #e8641e}
+.task{position:absolute;left:0;right:0;bottom:0;height:52px;display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(#1f6ee8,#245edb 10%,#2a62e0 50%,#1d4fc4 92%,#183fa3)}
+.start{height:52px;padding:0 34px 0 22px;display:flex;align-items:center;gap:10px;color:#fff;font:italic bold 30px "Trebuchet MS",sans-serif;
+  text-shadow:1px 1px 2px #1a4a1a;border-radius:0 18px 18px 0;background:linear-gradient(#3c9a3c,#2f8a2f 40%,#287c28 90%,#1f6a1f)}
+.start img{width:30px;height:30px}
+.tray{height:52px;display:flex;align-items:center;padding:0 22px;color:#fff;font:20px Archivo,sans-serif;
+  background:linear-gradient(#0c8ae8,#13a3f1 15%,#0f94ea 60%,#0b77d4);border-left:1px solid #0a4fb0}
+.credit{position:absolute;left:110px;bottom:70px;color:rgba(255,255,255,.75);font-size:18px}
+.balloon .tail{position:absolute;left:-26px;top:22px;width:0;height:0;border:12px solid transparent;border-right:18px solid #ffffe1}
+</style></head><body>
+<div class="shade"></div>
+<div class="text">
+  <span class="kicker">HackYeah 2026 · Defence</span>
+  <h1>Avalauncher</h1>
+  <p class="tag">Mapa, która pokazuje, które stoki w Tatrach <b>mogą zrzucić lawinę na szlak</b>.</p>
+  <p class="line">Drony co rano mierzą śnieg, a aplikacja porównuje pomiar z tysiącami policzonych lawin. Gdy dron nie poleci, mówi wprost: „nie wiem”, i planuje, gdzie polecieć.</p>
+</div>
+<div class="win">
+  <div class="tb"><img src="../../web/xp/icon.svg" alt=""><span>Mapa — Hala Gąsienicowa</span><span class="sp"></span>
+    <span class="btn">_</span><span class="btn">□</span><span class="btn x">×</span></div>
+  <img class="shot" src="map_crop.png" alt="">
+</div>
+<div class="balloon"><span class="tail"></span>Tu może zejść lawina na szlak</div>
+<p class="credit">Tapeta: Radek Kucharski, Wikimedia Commons, CC BY 4.0 · Teren: GUGiK · Szlaki: © współtwórcy OpenStreetMap</p>
+<div class="task"><div class="start"><img src="../../web/xp/icon.svg" alt="">avalauncher</div><div class="tray">6:01</div></div>
+</body></html>
