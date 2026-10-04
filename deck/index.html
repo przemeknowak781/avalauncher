@@ -150,6 +150,18 @@ b, strong { font-weight: 720; }
 .s10 .dlg .db { grid-template-columns: 64px 1fr; font-size: 26px; }
 .dlg.off .dt { background: linear-gradient(180deg, #0a246a 0%, #2a5bd7 100%); }
 .s10 .dlg .bt { gap: 16px; }
+
+.s8 .t8{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-top:40px}
+.s8 .t8t{background:#fff;border:2px solid #0831d9;border-radius:8px 8px 3px 3px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.12)}
+.s8 .t8b{height:40px;line-height:40px;padding:0 14px;color:#fff;font:bold 22px "Trebuchet MS",sans-serif;text-shadow:1px 1px #0b2a6b;
+  background:linear-gradient(#0997ff,#0053ee 8%,#0050ee 40%,#06f 88%,#06f 93%,#005bff 95%,#003dd7 96%,#003dd7)}
+.s8 .t8n{font-size:82px;font-weight:800;letter-spacing:-.02em;padding:18px 20px 0;color:#1d1b17;line-height:1.05}
+.s8 .t8l{font-size:27px;font-weight:600;padding:6px 20px 0;line-height:1.2}
+.s8 .t8r{font-size:21px;color:#5b574d;padding:10px 20px 22px;line-height:1.3}
+.s8 .r8{display:flex;gap:18px;align-items:center;margin-top:36px;background:#ffffe1;border:1px solid #8a8668;border-left:8px solid #e8641e;border-radius:8px;padding:16px 22px;font-size:26px;line-height:1.35}
+.s8 .r8i{flex:none;width:44px;height:44px;border-radius:50%;background:#f2c200;border:2px solid #1d1b17;display:grid;place-items:center;font-weight:800;font-size:28px}
+.s8 .i8{margin-top:26px;font-size:32px;line-height:1.3;font-weight:500}
+.s8 .i8 b{color:#c4501a}
 </style>
 </head>
 <body>
@@ -339,42 +351,19 @@ b, strong { font-weight: 720; }
 </section>
 
 <!-- 8 -->
-<section class="slide s8" data-label="Dane">
+<section class="slide s8" data-label="Co zrobiliśmy">
   <div class="c">
-    <h1>Mówi uczciwie, co jest prawdziwe, a co symulowane</h1>
-    <div class="cols">
-      <div class="col">
-        <h2>Prawdziwe</h2>
-        <div class="item">
-          <svg viewBox="0 0 76 76" fill="none" stroke="#1d1b17" stroke-width="4" stroke-linejoin="round" aria-hidden="true"><path d="M4 66 L28 26 L40 44 L50 32 L72 66 Z"/><path d="M22 36 L28 26 L34 36 L30 34 L26 38 Z" fill="#1d1b17"/></svg>
-          <div><b>teren Tatr</b><span>GUGiK</span></div>
-        </div>
-        <div class="item">
-          <svg viewBox="0 0 76 76" fill="none" stroke="#1d1b17" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M8 68 C 22 50, 30 52, 38 40 S 54 22, 68 8" stroke="#f2c200" stroke-width="8"/><path d="M8 68 C 22 50, 30 52, 38 40 S 54 22, 68 8" stroke-dasharray="1 10"/></svg>
-          <div><b>szlaki</b><span>OpenStreetMap</span></div>
-        </div>
-        <div class="item">
-          <svg viewBox="0 0 76 76" fill="none" stroke="#1d1b17" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 46 A12 12 0 0 1 22 23 A16 16 0 0 1 52 20 A12 12 0 0 1 58 46 Z"/><path d="M24 56 l-2 6 M38 56 l-2 6 M52 56 l-2 6"/></svg>
-          <div><b>pogoda zimy 2024/25</b><span>IMGW-PIB, Kasprowy Wierch</span></div>
-        </div>
-      </div>
-      <div class="col sim">
-        <h2>Na razie symulowane</h2>
-        <div class="item">
-          <svg viewBox="0 0 76 76" fill="none" stroke="#5b3fd1" stroke-width="4" stroke-linejoin="round" aria-hidden="true"><path d="M4 64 L72 34"/><path d="M4 52 L72 22"/><path d="M4 40 L72 10"/><path d="M58 18 V40 M52 34 L58 40 L64 34" stroke-linecap="round"/></svg>
-          <div><b>grubość śniegu na stokach</b><span>do zmierzenia dronem w pilotażu</span></div>
-        </div>
-        <div class="item">
-          <svg viewBox="0 0 76 76" fill="none" stroke="#5b3fd1" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M12 30 L64 30"/><rect x="28" y="24" width="20" height="14" rx="4" fill="#5b3fd1"/><ellipse cx="12" cy="22" rx="10" ry="3"/><ellipse cx="64" cy="22" rx="10" ry="3"/><path d="M12 22 V30 M64 22 V30"/><path d="M30 46 L22 66 M38 46 V66 M46 46 L54 66" stroke-dasharray="4 5"/></svg>
-          <div><b>loty drona</b><span>scenariusz, nie prawdziwy przelot</span></div>
-        </div>
-      </div>
+    <h1>Co naprawdę zbudowaliśmy w jedną noc</h1>
+    <p class="sub">Liczby z prawdziwego terenu, prawdziwej pogody i prawdziwych lawin.</p>
+    <div class="t8">
+      <div class="t8t"><div class="t8b">Fizyka lawin</div><div class="t8n">1566</div><div class="t8l">symulacji lawin AvaFrame w 30,4 min</div><div class="t8r">teren Tatr GUGiK · jeden komputer DGX Spark</div></div>
+      <div class="t8t"><div class="t8b">Sprawdzian</div><div class="t8n">92 m</div><div class="t8l">typowa pomyłka zasięgu</div><div class="t8r">5 prawdziwych lawin z Austrii i Szwajcarii, bez podglądania</div></div>
+      <div class="t8t"><div class="t8b">Sieć neuronowa</div><div class="t8n">4500×</div><div class="t8l">szybciej rysuje zasięg lawiny</div><div class="t8r">zgodność 0,81 na stokach, których nie widziała</div></div>
+      <div class="t8t"><div class="t8b">Plan lotu (RL)</div><div class="t8n">10,4 mln</div><div class="t8l">symulowanych poranków treningu</div><div class="t8r">remis z prostszym planem, więc zostaje prostszy</div></div>
     </div>
-    <div class="offline">
-      <svg viewBox="0 0 84 64" fill="none" stroke="#1d1b17" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="12" y="6" width="60" height="38" rx="3"/><path d="M2 52 H82 L76 58 H8 Z"/><path d="M30 30 C 34 24, 50 24, 54 30 M36 36 C 39 33, 45 33, 48 36"/><path d="M26 40 L58 10" stroke="#5b3fd1"/></svg>
-      <span>Mapa, policzone lawiny i aplikacja są na laptopie. Bez internetu działa dalej.</span>
-    </div>
-    <p class="foot">Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap (ODbL) · Pogoda: IMGW-PIB, dane przetworzone</p>
+    <div class="r8"><span class="r8i">!</span><span><b>Prawdziwa zima 2024/25:</b> 13.01.2025 TOPR podnosi stopień zagrożenia do 3, a nasz kalendarz zapala tego dnia 12 stoków. W dniach zamieci satelita Sentinel-2 nie widział terenu.</span></div>
+    <p class="i8"><b>Impakt:</b> zamiast jednej oceny 1–5 dla całych polskich Tatr, odpowiedź dla każdego stoku zaraz po pomiarze, także bez internetu.</p>
+    <p class="foot">Teren: GUGiK · Pogoda: IMGW-PIB, dane przetworzone · Lawiny: AvaFrameData CC BY 4.0 · Satelita: Copernicus Sentinel-2 · Stopnie TOPR z komunikatów w prasie · Śnieg na stokach i loty drona: symulowane · liczby: docs/12</p>
   </div>
 </section>
 
