@@ -1,0 +1,19 @@
+{
+ "updated": "02:15",
+ "surrogate": [
+  "surrogate_porownanie.jpg"
+ ],
+ "kalibracja": [
+  "kalibracja_porownanie.jpg"
+ ],
+ "rl": [
+  "rl_krzywa_uczenia.jpg",
+  "rl_trasy.jpg"
+ ],
+ "hero": {
+  "S10_samosAT_2.0": "hero_S10_samosAT_2.0_mid.jpg",
+  "S14_samosAT_2.0": "hero_S14_samosAT_2.0_std.jpg",
+  "S22_samosAT_2.0": "hero_S22_samosAT_2.0_mid.jpg",
+  "S31_samosAT_2.0": "hero_S31_samosAT_2.0_low.jpg"
+ }
+}
