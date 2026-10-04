@@ -11,7 +11,7 @@
 //
 // Bump VERSION when the precache list changes.
 
-const VERSION = "2026-10-04b";
+const VERSION = "2026-10-04c";
 const SHELL = `ava-shell-${VERSION}`;
 const MEDIA = `ava-media-${VERSION}`;
 const LIVE = "ava-live"; // survives version bumps: the last IMGW reading stays useful
@@ -40,7 +40,8 @@ const EXTRA = [
 const LANDING = [
   "hero_koncepcja_1280.jpg", "koncepcja_orbit.jpg", "mapa_zasiegow_orbit.jpg", "przeglad_3d.jpg", "surogat_suwak.jpg",
   "kalibracja_5_lawin.jpg",
-].map((f) => `./media/landing/${f}`);
+].map((f) => `./media/landing/${f}`)
+  .concat(["./media/tapeta/tatry_1920.jpg", "./media/tapeta/tatry_1280.jpg"]);
 const LANDING_FILMS = ["koncepcja_orbit.mp4", "mapa_zasiegow_orbit.mp4", "przeglad_3d.mp4", "surogat_suwak.mp4"]
   .map((f) => `./media/landing/${f}`);
 

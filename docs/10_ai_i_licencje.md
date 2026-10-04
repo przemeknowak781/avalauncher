@@ -38,6 +38,7 @@ Użycie było istotne. Większość kodu, tekstów i wizualizacji napisał Claud
 | **IMGW-PIB, dane publiczne: API synop** (odczyt na żywo, Kasprowy Wierch) | Znaczek „stacja na żywo” na ekranie. Nie wpływa na scenariusz demo | Jak wyżej | Jak wyżej |
 | **OpenNHM / AvaFrameData 1.0**, zdarzenie avaPopeletzbach (obszar odrywu, obrys i depozyt lawiny z 7.04.2009; dane zebrał Frank Perzl, BFW) | Przykładowa kalibracja AvaFrame na prawdziwym zdarzeniu z Austrii (`web/data/calibration.json`) | CC BY 4.0, DOI 10.5281/zenodo.20701552 | Autorzy zbioru i DOI w `calibration.json`, w README i w deku |
 | **Land Tirol, Geländemodell 5 m** (WCS gis.tirol.gv.at) | Teren dla symulacji Popeletzbach | CC BY 4.0 AT | „Teren: Land Tirol – data.tirol.gv.at” |
+| **Wikimedia Commons, zdjęcie „Winter in Tatry Mountains - Poland”** (Radek Kucharski, Kasprowy Wierch, 15.01.2026; https://commons.wikimedia.org/wiki/File:Winter_in_Tatry_Mountains_-_Poland.jpg) | Tapeta pulpitu w aplikacji i w filmie (`web/media/tapeta/tatry_1920.jpg`, `tatry_1280.jpg`: przycięte i zmniejszone) | CC BY 4.0 | „Tapeta: Radek Kucharski, Wikimedia Commons, CC BY 4.0” (okno „O projekcie” w aplikacji) |
 
 **Pogoda: IMGW-PIB (prawdziwe). Grubość płyty i przeloty: syntetyczne.** Szczegóły: stan śniegu na stokach (grubość płyty), przeloty i odczyty drona oraz błąd modelu w dowodzie są wygenerowane przez nasze skrypty. Kierunek wiatru jest założony, bo archiwum IMGW go nie zawiera dla zimy 2024/25. Tak to podpisujemy na ekranie, w README i w deku.
 

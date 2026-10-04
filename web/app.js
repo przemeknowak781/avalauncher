@@ -1223,7 +1223,7 @@ xp.registerActions({
     title: "O projekcie Avalauncher", icon: "i-logo",
     html: `<h3>Avalauncher</h3><p>Cyfrowy bliźniak góry, który wie, czego nie wie, i mówi, gdzie polecieć, żeby się dowiedzieć.</p>
       <p>Drony mierzą śnieg nad szlakami, a każdy pomiar porównujemy z policzonymi z góry scenariuszami lawin. Gdy wiedza się starzeje, bo dron nie mógł polecieć, ekran mówi to wprost i planuje przelot.</p>
-      <p><b>Brak flagi to nie zielone światło. Decyzję podejmuje prognosta.</b><br>Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny.<br>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Źródło: IMGW-PIB${SAT ? `<br>Satelita: ${SAT.credit}` : ""}</p>
+      <p><b>Brak flagi to nie zielone światło. Decyzję podejmuje prognosta.</b><br>Pogoda: IMGW-PIB Kasprowy Wierch (prawdziwe dane). Grubość płyty i przeloty drona: scenariusz syntetyczny.<br>Teren: GUGiK NMT · Szlaki: © współtwórcy OpenStreetMap · Źródło: IMGW-PIB${SAT ? `<br>Satelita: ${SAT.credit}` : ""}<br>Tapeta: <a href="https://commons.wikimedia.org/wiki/File:Winter_in_Tatry_Mountains_-_Poland.jpg" target="_blank" rel="noopener">Radek Kucharski</a>, Wikimedia Commons, CC BY 4.0</p>
       <p class="about-links"><a href="projekt.html" target="_blank" rel="noopener">Strona projektu: jak to działa, wyniki, dane i licencje</a><br>
         <a href="biblioteka.html" target="_blank" rel="noopener">Biblioteka scenariuszy${scenarios?.count ? ` (${scenarios.count.toLocaleString("pl-PL")} symulacji AvaFrame)` : ""}</a></p>
       <p>HackYeah 2026 · Defence</p>`,
